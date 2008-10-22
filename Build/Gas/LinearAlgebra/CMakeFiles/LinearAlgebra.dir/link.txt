@@ -1,0 +1,2 @@
+/usr/bin/ar cr libLinearAlgebra.a  CMakeFiles/LinearAlgebra.dir/Vector.cpp.o CMakeFiles/LinearAlgebra.dir/Matrix.cpp.o CMakeFiles/LinearAlgebra.dir/SparseMatrix.cpp.o CMakeFiles/LinearAlgebra.dir/Solver.cpp.o 
+/usr/bin/ranlib libLinearAlgebra.a 
