@@ -36,7 +36,7 @@ namespace LinearAlgebra {
 	template<size_t N, typename T=double>
 	class Vector {
 		private:
-			T *v;
+			T v[N];
 		public:
 			Vector();
 			Vector(T Value);
