@@ -35,6 +35,8 @@ namespace LinearAlgebra{
 
 	template<size_t N, typename T>
 	Vector<N, T>::Vector(T Value) {
+		for (int i=0; i<N; i++)
+			v[i] = Value;
 	}
 
 	template<size_t N, typename T>
