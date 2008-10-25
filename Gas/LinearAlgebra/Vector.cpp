@@ -31,16 +31,12 @@
 
 namespace LinearAlgebra{
 	template<size_t N, typename T>
-	Vector<N, T>::Vector() {
-		v = new T[N];
-	}
+	Vector<N, T>::Vector() {}
 
 	template<size_t N, typename T>
 	Vector<N, T>::Vector(T Value) {
 	}
 
 	template<size_t N, typename T>
-	Vector<N, T>::~Vector() {
-		delete[] v;
-	}
+	Vector<N, T>::~Vector() {}
 }
