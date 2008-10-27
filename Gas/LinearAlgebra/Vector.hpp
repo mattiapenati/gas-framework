@@ -57,7 +57,7 @@ namespace LinearAlgebra {
 	T &operator*(Vector<N, T> const &v, Vector<N, T> const &w);
 
 	template<size_t N, typename T>
-	Vector<N, T> &operator*(T const &a, Vector<N, T> const &v);
+	Vector<N, T> &operator*(T const &a, Vector<N, T> const &w);
 }
 
 #endif

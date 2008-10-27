@@ -41,4 +41,38 @@ namespace LinearAlgebra{
 
 	template<size_t N, typename T>
 	Vector<N, T>::~Vector() {}
+	
+
+
+	template<size_t N, typename T>
+	Vector<N, T> operator+(Vector<N, T> const &v, Vector<N, T> const &w){
+		Vector<N, T> k;
+		for  (int i=0; i<N; i++){	
+			k[i]=v[i]+w[i];	}
+		return k;
+	}
+
+	template<size_t N, typename T>
+	Vector<N, T> operator-(Vector<N, T> const &v, Vector<N, T> const &w){
+		Vector<N, T> k;
+		for  (int i=0; i<N; i++){	
+			k[i]=v[i]-w[i];	}
+		return k;
+	}
+
+	template<size_t N, typename T>
+	T operator*(Vector<N, T> const &v, Vector<N, T> const &w){
+		double x=0;		
+		for  (int i=0; i<N; i++){	
+			x=x+(v[i]*w[i]);}
+		return x;	
+	}
+
+	template<size_t N, typename T>
+	Vector<N, T> operator*(T const &a, Vector<N, T> const &w){
+		Vector<N, T> v;		
+		for  (int i=0; i<N; i++){	
+			v[i]=a*w[i];}
+		return v;	
+	}
 }
