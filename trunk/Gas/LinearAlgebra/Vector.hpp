@@ -31,18 +31,23 @@
 #define _GAS_VECTOR_H_
 
 #include <cstdlib>
+#include <iostream>
 
 namespace LinearAlgebra {
+	/**
+	 * A simple class for Vector that use expression templates
+	 */
 	template<size_t N, typename T=double>
 	class Vector {
+		template <size_t M, typename S>
+		friend std::ostream &operator<<(std::ostream const &stream, Vector<M, S> const &v);
+
 		private:
-			T v[N];
+			T data[N];
 		public:
-			Vector();
 			Vector(T Value);
-			~Vector();			
-			T &operator[](const unsigned Index);
-			void operator=(Vector const &v);
+			T &operator[](size_t const Index);
+			Vector<N, T> &operator=(Vector<N, T> const &v);
 
 			static Vector<N, T> Factory(T *Array);
 	};
@@ -55,6 +60,11 @@ namespace LinearAlgebra {
 
 	template<size_t N, typename T>
 	T &operator*(Vector<N, T> const &v, Vector<N, T> const &w);
+
+	template<size_t M, typename T, class V, class W>
+	struct MetaDotProduct {
+		static T RET = (V[M] * W[M]) + MetaDotProduct<M-1, T, V, W>::RET;
+	};
 
 	template<size_t N, typename T>
 	Vector<N, T> &operator*(T const &a, Vector<N, T> const &w);

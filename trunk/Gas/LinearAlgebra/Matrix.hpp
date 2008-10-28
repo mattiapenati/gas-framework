@@ -30,4 +30,47 @@
 #ifndef _GAS_MATRIX_H_
 #define _GAS_MATRIX_H_
 
+#include <cstdlib>
+#include "Vector.hpp"
+
+namespace LinearAlgebra {
+	template<size_t M, size_t N, typename T=double>
+	class Matrix {
+		private:
+			T data[M][N];
+		public:
+			Matrix(T Value);
+			Vector<N, T> &operator[](size_t const Index);
+
+			static Matrix<M, M, T> Identity();
+			static Matrix<M, M, T> Diagonal(Vector<M, T> const &Diag);
+	};
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator+(Matrix<M, N, T> const &A, Matrix<M, N, T> const &B);
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator-(Matrix<M, N, T> const &A, Matrix<M, N, T> const &B);
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator*(T const &a, Matrix<M, N, T> const &A);
+
+	template<size_t M, size_t N, typename T>
+	Vector<M, T> &operator*(Matrix<M, N, T> const &A, Vector<N, T> const &v);
+
+	template<size_t M, size_t N, size_t K, typename T>
+	Matrix<M, N, T> &operator*(Matrix<M, K, T> const &A, Matrix<K, N, T> const &B);
+
+	template<size_t N, typename T=double>
+	class TridiagonalMatrix {
+		private:
+			T D[N];
+			T subD[N-1];
+			T supD[N-1];
+		public:
+			TridiagonalMatrix(Vector<N, T> &D, Vector<N-1, T> &subD, Vector<N-1, T> &supD);
+			Vector<N, T> &operator[](size_t const Index);
+	};
+}
+
 #endif

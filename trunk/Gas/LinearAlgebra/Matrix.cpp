@@ -28,3 +28,17 @@
  */
 
 #include "Matrix.hpp"
+#include "Gas/Common/Common.h"
+#include <cblas.h>
+
+namespace LinearAlgebra {
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T>::Matrix(T Value) {
+		range(i, 0, M) range(j, 0, N) data[i][j] = Value;
+	}
+
+	template<size_t M, size_t N, typename T>
+	Vector<N, T> &Matrix<M, N, T>::operator[](size_t const Index) {
+		return Vector<N, T>::Factory(data[Index]);
+	}
+}
