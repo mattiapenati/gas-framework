@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2008, Davide Ferrarese & Mattia Penati
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -13,7 +13,7 @@
  * 3. Neither the name of the <ORGANIZATION> nor the names of its
  *    contributors may be used to endorse or promote products derived from
  *    this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,51 +28,66 @@
  */
 
 #include "Vector.hpp"
+#include "Gas/Common/Common.h"
 
 namespace LinearAlgebra{
-	template<size_t N, typename T>
-	Vector<N, T>::Vector() {}
+	template <size_t M, typename S>
+	std::ostream &operator<<(std::ostream const &stream, Vector<M, S> const &v) {
+		stream << "[";
+		range(i, 0, M) stream << " " << v.data[i];
+		stream << " ]";
+	}
 
+	/**
+	 * A constructor that set all values of the vector
+	 */
 	template<size_t N, typename T>
 	Vector<N, T>::Vector(T Value) {
-		for (int i=0; i<N; i++)
-			v[i] = Value;
+		range(i, 0, N) data[i] = Value;
 	}
-
-	template<size_t N, typename T>
-	Vector<N, T>::~Vector() {}
 	
-
+	/**
+	 * Overloading of [] operator, to access to an element
+	 */
+	template<size_t N, typename T>
+	T &Vector<N, T>::operator[](size_t const Index) {
+		return data[Index];
+	}
 
 	template<size_t N, typename T>
-	Vector<N, T> operator+(Vector<N, T> const &v, Vector<N, T> const &w){
+	Vector<N, T> &Vector<N, T>::operator=(Vector<N, T> const &v) {
+		range(i, 0, N) data[i] = v[i];
+		return *this;
+	}
+
+	template<size_t N, typename T>
+	Vector<N, T> &operator+(Vector<N, T> const &v, Vector<N, T> const &w){
 		Vector<N, T> k;
-		for  (int i=0; i<N; i++){	
-			k[i]=v[i]+w[i];	}
+		range(i, 0, N) k[i] = v[i] + w[i];
 		return k;
 	}
 
 	template<size_t N, typename T>
-	Vector<N, T> operator-(Vector<N, T> const &v, Vector<N, T> const &w){
+	Vector<N, T> &operator-(Vector<N, T> const &v, Vector<N, T> const &w){
 		Vector<N, T> k;
-		for  (int i=0; i<N; i++){	
-			k[i]=v[i]-w[i];	}
+		range(i, 0, N) k[i] = v[i] - w[i];
 		return k;
 	}
 
+	/**
+	 * Scalar product between two vectors
+	 */
 	template<size_t N, typename T>
 	T operator*(Vector<N, T> const &v, Vector<N, T> const &w){
-		double x=0;		
-		for  (int i=0; i<N; i++){	
-			x=x+(v[i]*w[i]);}
-		return x;	
+		T x = 0;
+		range(i, 0, N) x += v[i] * w[i];
+		return x;
 	}
 
 	template<size_t N, typename T>
 	Vector<N, T> operator*(T const &a, Vector<N, T> const &w){
-		Vector<N, T> v;		
-		for  (int i=0; i<N; i++){	
-			v[i]=a*w[i];}
-		return v;	
+		Vector<N, T> v;
+		range(i, 0, N) v[i] = a * w[i];
+		return v;
 	}
 }

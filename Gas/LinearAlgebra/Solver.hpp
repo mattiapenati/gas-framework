@@ -30,4 +30,29 @@
 #ifndef _GAS_SOLVER_H_
 #define _GAS_SOLVER_H_
 
+#include "Vector.hpp"
+#include "Matrix.hpp"
+
+namespace LinearAlgebra {
+	namespace Solver {
+		template <size_t N, typename T>
+		class Solver {
+			public:
+				virtual Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> &b);
+		};
+
+		template <size_t N, typename T>
+		class LU: public Solver<N, T> {
+			public:
+				Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> &b);
+		};
+	}
+
+	template <size_t N, typename T>
+	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> &b, Solver::Solver<N, T> Solver);
+
+	template <size_t N, typename T>
+	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> &b);
+}
+
 #endif

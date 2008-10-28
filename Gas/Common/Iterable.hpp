@@ -31,7 +31,7 @@
 #define _GAS_ITERABLE_H_
 
 #define foreach(E, V) for(E = V.First(); V.NotFinished(); E = V.Next())
-#define range(A, B) for(int i = (A < B ? A : B); i<=(A < B ? B : A); ++i)
+#define range(V, A, B) for(int V = A; V < B; ++V)
 
 namespace Common {
 	template <typename T>

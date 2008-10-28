@@ -7,6 +7,8 @@ description=
 run_cmd=
 
 [files]
-current_page=0
-FILE_NAME_0=2312;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/LinearAlgebra/Vector.hpp;
-FILE_NAME_1=1837;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/Common/Exception.hpp;
+current_page=3
+FILE_NAME_0=1840;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/LinearAlgebra/Matrix.hpp;
+FILE_NAME_1=1831;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/LinearAlgebra/Matrix.cpp;
+FILE_NAME_2=0;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/LinearAlgebra/Solver.cpp;
+FILE_NAME_3=0;1;0;16;1;1;0;/home/penaz/Documents/Polimi/Progetti/GasFramework/Gas/LinearAlgebra/Solver.hpp;

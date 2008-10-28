@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 project(GAS)
+include_directories(${GAS_SOURCE_DIR})
 add_subdirectory(Documentation)
 add_subdirectory(Gas)
 add_subdirectory(Main)
