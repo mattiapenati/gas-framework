@@ -41,4 +41,53 @@ namespace LinearAlgebra {
 	Vector<N, T> &Matrix<M, N, T>::operator[](size_t const Index) {
 		return Vector<N, T>::Factory(data[Index]);
 	}
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator+(Matrix<M, N, T> const &A, Matrix<M, N, T> const &B){
+		Matrix<M, N, T> C;
+		range(i, 0, M) range(j, 0, N) C.data[i][j] = A.data[i][j]+B.data[i][j];
+		return C;
+	}
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator-(Matrix<M, N, T> const &A, Matrix<M, N, T> const &B){
+		Matrix<M, N, T> C;
+		range(i, 0, M) range(j, 0, N) C.data[i][j] = A.data[i][j]-B.data[i][j];
+		return C;
+	}
+
+	template<size_t M, size_t N, typename T>
+	Matrix<M, N, T> &operator*(T const &a, Matrix<M, N, T> const &A){
+		Matrix<M, N, T> C;
+		range(i, 0, M) range(j, 0, N) C.data[i][j] = a*A.data[i][j];
+		return C;
+	}
+
+	template<size_t M, size_t N, typename T>
+	Vector<M, double> &operator*(Matrix<M, N, double> const &A, Vector<N, double> const &v){
+		Vector<M, double> y;
+		cblas_dgemv(101, 111, M, N, 1, A, N, v, 1, 0, y, 1);
+		return y;
+	}
+
+	template<size_t M, size_t N, typename T>
+	Vector<M, float> &operator*(Matrix<M, N, float> const &A, Vector<N, float> const &v){
+		Vector<M, float> y;
+		cblas_sgemv(101, 111, M, N, 1, A, N, v, 1, 0, y, 1);
+		return y;
+	}
+
+	template<size_t M, size_t N, size_t K, typename T>
+	Matrix<M, N, double> &operator*(Matrix<M, K, double> const &A, Matrix<K, N, double> const &B){
+		Matrix<M, N, double> C;
+		cblas_dgemm(101, 111, 111, M, K, N, 1, A, K, B, N, 1, C, N);
+		return C;	
+	}	
+
+	template<size_t M, size_t N, size_t K, typename T>
+	Matrix<M, N, float> &operator*(Matrix<M, K, float> const &A, Matrix<K, N, float> const &B){
+		Matrix<M, N, float> C;
+		cblas_sgemm(101, 111, 111, M, K, N, 1, A, K, B, N, 1, C, N);
+		return C;	
+	}
 }
