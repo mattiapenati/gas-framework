@@ -1,1 +1,1 @@
-add_library(LinearAlgebra STATIC Vector.cpp Matrix.cpp SparseMatrix.cpp Solver.cpp)
+add_library(LinearAlgebra SHARED Vector.cpp Matrix.cpp SparseMatrix.cpp Solver.cpp)

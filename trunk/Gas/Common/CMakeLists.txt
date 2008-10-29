@@ -1,1 +1,1 @@
-add_library(Common STATIC Exception.cpp Iterable.cpp Program.cpp)
+add_library(Common Exception.cpp Iterable.cpp Program.cpp)

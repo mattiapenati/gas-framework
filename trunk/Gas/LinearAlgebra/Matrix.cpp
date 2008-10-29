@@ -38,8 +38,8 @@ namespace LinearAlgebra {
 	}
 
 	template<size_t M, size_t N, typename T>
-	Vector<N, T> &Matrix<M, N, T>::operator[](size_t const Index) {
-		return Vector<N, T>::Factory(data[Index]);
+	T &Matrix<M, N, T>::operator[](size_t const Index) {
+		return data[Index];
 	}
 
 	template<size_t M, size_t N, typename T>

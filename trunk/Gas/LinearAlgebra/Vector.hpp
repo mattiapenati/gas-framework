@@ -45,6 +45,7 @@ namespace LinearAlgebra {
 		private:
 			T data[N];
 		public:
+			Vector();
 			Vector(T Value);
 			T &operator[](size_t const Index);
 			Vector<N, T> &operator=(Vector<N, T> const &v);
@@ -61,13 +62,11 @@ namespace LinearAlgebra {
 	template<size_t N, typename T>
 	T &operator*(Vector<N, T> const &v, Vector<N, T> const &w);
 
-// 	template<size_t M, typename T, class V, class W>
-// 	struct MetaDotProduct {
-// 		static T RET = (V[M] * W[M]) + MetaDotProduct<M-1, T, V, W>::RET;
-// 	};
-
 	template<size_t N, typename T>
 	Vector<N, T> &operator*(T const &a, Vector<N, T> const &w);
+
+	template<size_t N, typename T>
+	bool operator==(Vector<N, T> const &v, Vector<N, T> const &w);
 }
 
 #endif
