@@ -74,14 +74,31 @@ namespace LinearAlgebra{
 		return k;
 	}
 
+	template<size_t M, size_t N, typename T>
+	struct MetaDot {
+		static T RET(Vector<N, T> &v, Vector<N, T> &w) {
+			return (v[M] * w[M]) + MetaDot<M-1, N, T>::RET(v, w);
+		}
+	};
+	template<size_t N, typename T>
+	struct MetaDot<0, N, T> {
+		static T RET(Vector<N, T> &v, Vector<N, T> &w) {
+			return (v[0] * w[0]);
+		}
+	};
+
 	/**
 	 * Scalar product between two vectors
 	 */
 	template<size_t N, typename T>
 	T operator*(Vector<N, T> const &v, Vector<N, T> const &w){
-		T x = 0;
-		range(i, 0, N) x += v[i] * w[i];
-		return x;
+		#ifdef _USE_META_
+			return MetaDot<N, N, T>::RET(v, w);
+		#else
+			T x = 0;
+			range(i, 0, N) x += v[i] * w[i];
+			return x;
+		#endif
 	}
 
 	template<size_t N, typename T>
@@ -89,5 +106,11 @@ namespace LinearAlgebra{
 		Vector<N, T> v;
 		range(i, 0, N) v[i] = a * w[i];
 		return v;
+	}
+
+	template<size_t N, typename T>
+	bool operator==(Vector<N, T> const &v, Vector<N, T> const &w) {
+		range(i, 0, N) { if (v[i] != w[i]) return 0;}
+		return 1;
 	}
 }

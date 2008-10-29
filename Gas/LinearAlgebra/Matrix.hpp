@@ -40,7 +40,7 @@ namespace LinearAlgebra {
 			T data[M][N];
 		public:
 			Matrix(T Value);
-			Vector<N, T> &operator[](size_t const Index);
+			T &operator[](size_t const Index);
 
 			static Matrix<M, M, T> Identity();
 			static Matrix<M, M, T> Diagonal(Vector<M, T> const &Diag);
@@ -61,16 +61,6 @@ namespace LinearAlgebra {
 	template<size_t M, size_t N, size_t K, typename T>
 	Matrix<M, N, T> &operator*(Matrix<M, K, T> const &A, Matrix<K, N, T> const &B);
 
-	template<size_t N, typename T=double>
-	class TridiagonalMatrix {
-		private:
-			T D[N];
-			T subD[N-1];
-			T supD[N-1];
-		public:
-			TridiagonalMatrix(Vector<N, T> &D, Vector<N-1, T> &subD, Vector<N-1, T> &supD);
-			Vector<N, T> &operator[](size_t const Index);
-	};
 }
 
 #endif
