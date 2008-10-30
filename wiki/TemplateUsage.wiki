@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#Piccola guida sull'uso dei Template
 
 = Compilazione =
 
@@ -23,5 +23,5 @@ class Vector {
 }
 }}}
 
- == Ricorda ==
+== Ricorda ==
 _Ogni volta che si crea una classe (o una funzione) con un template è necessario scrivere il corpo della funzione nell'header file._
