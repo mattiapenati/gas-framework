@@ -1,5 +1,3 @@
-#Piccola guida sull'uso dei Template
-
 = Compilazione =
 
 Nonostante l'utilizzo dei *Template* permetta di costruire classi e metodi relativamente molto efficienti, esso ha però 
