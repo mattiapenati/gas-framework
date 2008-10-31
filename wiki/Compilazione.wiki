@@ -1,0 +1,7 @@
+#summary Una breve guida a come viene compilato un programma
+
+Esistono diversi linguaggi con i quali potete scrivere i vostri programmi, ma essenzialmente si dividono in due categorie:
+  * *Interpretati*: un programma appositamente scritto interpreta i comandi e li esegue,
+  * *Compilati*: un programma appositamente scritto traduce il vostro codice in linguaggio macchina e solo successivamente è possibile eseguirlo.
+
+= Le fasi della compilazione =
