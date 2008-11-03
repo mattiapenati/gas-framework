@@ -1,8 +1,16 @@
 # Common
-set(SOURCES Common/Exception.cpp Common/Iterable.cpp Common/Program.cpp)
+set(SOURCES
+	Common/Exception.cpp
+	Common/Iterable.cpp
+	Common/Program.cpp
+)
 
 # LinearAlgebra
-set(SOURCES ${SOURCES} LinearAlgebra/Vector.cpp LinearAlgebra/Matrix.cpp LinearAlgebra/Solver.cpp LinearAlgebra/SparseMatrix.cpp)
+set(SOURCES ${SOURCES}
+	LinearAlgebra/Matrix.cpp
+	LinearAlgebra/Solver.cpp
+	LinearAlgebra/SparseMatrix.cpp
+)
 
-
-add_library(Gas SHARED ${SOURCES})
+# Library
+add_library(Gas ${SOURCES})

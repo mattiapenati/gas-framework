@@ -35,37 +35,82 @@
 #include "Gas/Common/Common.h"
 
 namespace LinearAlgebra {
+	namespace Meta {
+		template<size_t N, typename T>
+		class Expr {
+			public:
+				virtual T &operator[](size_t const i) = 0;
+				virtual T const &operator[](size_t const i) const = 0;
+		};
+
+		template<size_t N, typename T>
+		class Const: virtual public Expr<N, T> {
+			private:
+				T a;
+			public:
+				Const(T const &A) { a = A; };
+				T &operator[](size_t const i) { return a; };
+				T const &operator[](size_t const i) const { return a; };
+		};
+
+		template<size_t N, typename T, T F(T, T)>
+		class BinExpr: virtual public Expr<N, T> {
+			private:
+				Expr<N, T> *l;
+				Expr<N, T> *r;
+			public:
+				BinExpr(Expr<N, T> const &L, Expr<N, T> const &R) { l = &L; r = &R; };
+				BinExpr(Expr<N, T> const *L, Expr<N, T> const *R) { l = L; r = R; };
+				T &operator[](size_t const i) { return F((*l)[i], (*r)[i]); };
+				T const operator[](size_t const i) const { return F((*l)[i], (*r)[i]); };
+		};
+
+		template<size_t M, size_t N, typename T>
+		struct Dot {
+			static T &RET(Expr<N, T> &l, Expr<N, T> &r) {
+				return (l[M-1] * r[M-1]) + Dot<M-1, N, T>::RET(l, r);
+			}
+		};
+		template<size_t N, typename T>
+		struct Dot<1, N, T> {
+			static T &RET(Expr<N, T> &l, Expr<N, T> &r) {
+				return l[0] * r[0];
+			}
+		};
+	}
+
 	/** A simple class for Vector **/
 	template<size_t N, typename T=double>
-	class Vector {
+	class Vector: virtual public Meta::Expr<N, T> {
 		private:
 			T data[N];
 		public:
 			Vector();
 			Vector(T const);
-			Vector(Vector<N, T> const &);
+			Vector(Meta::Expr<N, T> const &);
 			T &operator[](size_t const);
 			T const &operator[](size_t const) const;
 			bool operator==(T const &);
-			bool operator==(Vector<N, T> const &);
+			bool operator==(Meta::Expr<N, T>const &);
 			Vector<N, T> &operator=(T const &);
-			Vector<N, T> &operator=(Vector<N, T> const &);
+			Vector<N, T> &operator=(Meta::Expr<N, T> const &);
 			Vector<N, T> &operator+=(T const &);
-			Vector<N, T> &operator+=(Vector<N, T> const &);
+			Vector<N, T> &operator+=(Meta::Expr<N, T> const &);
 			Vector<N, T> &operator-=(T const &);
-			Vector<N, T> &operator-=(Vector<N, T> const &);
+			Vector<N, T> &operator-=(Meta::Expr<N, T> const &);
 			Vector<N, T> &operator*=(T const &);
 			Vector<N, T> &operator/=(T const &);
 
-			template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, Vector<M, S> const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator+(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, Vector<M, S> const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator*(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator*(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator/(Vector<M, S>, S const &);
+			template<size_t M, typename S> friend bool operator==(Meta::Expr<M, S> const &, Meta::Expr<M, S> const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(Meta::Expr<M, S> const &, Meta::Expr<M, S> const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(Meta::Expr<M, S> const &, S const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(S const &, Meta::Expr<M, S> const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(Meta::Expr<M, S> const &, Meta::Expr<M, S> const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(Meta::Expr<M, S> const &, S const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(S const &, Meta::Expr<M, S> const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Mul> &operator*(S const &, Meta::Expr<M, S> &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Mul> &operator*(Meta::Expr<M, S> &, S const &);
+			template<size_t M, typename S> friend Meta::BinExpr<M, S, Common::Meta::Div> &operator/(Meta::Expr<M, S> &, S const &);
 			template<size_t M, typename S> friend S &operator*(Vector<M, S> const &, Vector<M, S> const &);
 
 			template<size_t M, typename S> friend std::ostream &operator<<(std::ostream &, Vector<M, S> const &);
@@ -86,8 +131,8 @@ namespace LinearAlgebra {
 	/** The constructor to copy a vector
 	 *  @param v The vector to copy **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] = v.data[i];
+	Vector<N, T>::Vector(Meta::Expr<N, T> const &e) {
+		range(i, 0, N) data[i] = e[i];
 	}
 
 	/** The operator [] to access to the components of vector
@@ -115,9 +160,9 @@ namespace LinearAlgebra {
 	/** The operator == to compare two vectors
 	 *  @param v The second vector **/
 	template<size_t N, typename T>
-	bool Vector<N, T>::operator==(Vector<N, T> const &v) {
-		if (this != &v) {
-			range(i, 0, N) { if (data[i] != v.data[i]) return 0; }
+	bool Vector<N, T>::operator==(Meta::Expr<N, T> const &e) {
+		if (this != &e) {
+			range(i, 0, N) { if (data[i] != e[i]) return 0; }
 		}
 		return 1;
 	}
@@ -133,8 +178,8 @@ namespace LinearAlgebra {
 	/** The operator = to copy a vector in all vector
 	 *  @param v The vector to copy **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator=(Vector<N, T> const &v) {
-		if (this != &v) { range(i, 0, N) data[i] = v.data[i]; }
+	Vector<N, T> &Vector<N, T>::operator=(Meta::Expr<N, T> const &e) {
+		if (this != &e) { range(i, 0, N) data[i] = e[i]; }
 		return *this;
 	}
 
@@ -149,8 +194,8 @@ namespace LinearAlgebra {
 	/** The operator += to add a vector
 	 *  @param v The value to add **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator+=(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] += v.data[i];
+	Vector<N, T> &Vector<N, T>::operator+=(Meta::Expr<N, T> const &e) {
+		range(i, 0, N) data[i] += e[i];
 		return *this;
 	}
 
@@ -165,8 +210,8 @@ namespace LinearAlgebra {
 	/** The operator -= to subtract a vector
 	 *  @param v The value to add **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator-=(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] -= v.data[i];
+	Vector<N, T> &Vector<N, T>::operator-=(Meta::Expr<N, T> const &e) {
+		range(i, 0, N) data[i] -= e[i];
 		return *this;
 	}
 
@@ -186,76 +231,87 @@ namespace LinearAlgebra {
 		return *this;
 	}
 
-	/** The operator + to add two vectors
+	/** The operator == to compare two vectors
 	 *  @param v The first vector
 	 *  @param w The second vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(Vector<M, S> v, Vector<M, S> const &w) {
-		return v += w;
+	bool operator==(Meta::Expr<M, S> const &v, Meta::Expr<M, S> const &w) {
+		if (&v != &w ) {
+			range(i, 0, M) { if (v[i] != w[i]) return 0; }
+		}
+		return 1;
+	}
+
+	/** The operator + to add two vectors
+	 *  @param l The first vector
+	 *  @param r The second vector **/
+	template<size_t M, typename S>
+	Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(Meta::Expr<M, S> const &l, Meta::Expr<M, S> const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sum>(&l, &r);
 	}
 
 	/** The operator + to add a vector and a value
 	 *  @param v The vector
 	 *  @param a The value **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(Vector<M, S> v, S &a) {
-		return v += a;
+	Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(Meta::Expr<M, S> const &l, S const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sum>(&l, Meta::Const<M, S>(&r));
 	}
 
 	/** The operator + to add a vector and a value
 	 *  @param a The value
 	 *  @param v The vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(S &a, Vector<M, S> v) {
-		return v += a;
+	Meta::BinExpr<M, S, Common::Meta::Sum> &operator+(S const &l, Meta::Expr<M, S> const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sum>(Meta::Const<M, S>(&l), &r);
 	}
 
 	/** The operator - to subtract two vectors
 	 *  @param v The first vector
 	 *  @param w The second vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(Vector<M, S> v, Vector<M, S> const &w) {
-		return v += w;
+	Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(Meta::Expr<M, S> const &l, Meta::Expr<M, S> const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sub>(l, r);
 	}
 
 	/** The operator - to subtract a vector and a value
 	 *  @param v The vector
 	 *  @param a The value **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(Vector<M, S> v, S &a) {
-		return v -= a;
+	Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(Meta::Expr<M, S> const &l, S const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sub>(l, Meta::Const<M, S>(r));
 	}
 
 	/** The operator - to subtract a vector and a value
 	 *  @param a The value
 	 *  @param v The vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(S &a, Vector<M, S> v) {
-		return (-1) * (v - a);
+	Meta::BinExpr<M, S, Common::Meta::Sub> &operator-(S const &l, Meta::Expr<M, S> const &r) {
+		return Meta::BinExpr<M, S, Common::Meta::Sub>(Meta::Const<M, S>(l), r);
 	}
 
 	/** Moltiplication by a scalar
 	 *  @param a The scalar
 	 *  @param v The vector **/
 	template<size_t M, typename S> 
-	Vector<M, S> &operator*(S const &a, Vector<M, S> v) {
-		return v *= a;
+	Meta::BinExpr<M, S, Common::Meta::Mul> &operator*(S const &a, Meta::Expr<M, S> &v) {
+		return Meta::BinExpr<M, S, Common::Meta::Mul>(Meta::Const<M ,S>(a), v);
 	}
 
 	/** Moltiplication by a scalar
 	 *  @param v The vector
 	 *  @param a The scalar **/
 	template<size_t M, typename S> 
-	Vector<M, S> &operator*(Vector<M, S> v, S const &a) {
-		return v *= a;
+	Meta::BinExpr<M, S, Common::Meta::Mul> &operator*(Meta::Expr<M, S> &v, S const &a) {
+		return Meta::BinExpr<M, S, Common::Meta::Mul>(v, Meta::Const<M, S>(a));
 	}
 
 	/** Division by a scalar
 	 *  @param v The vector
 	 *  @param a The scalar **/
-	template<size_t M, typename S> 
-	Vector<M, S> &operator/(Vector<M, S> v, S const &a) {
-		return v /= a;
+	template<size_t M, typename S>
+	Meta::BinExpr<M, S, Common::Meta::Mul> &operator/(Meta::Expr<M, S> &v, S const &a) {
+		return Meta::BinExpr<M, S, Common::Meta::Div>(v, Meta::Const<M, S>(a));
 	}
 
 	/** The scalar product between two vector
@@ -263,9 +319,7 @@ namespace LinearAlgebra {
 	 *  @param w The second vector **/
 	template<size_t M, typename S>
 	S &operator*(Vector<M, S> const &v, Vector<M, S> const &w) {
-		S x = 0;
-		range(i, 0, M) x += (v[i] * w[i]);
-		return x;
+		return Meta::Dot<M, M, S>(v, w);
 	}
 
 	/** The operator << to prin a vector in a stream
