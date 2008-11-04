@@ -38,21 +38,21 @@ namespace LinearAlgebra {
 		template <size_t N, typename T>
 		class Solver {
 			public:
-				virtual Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> &b) = 0;
+				virtual Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b) = 0;
 		};
 
 		template <size_t N, typename T>
 		class LU: virtual public Solver<N, T> {
 			public:
-				Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> &b);
+				Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b);
 		};
 	}
 
 	template <size_t N, typename T>
-	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> &b, Solver::Solver<N, T> Solver);
+	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> b, Solver::Solver<N, T> Solver);
 
 	template <size_t N, typename T>
-	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> &b);
+	Vector<N, T> &Solve(Matrix<N, N, T> &A, Vector<N, T> b);
 }
 
 #endif
