@@ -7,7 +7,6 @@ set(SOURCES
 
 # LinearAlgebra
 set(SOURCES ${SOURCES}
-	LinearAlgebra/Matrix.cpp
 	LinearAlgebra/Solver.cpp
 	LinearAlgebra/SparseMatrix.cpp
 )
