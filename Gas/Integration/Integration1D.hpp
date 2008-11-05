@@ -27,9 +27,58 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+#ifndef _GAS_INTEGRATION1D_H_
+#define _GAS_INTEGRATION1D_H_
 
-#include "Integration1D.hpp"
+#include <cstdlib>
+#include <iostream>
+#include "Gas/Common/Common.h"
+
+namespace Integration {
+	namespace Integrator {
+		/** Virtual class for 1-dimensional numerical integration **/
+		template<typename T, T F(T)>
+		class Integrator1D {
+			public:
+				virtual T Integrate(T const, T const) = 0;
+		};
+
+		/** The method of rectangles for numerical integration **/
+		template<typename T, T F(T)>
+		class Rectangle: virtual public Integrator1D<T, F> {
+			private:
+				size_t N;
+			public:
+				Rectangle(): N(30) {};
+				Rectangle(size_t n): N(n) {};
+				T Integrate(T const a, T const b) {
+					if (a == b) return 0;
+					T h = (b - a) / N;
+					T I = 0;
+					range(i, 0, N) I += h * F(i * h);
+					return I;
+				}
+		};
+		/** The method of trapeziums for numerical integration **/
+		/** The method of middle points for numerical integration **/
+	}
+
+	template<typename T, T F(T)>
+	T Integrate(T, T, Integrator::Integrator<T, F> &);
+
+	template<typename T, T F(T)>
+	T Integrate(T, T);
+}
+
+template<typename T, T F(T)>
+T Integration::Integrate(T a, T b, Integrator::Integrator<T, F> &i) {
+	if (a > b) std::swap(a, b);
+	return i.Integrate(a, b);
+}
+
+template<typename T, T F(T)>
+T Integration::Integrate(T a, T b) {
+	return Integration::Integrate(a, b, Integrate::Integration::Rectangle<T, F>());
+}
 
 #endif
