@@ -206,10 +206,20 @@ namespace LinearAlgebra {
 	/** Product Matrix Vector (double)
 	 * @param A The matrix
 	 * @param v The vector **/
+	template<size_t P, size_t Q, typename T>
+	Vector<P, T> operator *(Matrix<P, Q, T> const &A, Vector<Q, T> const &v) {
+		Vector<P, T> y;
+		range(i, 0, P) {
+			y[i] = 0;
+			range(j, 0, Q) y[i] += A[i][j] * v[j];
+		}
+		return y;
+	}
+
 	template<size_t P, size_t Q>
 	Vector<P, double> operator*(Matrix<P, Q, double> const &A, Vector<Q, double> const &v){
 		Vector<P, double> y;
-		cblas_dgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, A.data, Q, v.data, 1, 0, y.data, 1);
+		cblas_dgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
 		return y;
 	}
 	
@@ -219,18 +229,33 @@ namespace LinearAlgebra {
 	template<size_t P, size_t Q>
 	Vector<P, float> operator*(Matrix<P, Q, float> const &A, Vector<Q, float> const &v){
 		Vector<P, float> y;
-		cblas_sgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, A.data, Q, v.data, 1, 0, y.data, 1);
+		cblas_sgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
 		return y;
 	}
 	
 	/** Product Matrix Matrix (double)
 	 * @param A The first matrix
 	 * @param B The second matrix **/
+	/** Product between two matrices
+	 *  @param A The first matrix
+	 *  @param B The second matrix **/
+	template<size_t P, size_t Q, size_t K, typename T>
+	Matrix<P, Q, T> operator*(Matrix<P, K, T> const &A, Matrix<K, Q, T> const &B) {
+		Matrix<P, Q, T> C;
+		range(i, 0, P) {
+			range(j, 0, Q) {
+				C[i][j] = 0;
+				range(k, 0, K) C[i][j] += A[i][k] * B[k][j];
+			}
+		}
+		return C;
+	}
+
 	template<size_t P, size_t Q, size_t K>
 	Matrix<P, Q, double> operator*(Matrix<P, K, double> const &A, Matrix<K, Q, double> const &B){
 		Matrix<P, Q, double> C;
-		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, A.data, K, B.data, Q, 1, C.data, Q);
-		return C;	
+		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, &A.data, K, &B.data, Q, 1, &C.data, Q);
+		return C;
 	}	
 	
 	/** Product Matrix Matrix (float)
@@ -239,7 +264,7 @@ namespace LinearAlgebra {
 	template<size_t P, size_t Q, size_t K>
 	Matrix<P, Q, float> operator*(Matrix<P, K, float> const &A, Matrix<K, Q, float> const &B){
 		Matrix<P, Q, float> C;
-		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, A.data, K, B.data, Q, 1, C.data, Q);
+		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, &A.data, K, &B.data, Q, 1, &C.data, Q);
 		return C;	
 	}
 }
