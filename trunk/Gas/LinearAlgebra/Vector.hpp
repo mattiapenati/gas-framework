@@ -122,15 +122,15 @@ namespace LinearAlgebra {
 		return 1;
 	}
 
-	/** The operator = to copy a value in all vector
-	 *  @param a The value to copy **/
+	/** The operator = to copy a value in all components of a vector
+	 *  @param a The scalar value to copy **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator=(T const &a) {
 		range(i, 0, N) data[i] = a;
 		return *this;
 	}
 
-	/** The operator = to copy a vector in all vector
+	/** The operator = to copy a vector in a vector
 	 *  @param v The vector to copy **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator=(Vector<N, T> const &v) {
@@ -139,7 +139,7 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator += to add a value to all components
-	 *  @param a The value to add **/
+	 *  @param a The scalar value to add **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator+=(T const &a) {
 		if (a != 0) { range(i, 0, N) data[i] += a; }
@@ -147,7 +147,7 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator += to add a vector
-	 *  @param v The value to add **/
+	 *  @param v The vector to add **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator+=(Vector<N, T> const &v) {
 		range(i, 0, N) data[i] += v.data[i];
@@ -163,23 +163,23 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator -= to subtract a vector
-	 *  @param v The value to add **/
+	 *  @param v The vector to subtract **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator-=(Vector<N, T> const &v) {
 		range(i, 0, N) data[i] -= v.data[i];
 		return *this;
 	}
 
-	/** The operator *= to multiply a vector
-	 *  @param a The value to multiply **/
+	/** The operator *= to multiply a vector by a scalar value
+	 *  @param a The scalar value to multiply **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator*=(T const &a) {
 		range(i, 0, N) data[i] *= a;
 		return *this;
 	}
 
-	/** The operator *= to divide a vector
-	 *  @param a The value to divide **/
+	/** The operator *= to divide a vector by a scalar value
+	 *  @param a The scalar value to divide **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator/=(T const &a) {
 		range(i, 0, N) data[i] /= a;
@@ -194,15 +194,15 @@ namespace LinearAlgebra {
 		return v += w;
 	}
 
-	/** The operator + to add a vector and a value
+	/** The operator + to add a vector and a scalar value
 	 *  @param v The vector
-	 *  @param a The value **/
+	 *  @param a The scalar value **/
 	template<size_t M, typename S>
 	Vector<M, S> &operator+(Vector<M, S> v, S &a) {
 		return v += a;
 	}
 
-	/** The operator + to add a vector and a value
+	/** The operator + to add a vector and a scalar value
 	 *  @param a The value
 	 *  @param v The vector **/
 	template<size_t M, typename S>
@@ -218,41 +218,41 @@ namespace LinearAlgebra {
 		return v += w;
 	}
 
-	/** The operator - to subtract a vector and a value
+	/** The operator - to subtract a vector and a scalar value
 	 *  @param v The vector
-	 *  @param a The value **/
+	 *  @param a The scalar value **/
 	template<size_t M, typename S>
 	Vector<M, S> &operator-(Vector<M, S> v, S &a) {
 		return v -= a;
 	}
 
-	/** The operator - to subtract a vector and a value
-	 *  @param a The value
+	/** The operator - to subtract a vector and a scalar value
+	 *  @param a The scalar value
 	 *  @param v The vector **/
 	template<size_t M, typename S>
 	Vector<M, S> &operator-(S &a, Vector<M, S> v) {
 		return (-1) * (v - a);
 	}
 
-	/** Moltiplication by a scalar
-	 *  @param a The scalar
+	/** Moltiplication by a scalar value
+	 *  @param a The scalar value
 	 *  @param v The vector **/
 	template<size_t M, typename S> 
 	Vector<M, S> &operator*(S const &a, Vector<M, S> v) {
 		return v *= a;
 	}
 
-	/** Moltiplication by a scalar
+	/** Moltiplication by a scalar value
 	 *  @param v The vector
-	 *  @param a The scalar **/
+	 *  @param a The scalar value**/
 	template<size_t M, typename S> 
 	Vector<M, S> &operator*(Vector<M, S> v, S const &a) {
 		return v *= a;
 	}
 
-	/** Division by a scalar
+	/** Division by a scalar value
 	 *  @param v The vector
-	 *  @param a The scalar **/
+	 *  @param a The scalar value**/
 	template<size_t M, typename S> 
 	Vector<M, S> &operator/(Vector<M, S> v, S const &a) {
 		return v /= a;
@@ -268,7 +268,7 @@ namespace LinearAlgebra {
 		return x;
 	}
 
-	/** The operator << to prin a vector in a stream
+	/** The operator << to print a vector in a stream
 	 *  @param stream The stream
 	 *  @param v The vector **/
 	template<size_t M, typename S>
