@@ -76,8 +76,8 @@ namespace LinearAlgebra {
 	Matrix<M, N, T>::Matrix() {
 	}
 
-	/** The constructor to initialize the entire matrix with the same value
-	 *  @param Value The vaule to use **/
+	/** The constructor to initialize the entire matrix with the same scalar value
+	 *  @param Value The scalar vaule to use **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T>::Matrix(T const Value) {
 		range(i, 0, N) range(j, 0, M) data[i][j] = Value;
@@ -90,16 +90,16 @@ namespace LinearAlgebra {
 		return &(data[Index]);
 	}
 
-	/** The operator == to compare all components of a matrix with a value
-	 *  @param v The value to compare **/
+	/** The operator == to compare all components of a matrix with a scalar value
+	 *  @param a The scalar value to compare **/
 	template<size_t M, size_t N, typename T>
-	bool Matrix<M, N, T>::operator==(T const &v) {
-		range(i, 0, M) range(j, 0, N){ if (data[i][j] != v) return 0; }
+	bool Matrix<M, N, T>::operator==(T const &a) {
+		range(i, 0, M) range(j, 0, N){ if (data[i][j] != a) return 0; }
 		return 1;
 	}
 
 	/** The operator == to compare two matrix
-	 *  @param v The second vector **/
+	 *  @param A The second matrix **/
 	template<size_t M, size_t N, typename T>
 	bool Matrix<M, N, T>::operator==(Matrix<M, N, T> const &A) {
 		if (this != &A) {
@@ -108,8 +108,8 @@ namespace LinearAlgebra {
 		return 1;
 	}
 
-	/** The operator = to copy a value in all matrix
-	 *  @param a The value to copy **/
+	/** The operator = to copy a scalar value to all components
+	 *  @param a The scalar value to copy **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator=(T const &a) {
 		range(i, 0, M) range(j, 0, N) data[i][j] = a;
@@ -117,15 +117,15 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator = to copy a matrix in a matrix
-	 *  @param v The matrix to copy **/
+	 *  @param A The matrix to copy **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator=(Matrix<M, N, T> const &A) {
 		if (this != &A) { range(i, 0, M) range(j, 0, N) data[i][j] = A.data[i][j]; }
 		return *this;
 	}
 
-	/** The operator += to add a value to all components
-	 *  @param a The value to add **/
+	/** The operator += to add a scalar value to all components
+	 *  @param a The scalar value to add **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator+=(T const &a) {
 		if (a != 0) { range(i, 0, M) range(j, 0, N)data[i][j] += a; }
@@ -133,15 +133,15 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator += to add a matrix
-	 **/
+	 * @param A The matrix to add**/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator+=(Matrix<M, N, T> const &A) {
 		range(i, 0, M) range(j, 0, M) data[i][j] += A.data[i][j];
 		return *this;
 	}
 
-	/** The operator -= to subtract a value to all components
-	 *  @param a The value to add **/
+	/** The operator -= to subtract a scalar value to all components
+	 *  @param a The scalar value to subtract **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator-=(T const &a) {
 		if (a != 0) { range(i, 0, M) range(j, 0, M) data[i][j] -= a; }
@@ -149,23 +149,23 @@ namespace LinearAlgebra {
 	}
 
 	/** The operator -= to subtract a matrix
-	 **/
+	 * @param A The matrix to subtract**/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator-=(Matrix<M, N, T> const &A) {
 		range(i, 0, M) range(j, 0, N) data[i][j] -= A.data[i][j];
 		return *this;
 	}
 
-	/** The operator *= is the scalar product 
-	 *  @param a The value to multiply **/
+	/** The operator *= to multiply all components by a scalar value 
+	 *  @param a The scalar value to multiply **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator*=(T const &a) {
 		range(i, 0, M) range(j, 0, N) data[i][j] *= a;
 		return *this;
 	}
 
-	/** The operator /= to divide a matrix
-	 *  @param a The value to divide **/
+	/** The operator /= to divide all components by a scalar value
+	 *  @param a The scalar value to divide **/
 	template<size_t M, size_t N, typename T>
 	Matrix<M, N, T> &Matrix<M, N, T>::operator/=(T const &a) {
 		range(i, 0, M) range(j, 0, N) data[i][j] /= a;
@@ -187,23 +187,23 @@ namespace LinearAlgebra {
 		return A -= B;
 	}
 
-	/** Moltiplication by a scalar
-	 *  @param a The scalar
+	/** Moltiplication by a scalar value
+	 *  @param a The scalar value
 	 *  @param A The matrix **/
 	template<size_t P, size_t Q, typename S> 
 	Matrix<P, Q, S> &operator*(S const &a, Matrix<P, Q, S> A) {
 		return A *= a;
 	}
 
-	/** Division by a scalar
+	/** Division by a scalar value
 	 *  @param A The matrix
-	 *  @param a The scalar **/
+	 *  @param a The scalar value**/
 	template<size_t P, size_t Q, typename S> 
 	Matrix<P, Q, S> &operator/(Matrix<P, Q, S> A, S const &a) {
 		return A /= a;
 	}
 	
-	/** Product Matrix Vector
+	/** Product Matrix Vector (double)
 	 * @param A The matrix
 	 * @param v The vector **/
 	template<size_t P, size_t Q>
@@ -212,21 +212,30 @@ namespace LinearAlgebra {
 		cblas_dgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, A.data, Q, v.data, 1, 0, y.data, 1);
 		return y;
 	}
-
+	
+	/** Product Matrix Vector (float)
+	 * @param A The matrix
+	 * @param v The vector **/
 	template<size_t P, size_t Q>
 	Vector<P, float> operator*(Matrix<P, Q, float> const &A, Vector<Q, float> const &v){
 		Vector<P, float> y;
 		cblas_sgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, A.data, Q, v.data, 1, 0, y.data, 1);
 		return y;
 	}
-
+	
+	/** Product Matrix Matrix (double)
+	 * @param A The first matrix
+	 * @param B The second matrix **/
 	template<size_t P, size_t Q, size_t K>
 	Matrix<P, Q, double> operator*(Matrix<P, K, double> const &A, Matrix<K, Q, double> const &B){
 		Matrix<P, Q, double> C;
 		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, A.data, K, B.data, Q, 1, C.data, Q);
 		return C;	
 	}	
-
+	
+	/** Product Matrix Matrix (float)
+	 * @param A The first matrix
+	 * @param B The second matrix **/
 	template<size_t P, size_t Q, size_t K>
 	Matrix<P, Q, float> operator*(Matrix<P, K, float> const &A, Matrix<K, Q, float> const &B){
 		Matrix<P, Q, float> C;
