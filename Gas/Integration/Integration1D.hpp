@@ -43,7 +43,7 @@ namespace Integration {
 				virtual T Integrate(T const, T const) = 0;
 		};
 
-		/** The method of rectangles for numerical integration **/
+		/** The method of rectangles or middle points for numerical integration **/
 		template<typename T, T F(T)>
 		class Rectangle: virtual public Integrator1D<T, F> {
 			private:
@@ -55,12 +55,26 @@ namespace Integration {
 					if (a == b) return 0;
 					T h = (b - a) / N;
 					T I = 0;
-					range(i, 0, N) I += h * F(i * h);
+					range(i, 0, N-1) I += h * F(a + (i * h / 2));
 					return I;
 				}
 		};
+		
 		/** The method of trapeziums for numerical integration **/
-		/** The method of middle points for numerical integration **/
+		template<typename T, T F(T)>
+		class Trapezium: virtual public Integrator1D<T, F> {
+			private:
+				size_t N;
+			public:
+				Trapezium(): N(30) {};
+				Trapezium(size_t n): N(n) {};
+				T Integrate(T const a, T const b) {
+				if (a == b) return 0;
+				T h = (b - a) / N;
+				T I = 0;
+				range(i, 0, N-1) I += (h/2)*(F(a + (i * h)) + F(a + ((i + 1) * h)));
+				}
+		};
 	}
 
 	template<typename T, T F(T)>
