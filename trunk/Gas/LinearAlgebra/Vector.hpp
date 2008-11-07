@@ -288,7 +288,7 @@ namespace LinearAlgebra {
 	template<size_t M, typename S>
 	S &operator*(Vector<M, S> const &V, Vector<M, S> const &W) {
 		S x = 0;
-		range(i, 0, M) x += (V.Data_[i] * Common::Math::Conjugate(W.Data_[i]));
+		range(i, 0, M) x += (V.Data_[i] * Common::Math::Conj(W.Data_[i]));
 		return x;
 	}
 
