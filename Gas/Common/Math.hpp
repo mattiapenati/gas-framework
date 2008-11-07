@@ -35,13 +35,11 @@
 namespace Common { namespace Math {
 	/** Absolute value **/
 	template<typename T> inline T Abs(T const x) { return (x < 0)?(-x):(x); };
-	/* Absolute value: specialization */
 	template<typename T> inline T Abs(std::complex<T> const x) { return std::abs(x); };
 
 	/** Complex Conjugate **/
-	template<typename T> inline T Conjugate(T const x) { return x; };
-	/* Completx conjugate: specialization */
-	// TODO Complex conjugate specialization
+	template<typename T> inline T Conj(T const x) { return x; };
+	template<typename T> inline std::complex<T> Conj(std::complex<T> const x) { return std::conj(x); };
 }}
 
 
