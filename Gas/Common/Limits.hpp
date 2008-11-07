@@ -27,4 +27,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Solver.hpp"
+#ifndef _GAS_LIMITS_H_
+#define _GAS_LIMITS_H_
+
+namespace Common {
+	/** Limits class **/
+	template<typename T>
+	struct Limits {
+		static T const Epsilon = 0;
+	};
+	/** Limits class specialization: float **/
+	template<>
+	struct Limits<float> {
+		static float const Epsilon = __FLT_EPSILON__;
+	};
+	/** Limits class specialization: double **/
+	template<>
+	struct Limits<double> {
+		static double const Epsilon = __DBL_EPSILON__;
+	};
+	/** Limits class specialization: long double **/
+	template<>
+	struct Limits<long double> {
+		static long double const Epsilon = __LDBL_EPSILON__;
+	};
+}
+
+
+#endif

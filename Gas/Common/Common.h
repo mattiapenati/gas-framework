@@ -30,12 +30,9 @@
 #ifndef _GAS_COMMON_H_
 #define _GAS_COMMON_H_
 
-#ifdef GAS_USE_META
-#include "Meta.hpp"
-#endif
-
-#include "Exception.hpp"
+#include "Math.hpp"
+#include "Limits.hpp"
 #include "Iterable.hpp"
-#include "Program.hpp"
+//#include "Exception.hpp"
 
 #endif

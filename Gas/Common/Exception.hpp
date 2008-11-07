@@ -43,6 +43,17 @@ namespace Common {
 			Exception(char *message);
 			~Exception();
 	};
+
+	Exception::Exception(char *message): message(message) {}
+
+	Exception::~Exception() {
+		delete[] message;
+	}
+
+	std::ostream &operator<<(std::ostream &stream, Exception &ex) {
+		stream << typeid(ex).name() << ": " << ex.message;
+	}
 }
+
 
 #endif

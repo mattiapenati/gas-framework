@@ -45,7 +45,7 @@ namespace LinearAlgebra {
 		public:
 			Matrix();
 			Matrix(T const);
-			T *operator[](size_t const);
+			Vector<N, T> operator[](size_t const);
 			bool operator==(T const &);
 			bool operator==(Matrix<M, N, T> const &);
 			Matrix<M, N, T> &operator=(T const &);
@@ -86,8 +86,8 @@ namespace LinearAlgebra {
 	/** The operator [] to access to the components of vector
 	 *  @param i The index of component **/
 	template<size_t M, size_t N, typename T>
-	T *Matrix<M, N, T>::operator[](size_t const Index) {
-		return &(data[Index]);
+	Vector<N, T> Matrix<M, N, T>::operator[](size_t const Index) {
+		return Vector<N, T>::Factory(&data[Index]);
 	}
 
 	/** The operator == to compare all components of a matrix with a scalar value
@@ -202,10 +202,10 @@ namespace LinearAlgebra {
 	Matrix<P, Q, S> &operator/(Matrix<P, Q, S> A, S const &a) {
 		return A /= a;
 	}
-	
-	/** Product Matrix Vector (double)
-	 * @param A The matrix
-	 * @param v The vector **/
+
+	/** Product between two matrices
+	 *  @param A The first matrix
+	 *  @param B The second matrix **/
 	template<size_t P, size_t Q, typename T>
 	Vector<P, T> operator *(Matrix<P, Q, T> const &A, Vector<Q, T> const &v) {
 		Vector<P, T> y;
@@ -216,13 +216,16 @@ namespace LinearAlgebra {
 		return y;
 	}
 
+	/** Product Matrix Vector (double)
+	 * @param A The matrix
+	 * @param v The vector **/
 	template<size_t P, size_t Q>
 	Vector<P, double> operator*(Matrix<P, Q, double> const &A, Vector<Q, double> const &v){
 		Vector<P, double> y;
 		cblas_dgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
 		return y;
 	}
-	
+
 	/** Product Matrix Vector (float)
 	 * @param A The matrix
 	 * @param v The vector **/
@@ -232,10 +235,7 @@ namespace LinearAlgebra {
 		cblas_sgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
 		return y;
 	}
-	
-	/** Product Matrix Matrix (double)
-	 * @param A The first matrix
-	 * @param B The second matrix **/
+
 	/** Product between two matrices
 	 *  @param A The first matrix
 	 *  @param B The second matrix **/
@@ -251,13 +251,16 @@ namespace LinearAlgebra {
 		return C;
 	}
 
+	/** Product Matrix Matrix (double)
+	 * @param A The first matrix
+	 * @param B The second matrix **/
 	template<size_t P, size_t Q, size_t K>
 	Matrix<P, Q, double> operator*(Matrix<P, K, double> const &A, Matrix<K, Q, double> const &B){
 		Matrix<P, Q, double> C;
 		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, &A.data, K, &B.data, Q, 1, &C.data, Q);
 		return C;
 	}	
-	
+
 	/** Product Matrix Matrix (float)
 	 * @param A The first matrix
 	 * @param B The second matrix **/

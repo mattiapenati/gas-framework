@@ -30,12 +30,7 @@
 #ifndef _GAS_LINEARALGEBRA_H_
 #define _GAS_LINEARALGEBRA_H_
 
-#ifdef GAS_USE_META
-#include "Vector.Meta.hpp"
-#else
 #include "Vector.hpp"
-#endif
-
 #include "Matrix.hpp"
 #include "SparseMatrix.hpp"
 #include "Solver.hpp"
