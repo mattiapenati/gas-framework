@@ -36,9 +36,9 @@
 namespace Common {
 	template <typename T>
 	class Iterable {
-		virtual T* First();
-		virtual bool NotFinished();
-		virtual T* Next();
+		virtual T* First() = 0;
+		virtual bool NotFinished() = 0;
+		virtual T* Next() = 0;
 	};
 }
 

@@ -55,8 +55,8 @@ namespace Integration {
 					if (a == b) return 0;
 					T h = (b - a) / N;
 					T I = 0;
-					range(i, 0, N-1) I += h * F(a + (i * h / 2));
-					return I;
+					range(i, 0, N) I += F(a + (i*h) + (h/2));
+					return h * I;
 				}
 		};
 		
@@ -69,30 +69,31 @@ namespace Integration {
 				Trapezium(): N(30) {};
 				Trapezium(size_t n): N(n) {};
 				T Integrate(T const a, T const b) {
-				if (a == b) return 0;
-				T h = (b - a) / N;
-				T I = 0;
-				range(i, 0, N-1) I += (h/2)*(F(a + (i * h)) + F(a + ((i + 1) * h)));
+					if (a == b) return 0;
+					T h = (b - a) / N;
+					T I = 0;
+					range(i, 0, N) I += F(a + (i * h)) + F(a + ((i + 1) * h));
+					return h * I / 2;
 				}
 		};
 	}
 
 	template<typename T, T F(T)>
-	T Integrate(T, T, Integrator::Integrator<T, F> &);
+	T Integrate(T, T, Integrator::Integrator1D<T, F> &);
 
 	template<typename T, T F(T)>
 	T Integrate(T, T);
 }
 
 template<typename T, T F(T)>
-T Integration::Integrate(T a, T b, Integrator::Integrator<T, F> &i) {
+T Integration::Integrate(T a, T b, Integrator::Integrator1D<T, F> &i) {
 	if (a > b) std::swap(a, b);
 	return i.Integrate(a, b);
 }
 
 template<typename T, T F(T)>
 T Integration::Integrate(T a, T b) {
-	return Integration::Integrate(a, b, Integrate::Integration::Rectangle<T, F>());
+	return Integration::Integrate(a, b, Integration::Integrator::Rectangle<T, F>());
 }
 
 #endif

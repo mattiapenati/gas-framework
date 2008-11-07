@@ -39,13 +39,16 @@ namespace LinearAlgebra {
 	template<size_t N, typename T=double>
 	class Vector {
 		private:
-			T data[N];
+			T *Data_;
+			bool Destroy_;
 		public:
 			Vector();
 			Vector(T const);
 			Vector(Vector<N, T> const &);
+			~Vector();
+			static Vector<N, T> Factory(T *);
 			T &operator[](size_t const);
-			T const &operator[](size_t const) const;
+			inline T const &operator[](size_t const) const;
 			bool operator==(T const &);
 			bool operator==(Vector<N, T> const &);
 			Vector<N, T> &operator=(T const &);
@@ -73,51 +76,72 @@ namespace LinearAlgebra {
 
 	/** The default constructor **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector() {
+	Vector<N, T>::Vector(): Destroy_(true) {
+		Data_ = new T[N];
 	}
 
 	/** The constructor to initialize the entire vector with the same value
-	 *  @param Value The vaule to use **/
+	 *  @param a The vaule to use **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(T const Value) {
-		range(i, 0, N) data[i] = Value;
+	Vector<N, T>::Vector(T const a): Destroy_(true) {
+		Data_ = new T[N];
+		range(i, 0, N) Data_[i] = a;
 	}
 
 	/** The constructor to copy a vector
-	 *  @param v The vector to copy **/
+	 *  @param V The vector to copy **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] = v.data[i];
+	Vector<N, T>::Vector(Vector<N, T> const &V): Destroy_(true) {
+		Data_ = new T[N];
+		range(i, 0, N) Data_[i] = V.Data_[i];
+	}
+
+	/** The default destructor **/
+	template<size_t N, typename T>
+	Vector<N, T>::~Vector() {
+		if (Destroy_)
+			delete Data_;
+	}
+
+	/** A static method to use with matrix, to copy only the reference of row
+	 *  @param V The vector to copy **/
+	template<size_t N, typename T>
+	Vector<N, T> Vector<N, T>::Factory(T *v) {
+		Vector<N, T> s;
+		delete s.Data_;
+		s.Data_ = v;
+		s.Destroy_ = false;
+		return s;
 	}
 
 	/** The operator [] to access to the components of vector
 	 *  @param i The index of component **/
 	template<size_t N, typename T>
 	T &Vector<N, T>::operator[](size_t const i) {
-		return data[i];
+		return Data_[i];
 	}
 
 	/** The operator [] to access to the components of vector
 	 *  @param i The index of component **/
 	template<size_t N, typename T>
 	T const &Vector<N, T>::operator[](size_t const i) const {
-		return data[i];
+		return Data_[i];
 	}
 
 	/** The operator == to compare all components of a vector with a value
-	 *  @param v The value to compare **/
+	 *  @param a The value to compare **/
 	template<size_t N, typename T>
-	bool Vector<N, T>::operator==(T const &v) {
-		range(i, 0, N) { if (data[i] != v) return 0; }
+	bool Vector<N, T>::operator==(T const &a) {
+		range(i, 0, N) { if (Common::Math::Abs(Data_[i] - a) > 8 * Common::Limits<T>::Epsilon) return 0; }
 		return 1;
 	}
 
 	/** The operator == to compare two vectors
-	 *  @param v The second vector **/
+	 *  @param V The second vector **/
 	template<size_t N, typename T>
-	bool Vector<N, T>::operator==(Vector<N, T> const &v) {
-		if (this != &v) {
-			range(i, 0, N) { if (data[i] != v.data[i]) return 0; }
+	bool Vector<N, T>::operator==(Vector<N, T> const &V) {
+		if (this != &V) {
+			range(i, 0, N) { if (Common::Math::Abs(Data_[i] - V.Data_[i]) > 8 * Common::Limits<T>::Epsilon) return 0; }
 		}
 		return 1;
 	}
@@ -126,15 +150,15 @@ namespace LinearAlgebra {
 	 *  @param a The scalar value to copy **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator=(T const &a) {
-		range(i, 0, N) data[i] = a;
+		range(i, 0, N) Data_[i] = a;
 		return *this;
 	}
 
 	/** The operator = to copy a vector in a vector
-	 *  @param v The vector to copy **/
+	 *  @param V The vector to copy **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator=(Vector<N, T> const &v) {
-		if (this != &v) { range(i, 0, N) data[i] = v.data[i]; }
+	Vector<N, T> &Vector<N, T>::operator=(Vector<N, T> const &V) {
+		if (this != &V) { range(i, 0, N) Data_[i] = V.Data_[i]; }
 		return *this;
 	}
 
@@ -142,15 +166,15 @@ namespace LinearAlgebra {
 	 *  @param a The scalar value to add **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator+=(T const &a) {
-		if (a != 0) { range(i, 0, N) data[i] += a; }
+		if (a != 0) { range(i, 0, N) Data_[i] += a; }
 		return *this;
 	}
 
 	/** The operator += to add a vector
-	 *  @param v The vector to add **/
+	 *  @param V The vector to add **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator+=(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] += v.data[i];
+	Vector<N, T> &Vector<N, T>::operator+=(Vector<N, T> const &V) {
+		range(i, 0, N) Data_[i] += V.Data_[i];
 		return *this;
 	}
 
@@ -158,15 +182,15 @@ namespace LinearAlgebra {
 	 *  @param a The value to add **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator-=(T const &a) {
-		if (a != 0) { range(i, 0, N) data[i] -= a; }
+		if (a != 0) { range(i, 0, N) Data_[i] -= a; }
 		return *this;
 	}
 
 	/** The operator -= to subtract a vector
-	 *  @param v The vector to subtract **/
+	 *  @param V The vector to subtract **/
 	template<size_t N, typename T>
-	Vector<N, T> &Vector<N, T>::operator-=(Vector<N, T> const &v) {
-		range(i, 0, N) data[i] -= v.data[i];
+	Vector<N, T> &Vector<N, T>::operator-=(Vector<N, T> const &V) {
+		range(i, 0, N) Data_[i] -= V.Data_[i];
 		return *this;
 	}
 
@@ -174,111 +198,111 @@ namespace LinearAlgebra {
 	 *  @param a The scalar value to multiply **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator*=(T const &a) {
-		range(i, 0, N) data[i] *= a;
+		if (a != 1) { range(i, 0, N) Data_[i] *= a; }
 		return *this;
 	}
 
-	/** The operator *= to divide a vector by a scalar value
+	/** The operator /= to divide a vector by a scalar value
 	 *  @param a The scalar value to divide **/
 	template<size_t N, typename T>
 	Vector<N, T> &Vector<N, T>::operator/=(T const &a) {
-		range(i, 0, N) data[i] /= a;
+		if ((a != 1) and (a != 0)) { range(i, 0, N) Data_[i] /= a; }
 		return *this;
 	}
 
 	/** The operator + to add two vectors
-	 *  @param v The first vector
-	 *  @param w The second vector **/
+	 *  @param V The first vector
+	 *  @param W The second vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(Vector<M, S> v, Vector<M, S> const &w) {
-		return v += w;
+	Vector<M, S> &operator+(Vector<M, S> V, Vector<M, S> const &W) {
+		return V += W;
 	}
 
 	/** The operator + to add a vector and a scalar value
-	 *  @param v The vector
+	 *  @param V The vector
 	 *  @param a The scalar value **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(Vector<M, S> v, S &a) {
-		return v += a;
+	Vector<M, S> &operator+(Vector<M, S> V, S &a) {
+		return V += a;
 	}
 
 	/** The operator + to add a vector and a scalar value
 	 *  @param a The value
-	 *  @param v The vector **/
+	 *  @param V The vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator+(S &a, Vector<M, S> v) {
-		return v += a;
+	Vector<M, S> &operator+(S &a, Vector<M, S> V) {
+		return V += a;
 	}
 
 	/** The operator - to subtract two vectors
-	 *  @param v The first vector
-	 *  @param w The second vector **/
+	 *  @param V The first vector
+	 *  @param W The second vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(Vector<M, S> v, Vector<M, S> const &w) {
-		return v += w;
+	Vector<M, S> &operator-(Vector<M, S> V, Vector<M, S> const &W) {
+		return V += W;
 	}
 
 	/** The operator - to subtract a vector and a scalar value
-	 *  @param v The vector
+	 *  @param V The vector
 	 *  @param a The scalar value **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(Vector<M, S> v, S &a) {
-		return v -= a;
+	Vector<M, S> &operator-(Vector<M, S> V, S &a) {
+		return V -= a;
 	}
 
 	/** The operator - to subtract a vector and a scalar value
 	 *  @param a The scalar value
-	 *  @param v The vector **/
+	 *  @param V The vector **/
 	template<size_t M, typename S>
-	Vector<M, S> &operator-(S &a, Vector<M, S> v) {
-		return (-1) * (v - a);
+	Vector<M, S> &operator-(S &a, Vector<M, S> V) {
+		return (-1) * (V - a);
 	}
 
 	/** Moltiplication by a scalar value
 	 *  @param a The scalar value
-	 *  @param v The vector **/
+	 *  @param V The vector **/
 	template<size_t M, typename S> 
-	Vector<M, S> &operator*(S const &a, Vector<M, S> v) {
-		return v *= a;
+	Vector<M, S> &operator*(S const &a, Vector<M, S> V) {
+		return V *= a;
 	}
 
 	/** Moltiplication by a scalar value
-	 *  @param v The vector
+	 *  @param V The vector
 	 *  @param a The scalar value**/
 	template<size_t M, typename S> 
-	Vector<M, S> &operator*(Vector<M, S> v, S const &a) {
-		return v *= a;
+	Vector<M, S> &operator*(Vector<M, S> V, S const &a) {
+		return V *= a;
 	}
 
 	/** Division by a scalar value
-	 *  @param v The vector
+	 *  @param V The vector
 	 *  @param a The scalar value**/
 	template<size_t M, typename S> 
-	Vector<M, S> &operator/(Vector<M, S> v, S const &a) {
-		return v /= a;
+	Vector<M, S> &operator/(Vector<M, S> V, S const &a) {
+		return V /= a;
 	}
 
 	/** The scalar product between two vector
-	 *  @param v The first vector
-	 *  @param w The second vector **/
+	 *  @param V The first vector
+	 *  @param W The second vector **/
 	template<size_t M, typename S>
-	S &operator*(Vector<M, S> const &v, Vector<M, S> const &w) {
+	S &operator*(Vector<M, S> const &V, Vector<M, S> const &W) {
 		S x = 0;
-		range(i, 0, M) x += (v[i] * w[i]);
+		range(i, 0, M) x += (V.Data_[i] * Common::Math::Conjugate(W.Data_[i]));
 		return x;
 	}
 
 	/** The operator << to print a vector in a stream
-	 *  @param stream The stream
-	 *  @param v The vector **/
+	 *  @param s The stream
+	 *  @param V The vector **/
 	template<size_t M, typename S>
-	std::ostream &operator<<(std::ostream &stream, Vector<M, S> const &v) {
-		stream << "[";
+	std::ostream &operator<<(std::ostream &s, Vector<M, S> const &V) {
+		s << "[";
 		if (M <= 10 )
-			range(i, 0, M) stream << " " << v.data[i];
+			range(i, 0, M) s << " " << V.Data_[i];
 		else
-			stream << " " << v.data[0] << " " << v.data[1] << " ... " << v.data[M-2] << " " << v.data[M-1];
-		stream << " ]";
+			s << " " << V.Data_[0] << " " << V.Data_[1] << " ... " << V.Data_[M-2] << " " << V.Data_[M-1];
+		s << " ]";
 	}
 
 }

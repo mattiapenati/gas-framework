@@ -26,6 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+ 
 
 #include <iostream>
 #include <string>
@@ -33,19 +34,23 @@
 #include <cppunit/TestCaller.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/ui/text/TestRunner.h>
+
+//#define GAS_USE_META
 #include <Gas/Gas.h>
 
+using namespace LinearAlgebra;
+
 namespace Test {
-	class Vector: public CppUnit::TestFixture {
+	class VectorTest: public CppUnit::TestFixture {
 		private:
-			LinearAlgebra::Vector<100> v1, v2, v3, v4, v5;
+			Vector<100, double> v1, v2, v3, v4, v5;
 		public:
 			void setUp() {
 				range(i, 0, 100) {
-					v1[i] = double(i/12.);
-					v2[i] = double(i/12.);
-					v3[i] = double(i/3.);
-					v4[i] = double((i/12.) + (i/3.));
+					v1[i] = double(i)/12.;
+					v2[i] = double(i)/12.;
+					v3[i] = double(i)/3.;
+					v4[i] = double(i)/12. + double(i)/3.;
 				}
 				v5 = double(0);
 			}
@@ -68,38 +73,38 @@ namespace Test {
 				CPPUNIT_ASSERT(v2 == v4);
 			}
 			void testSelfSubtraction() {
-				v2 -= v3;
-				CPPUNIT_ASSERT(v1 == v2);
+				v4 -= v3;
+				CPPUNIT_ASSERT(v4 == v2);
 			}
 			void testAddition() {
-				CPPUNIT_ASSERT((v2 + v3) == v4);
+				CPPUNIT_ASSERT(v4 == (v2 + v3));
 			}
 
 			static CppUnit::Test *suite() {
 				CppUnit::TestSuite *s = new CppUnit::TestSuite("VectorTest");
 				s->addTest(
-					new CppUnit::TestCaller<Test::Vector>(
-						"testEquality", &Test::Vector::testEquality
+					new CppUnit::TestCaller<Test::VectorTest>(
+						"testEquality", &Test::VectorTest::testEquality
 					)
 				);
 				s->addTest(
-					new CppUnit::TestCaller<Test::Vector>(
-						"testCopy", &Test::Vector::testCopy
+					new CppUnit::TestCaller<Test::VectorTest>(
+						"testCopy", &Test::VectorTest::testCopy
 					)
 				);
 				s->addTest(
-					new CppUnit::TestCaller<Test::Vector>(
-						"testSelfAddition", &Test::Vector::testSelfAddition
+					new CppUnit::TestCaller<Test::VectorTest>(
+						"testSelfAddition", &Test::VectorTest::testSelfAddition
 					)
 				);
 				s->addTest(
-					new CppUnit::TestCaller<Test::Vector>(
-						"testSelfSubtraction", &Test::Vector::testSelfSubtraction
+					new CppUnit::TestCaller<Test::VectorTest>(
+						"testSelfSubtraction", &Test::VectorTest::testSelfSubtraction
 					)
 				);
 				s->addTest(
-					new CppUnit::TestCaller<Test::Vector>(
-						"testAddition", &Test::Vector::testAddition
+					new CppUnit::TestCaller<Test::VectorTest>(
+						"testAddition", &Test::VectorTest::testAddition
 					)
 				);
 				return s;
@@ -109,7 +114,7 @@ namespace Test {
 
 int main( int argc, char **argv) {
 	CppUnit::TextUi::TestRunner runner;
-	runner.addTest(Test::Vector::suite());
+	runner.addTest(Test::VectorTest::suite());
 	runner.run();
 	return 0;
 }
