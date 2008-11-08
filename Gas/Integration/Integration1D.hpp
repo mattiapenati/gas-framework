@@ -76,6 +76,23 @@ namespace Integration {
 					return h * I / 2;
 				}
 		};
+
+		/** The method of Cavalieri-Simpson for numerical integration **/
+		template<typename T, T F(T)>
+		class Simpson: virtual public Integrator1D<T, F> {
+			private:
+				size_t N;
+			public:
+				Simpson(): N(30) {};
+				Simpson(size_t n): N(n) {};
+				T Integrate(T const a, T const b) {
+					if (a == b) return 0;
+					T h = (b - a) / N;
+					T I = 0;
+					range(i, 0, N) I += F(a + (i * h)) + 4 * F(a + (h / 2)+(i * h))+F(a + ((i + 1) * h));
+					return h * I / 6;
+				}
+		};
 	}
 
 	template<typename T, T F(T)>
