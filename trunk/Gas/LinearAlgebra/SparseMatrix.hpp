@@ -30,4 +30,57 @@
 #ifndef _GAS_SPARSEMATRIX_H_
 #define _GAS_SPARSEMATRIX_H_
 
+#include <cstddef>
+#include <cassert>
+#include <vector>
+#include "Gas/Common/Common.h"
+#include "Interface.hpp"
+
+namespace LinearAlgebra {
+	namespace Storage {
+		template<size_t M, size_t N, typename T=double>
+		class Coordinate: Interface::Matrix<M, N, T> {
+			private:
+				Common::List<T> val_;
+				Common::List<size_t> i_;
+				Common::List<size_t> j_;
+			public:
+				inline T &operator()(size_t const i, size_t const j) {
+					assert((i < M) and (j < N));
+					range(k, 0, val_.size()) {
+						if ((i_(k) == i) and (j_(k) == j)) return val_(k);
+						if (((i_(k) >= i) and (j_(k) > j)) or (i_(k) > i)) return 0;
+					}
+					return 0;
+				}
+				inline T const &operator()(size_t const i, size_t const j) {
+					assert((i < M) and (j < N));
+					range(k, 0, val_.size()) {
+						if ((i_(k) == i) and (j_(k) == j)) return val_(k);
+						if (((i_(k) >= i) and (j_(k) > j)) or (i_(k) > i)) return 0;
+					}
+					return 0;
+				}
+		};
+		template<size_t M, size_t N, typename T=double>
+		class Row: Interface::Matrix<M, N, T> {
+			private:
+			public:
+				Row();
+		};
+		template<size_t M, size_t N, typename T=double>
+		class Column: Interface::Matrix<M, N, T> {
+			private:
+			public:
+				Column();
+		};
+	}
+	template<size_t M, size_t N, typename T=double>
+	class SparseMatrix: Interface::Matrix<M, N, T> {
+		private:
+		public:
+			SparseMatrix();
+	};
+}
+
 #endif

@@ -35,21 +35,29 @@ namespace Common {
 	template<typename T>
 	struct Limits {
 		static T const Epsilon = 0;
+		static T const Max = 0;
+		static T const Min = 0;
 	};
 	/** Limits class specialization: float **/
 	template<>
 	struct Limits<float> {
 		static float const Epsilon = __FLT_EPSILON__;
+		static float const Max = __FLT_MAX__;
+		static float const Min = __FLT_MIN__;
 	};
 	/** Limits class specialization: double **/
 	template<>
 	struct Limits<double> {
 		static double const Epsilon = __DBL_EPSILON__;
+		static double const Max = __DBL_MAX__;
+		static double const Min = __DBL_MIN__;
 	};
 	/** Limits class specialization: long double **/
 	template<>
 	struct Limits<long double> {
 		static long double const Epsilon = __LDBL_EPSILON__;
+		static long double const Max = __LDBL_MAX__;
+		static long double const Min = __LDBL_MIN__;
 	};
 }
 

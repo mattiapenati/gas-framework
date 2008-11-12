@@ -27,32 +27,36 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_SOLVER_H_
-#define _GAS_SOLVER_H_
+#ifndef _GAS_LINEARALGEBRA_INTERFACE_H_
+#define _GAS_LINEARALGEBRA_INTERFACE_H_
 
-#include "Vector.hpp"
-#include "Matrix.hpp"
+#include <cstdlib>
 
-namespace LinearAlgebra {
-	namespace Solver {
-		template <size_t N, typename T>
-		class Solver {
-			public:
-				virtual Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b&) = 0;
-		};
+namespace LinearAlgebra { namespace Interface {
+	/** A vector interface for the conventional notation v(i) 
+	 * 	@class Vector 
+	 *  @brief An interface to define the common vector method **/
+	template<size_t N, typename T>
+	class Vector {
+		public:
+			virtual inline T &operator()(size_t const) = 0;
+			virtual inline T const &operator()(size_t const) const = 0;
 
-		template <size_t N, typename T>
-		class LU: virtual public Solver<N, T> {
-			public:
-				Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b&);
-		};
-	}
+			inline size_t Size() { return N; };
+	};
 
-	template <size_t N, typename T>
-	Vector<N, T> Solve(Matrix<N, N, T> &A, Vector<N, T> b&, Solver::Solver<N, T> Solver);
+	/** A matrix interface for the conventional notation A(i,j) 
+	 *  @class Matrix
+	 *  @brief An interface to define the common metrix method **/
+	template<size_t M, size_t N, typename T>
+	class Matrix {
+		public:
+			virtual inline T &operator()(size_t const, size_t const) = 0;
+			virtual inline T const &operator()(size_t const, size_t const) const = 0;
 
-	template <size_t N, typename T>
-	Vector<N, T> Solve(Matrix<N, N, T> &A, Vector<N, T> b&);
-}
+			inline size_t Rows() { return M; };
+			inline size_t Cols() { return N; };
+	};
+}}
 
 #endif
