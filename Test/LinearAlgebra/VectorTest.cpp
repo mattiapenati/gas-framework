@@ -26,16 +26,13 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
- 
 
-#include <iostream>
-#include <string>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
 #include <cppunit/TestFixture.h>
+#include <cppunit/TestSuite.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-//#define GAS_USE_META
 #include <Gas/Gas.h>
 
 using namespace LinearAlgebra;
@@ -46,13 +43,13 @@ namespace Test {
 			Vector<100, double> v1, v2, v3, v4, v5;
 		public:
 			void setUp() {
-				range(i, 0, 100) {
-					v1[i] = double(i)/12.;
-					v2[i] = double(i)/12.;
-					v3[i] = double(i)/3.;
-					v4[i] = double(i)/12. + double(i)/3.;
+				range(i, 0, v1.Size()) {
+					v1(i) = double(i)/12.;
+					v2(i) = double(i)/12.;
+					v3(i) = double(i)/3.;
+					v4(i) = double(i)/12. + double(i)/3.;
 				}
-				v5 = double(0);
+				v5 = 0.;
 			}
 			void tearDown() {
 			}

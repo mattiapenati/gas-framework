@@ -30,25 +30,28 @@
 #ifndef _GAS_VECTOR_H_
 #define _GAS_VECTOR_H_ /* BEGIN _GAS_VECTOR_H_ */
 
-#include <cstdlib>
+#include <cstddef>
+#include <cassert>
 #include <iostream>
 #include "Gas/Common/Common.h"
+#include "Interface.hpp"
 
 namespace LinearAlgebra {
-	/** A simple class for Vector **/
+	/** A simple class for vector
+	 *  @class Vector 
+	 *  @brief A simple class for vector **/
 	template<size_t N, typename T=double>
-	class Vector {
+	class Vector: virtual public Interface::Vector<N, T> {
 		private:
-			T *Data_;
-			bool Destroy_;
+			T Data_[N];
+
 		public:
 			Vector();
 			Vector(T const);
 			Vector(Vector<N, T> const &);
 			~Vector();
-			static Vector<N, T> Factory(T *);
-			T &operator[](size_t const);
-			inline T const &operator[](size_t const) const;
+			inline T &operator()(size_t const);
+			inline T const &operator()(size_t const) const;
 			bool operator==(T const &);
 			bool operator==(Vector<N, T> const &);
 			Vector<N, T> &operator=(T const &);
@@ -60,71 +63,57 @@ namespace LinearAlgebra {
 			Vector<N, T> &operator*=(T const &);
 			Vector<N, T> &operator/=(T const &);
 
-			template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, Vector<M, S> const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator+(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, Vector<M, S> const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator-(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator*(S const &, Vector<M, S>);
-			template<size_t M, typename S> friend Vector<M, S> &operator*(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend Vector<M, S> &operator/(Vector<M, S>, S const &);
-			template<size_t M, typename S> friend S &operator*(Vector<M, S> const &, Vector<M, S> const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, Vector<M, S> const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator+(Vector<M, S>, S const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator+(S const &, Vector<M, S>);
+		template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, Vector<M, S> const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator-(Vector<M, S>, S const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator-(S const &, Vector<M, S>);
+		template<size_t M, typename S> friend Vector<M, S> &operator*(S const &, Vector<M, S>);
+		template<size_t M, typename S> friend Vector<M, S> &operator*(Vector<M, S>, S const &);
+		template<size_t M, typename S> friend Vector<M, S> &operator/(Vector<M, S>, S const &);
+		template<size_t M, typename S> friend S &operator*(Vector<M, S> const &, Vector<M, S> const &);
 
-			template<size_t M, typename S> friend std::ostream &operator<<(std::ostream &, Vector<M, S> const &);
+		template<size_t M, typename S> friend std::ostream &operator<<(std::ostream &, Vector<M, S> const &);
 	};
 
 	/** The default constructor **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(): Destroy_(true) {
-		Data_ = new T[N];
+	Vector<N, T>::Vector() {
 	}
 
 	/** The constructor to initialize the entire vector with the same value
 	 *  @param a The vaule to use **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(T const a): Destroy_(true) {
-		Data_ = new T[N];
+	Vector<N, T>::Vector(T const a) {
 		range(i, 0, N) Data_[i] = a;
 	}
 
 	/** The constructor to copy a vector
 	 *  @param V The vector to copy **/
 	template<size_t N, typename T>
-	Vector<N, T>::Vector(Vector<N, T> const &V): Destroy_(true) {
-		Data_ = new T[N];
+	Vector<N, T>::Vector(Vector<N, T> const &V) {
 		range(i, 0, N) Data_[i] = V.Data_[i];
 	}
 
 	/** The default destructor **/
 	template<size_t N, typename T>
 	Vector<N, T>::~Vector() {
-		if (Destroy_)
-			delete Data_;
 	}
 
-	/** A static method to use with matrix, to copy only the reference of row
-	 *  @param V The vector to copy **/
-	template<size_t N, typename T>
-	Vector<N, T> Vector<N, T>::Factory(T *v) {
-		Vector<N, T> s;
-		delete s.Data_;
-		s.Data_ = v;
-		s.Destroy_ = false;
-		return s;
-	}
-
-	/** The operator [] to access to the components of vector
+	/** The operator () to access to the components of vector
 	 *  @param i The index of component **/
 	template<size_t N, typename T>
-	T &Vector<N, T>::operator[](size_t const i) {
+	T &Vector<N, T>::operator()(size_t const i) {
+		assert(i < N);
 		return Data_[i];
 	}
 
-	/** The operator [] to access to the components of vector
+	/** The operator () to access to the components of vector
 	 *  @param i The index of component **/
 	template<size_t N, typename T>
-	T const &Vector<N, T>::operator[](size_t const i) const {
+	T const &Vector<N, T>::operator()(size_t const i) const {
+		assert(i < N);
 		return Data_[i];
 	}
 

@@ -32,7 +32,6 @@
 
 #include "Vector.hpp"
 #include "Matrix.hpp"
-#include "SparseMatrix.hpp"
-#include "Solver.hpp"
+//#include "SparseMatrix.hpp"
 
 #endif
