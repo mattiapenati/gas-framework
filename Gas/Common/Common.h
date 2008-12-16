@@ -30,9 +30,23 @@
 #ifndef _GAS_COMMON_H_
 #define _GAS_COMMON_H_
 
+/* Structure */
+#include "Array.hpp"
+	// #include "List.hpp"
+	// #include "Stack.hpp"
+	// #include "Hash.hpp"
+
+/* Interface */
+#include "Iterable.hpp"
+	// #include "Exception.hpp"
+
+/* Utility */
 #include "Math.hpp"
 #include "Limits.hpp"
-#include "Iterable.hpp"
-//#include "Exception.hpp"
+
+/* Meta */
+#include "Meta.hpp"
+#include "Meta.Function.hpp"
+#include "Meta.Math.hpp"
 
 #endif

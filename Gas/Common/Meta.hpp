@@ -27,56 +27,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_META_H_
+#ifndef _GAS_META_H_ /* BEGIN _GAS_META_H_ */
 #define _GAS_META_H_
 
+
 namespace Common { namespace Meta {
-	template<typename T>
-	class Expr {
-		public:
-			virtual T &operator()(T const &x) = 0 ;
-	};
+	/** Conditional type **/
+	template<bool C, class T, class E> struct If { typedef T RET; };
+	template<class T, class E> struct If<false, T, E> { typedef E RET; };
+}}
 
-	template<typename T>
-	class Const: virtual public Expr<T> {
-		private:
-			T &a;
-		public:
-			Const(T const &a): a(a) {};
-			T &operator()(T const &x) { return a; };
-	};
-
-	template<typename T, T F(T, T)>
-	class BinExpr: virtual public Expr<T> {
-		private:
-			Expr<T> &l;
-			Expr<T> &r;
-		public:
-			BinExpr(Expr<T> const &l, Expr<T> const &r): l(l), r(r) {};
-			T &operator()(T const &x) { return F(l(x), r(x)); }
-	};
-
-	template<typename T>
-	class Identity: virtual public Expr<T> {
-		public:
-			T &operator()(T const &v) { return v; }
-
-			template<typename S> friend BinExpr<S, Sum> &operator+(Expr<S> const &l, Expr<S> const &r) { return BinExpr<S, Sum>(l, r); }
-			template<typename S> friend BinExpr<S, Sum> &operator+(S const &l, Expr<S> const &r) { return BinExpr<S, Sum>(Const<S>(l), r); }
-			template<typename S> friend BinExpr<S, Sum> &operator+(Expr<S> const &l, S const &r) { return BinExpr<S, Sum>(l, Const<S>(r)); }
-
-			template<typename S> friend BinExpr<S, Sub> &operator-(Expr<S> const &l, Expr<S> const &r) { return BinExpr<S, Sub>(l, r); }
-			template<typename S> friend BinExpr<S, Sub> &operator-(S const &l, Expr<S> const &r) { return BinExpr<S, Sub>(Const<S>(l), r); }
-			template<typename S> friend BinExpr<S, Sub> &operator-(Expr<S> const &l, S const &r) { return BinExpr<S, Sub>(l, Const<S>(r)); }
-
-			template<typename S> friend BinExpr<S, Mul> &operator*(Expr<S> const &l, Expr<S> const &r) { return BinExpr<S, Mul>(l, r); }
-			template<typename S> friend BinExpr<S, Mul> &operator*(S const &l, Expr<S> const &r) { return BinExpr<S, Mul>(Const<S>(l), r); }
-			template<typename S> friend BinExpr<S, Mul> &operator*(Expr<S> const &l, S const &r) { return BinExpr<S, Mul>(l, Const<S>(r)); }
-
-			template<typename S> friend BinExpr<S, Div> &operator/(Expr<S> const &l, Expr<S> const &r) { return BinExpr<S, Div>(l, r); }
-			template<typename S> friend BinExpr<S, Div> &operator/(S const &l, Expr<S> const &r) { return BinExpr<S, Div>(Const<S>(l), r); }
-			template<typename S> friend BinExpr<S, Div> &operator/(Expr<S> const &l, S const &r) { return BinExpr<S, Div>(l, Const<S>(r)); }
-	};
-} }
-
-#endif
+#endif /* END _GAS_META_H_ */

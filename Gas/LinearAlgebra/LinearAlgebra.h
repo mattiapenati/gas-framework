@@ -27,11 +27,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_LINEARALGEBRA_H_
+#ifndef _GAS_LINEARALGEBRA_H_ /* BEGIN _GAS_LINEARALGEBRA_H_ */
 #define _GAS_LINEARALGEBRA_H_
 
 #include "Vector.hpp"
 #include "Matrix.hpp"
-//#include "SparseMatrix.hpp"
 
-#endif
+#endif /* END _GAS_LINEARALGEBRA_H_ */

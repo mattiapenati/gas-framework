@@ -30,6 +30,8 @@
 #ifndef _GAS_LIMITS_H_
 #define _GAS_LIMITS_H_
 
+#include "Math.hpp"
+
 namespace Common {
 	/** Limits class **/
 	template<typename T>
@@ -37,6 +39,8 @@ namespace Common {
 		static T const Epsilon = 0;
 		static T const Max = 0;
 		static T const Min = 0;
+		static inline bool Equal(T const &a, T const &b) { return Common::Math::Abs(a - b) == 0; }
+		static inline bool IsZero(T const &a) { return Common::Limits<T>::Equal(a, 0); }
 	};
 	/** Limits class specialization: float **/
 	template<>
@@ -44,6 +48,8 @@ namespace Common {
 		static float const Epsilon = __FLT_EPSILON__;
 		static float const Max = __FLT_MAX__;
 		static float const Min = __FLT_MIN__;
+		static inline bool Equal(float const &a, float const &b) { return Common::Math::Abs(a - b) <= 8 * Limits<float>::Epsilon; }
+		static inline bool IsZero(float const &a) { return Common::Limits<float>::Equal(a, 0.); }
 	};
 	/** Limits class specialization: double **/
 	template<>
@@ -51,6 +57,8 @@ namespace Common {
 		static double const Epsilon = __DBL_EPSILON__;
 		static double const Max = __DBL_MAX__;
 		static double const Min = __DBL_MIN__;
+		static inline bool Equal(double const &a, double const &b) { return Common::Math::Abs(a - b) <= 8 * Limits<double>::Epsilon; }
+		static inline bool IsZero(double const &a) { return Common::Limits<double>::Equal(a, 0); }
 	};
 	/** Limits class specialization: long double **/
 	template<>
@@ -58,8 +66,9 @@ namespace Common {
 		static long double const Epsilon = __LDBL_EPSILON__;
 		static long double const Max = __LDBL_MAX__;
 		static long double const Min = __LDBL_MIN__;
+		static inline bool Equal(long double const &a, long double const &b) { return Common::Math::Abs(a - b) <= 8 * Limits<long double>::Epsilon; }
+		static inline bool IsZero(long double const &a) { return Common::Limits<long double>::Equal(a, 0); }
 	};
 }
-
 
 #endif

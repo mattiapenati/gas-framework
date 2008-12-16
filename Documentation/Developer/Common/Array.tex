@@ -1,0 +1,55 @@
+Gli Array sono una struttura statica, che permette di accedere ad un gruppo di elementi
+dello stesso tipo attraverso un indice. Una volta creati non \`e possibile modificarne la
+dimensione e soprattutto il tipo di dato contenuto. Per questo al momento della creazione
+\`e necessario specificare entrambi questi parametri, ad esempio:
+\begin{verbatim}
+	Array<double, 100> v;
+\end{verbatim}
+costruisce un Array con 100 elementi di tipo \texttt{double}. Si accede ad ogni suo elemento
+specificando l'indice tra delle parentesi quadre, ricordando che il primo elemento si trova
+nella posizione \texttt{0} e non nella \texttt{1}. Ad esempio:
+\begin{verbatim}
+	v[2] = 0.;
+	v[1] = v[2];
+\end{verbatim}
+il primo comando memorizza il valore \texttt{0.} nella componente individuata dall'indice
+\texttt{2}, il secondo invece legge questo valore e lo riscrive nella componente \texttt{1}.
+\`{E} anche possibile costruire vettori multipli, per la quale \`e necessario usare la 
+notazione a pi\`u indici. L'esempio seguente mostra come costruire un Array doppio con 5 righe
+e 6 colonne, poi come accedervi:
+\begin{verbatim}
+	Array<Array<double, 6>, 5> m;
+	m[0][0] = 1.;
+	m[1][0] = 2.;
+	m[0][1] = m[1][0];
+\end{verbatim}
+Bisogna fare attenzione che questa struttura non esegue nessun controllo sugli indici, un
+utilizzo scoretto potrebbe portare errori a \textit{run-time}, perch\'e si tenta di accedere
+ad aree di memoria riservate ad altre strutture o programmi. \\
+Vi \`e anche la possibilit\`a di copiare un Array in un altro, purch\'e abbiamo la stessa dimensione
+e contengano elementi dello stesso tipo, questo controllo viene eseguito a \textit{compile-time}.
+L'utilizzo di questo metodo \`e preferibile a quello di copiarlo componente per componente, perch\'e
+molto pi\`u efficente, siccome sfrutta la possibilit\`a di copiare blocchi di memoria di dimensioni
+maggiori.
+\begin{verbatim}
+	Array<double, 10> v;
+	Array<double, 10> w;
+	Array<float, 10> z;
+	v = w;   // L'Array w viene copiato in v
+	z = w;   // Errore di compilazione
+\end{verbatim}
+
+L'utilizzo dei template limita la costruzione di Array la cui dimensione \`e nota a compile-time,
+ma \`e anche possibile definirne la dimensione a run-time, per fare questo \`e sufficiente definire
+un Array nel modo seguente:
+\begin{verbatim}
+	Array<double> v(10);
+	Array<double> w(10);
+	Array<float> z(10);
+\end{verbatim}
+In questo caso \`e sempre possibile copiare un Array in un altro, ma se le due strutture hanno dimensioni
+differenti, viene copiata la porzione di dimensione minima.
+
+\textit{Facciamo notare che questa struttura in modo automatico decide se allocare se stessa nello
+stack o nel heap, in base alla propria dimensione. Questo per garantire una maggiore velocit\`a di
+esecuzione per piccole strutture e evitare problemi di stack-overflow su strutture molto grandi.}

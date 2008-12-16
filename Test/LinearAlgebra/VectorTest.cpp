@@ -40,7 +40,7 @@ using namespace LinearAlgebra;
 namespace Test {
 	class VectorTest: public CppUnit::TestFixture {
 		private:
-			Vector<100, double> v1, v2, v3, v4, v5;
+			Vector<1000, double> v1, v2, v3, v4, v5;
 		public:
 			void setUp() {
 				range(i, 0, v1.Size()) {

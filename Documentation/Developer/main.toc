@@ -1,0 +1,9 @@
+\select@language {italian}
+\contentsline {chapter}{Indice}{1}
+\contentsline {chapter}{\chapternumberline {1}Common Library}{3}
+\contentsline {section}{\numberline {1.1}Strutture}{3}
+\contentsline {subsection}{Array}{3}
+\contentsline {chapter}{\chapternumberline {2}Linear Algebra}{5}
+\contentsline {section}{\numberline {2.1}Vettori e Matrici}{5}
+\contentsline {section}{\numberline {2.2}Sistemi lineari}{5}
+\contentsline {section}{\numberline {2.3}Autovalori e autovettori}{5}
