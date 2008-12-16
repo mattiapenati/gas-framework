@@ -30,16 +30,21 @@
 #ifndef _GAS_ITERABLE_H_
 #define _GAS_ITERABLE_H_
 
-#define foreach(E, V) for(E = V.First(); V.NotFinished(); E = V.Next())
+/* The most common cicle over integer */
 #define range(V, A, B) for(int V = A; V < B; ++V)
+/* To use with Iterable object */
+#define foreach(T, V, L) for(T &V = L.Rewind(); L.HasNext(); V = L.Next())
 
 namespace Common {
-	template <typename T>
-	class Iterable {
-		virtual T* First() = 0;
-		virtual bool NotFinished() = 0;
-		virtual T* Next() = 0;
-	};
+	namespace Interface {
+		template <typename T>
+		class Iterable {
+			public:
+				virtual bool HasNext() = 0;
+				virtual T &Next() = 0;
+				virtual T &Rewind() = 0;
+		};	
+	}
 }
 
 #endif

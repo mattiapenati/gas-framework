@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_MATH_H_
+#ifndef _GAS_MATH_H_ /* BEGIN _GAS_MATH_H_ */
 #define _GAS_MATH_H_
 
 #include <cmath>
@@ -36,24 +36,27 @@
 /** @namespace Math
  *  @brief Contains some useful mathematical functions to use in your program **/
 namespace Common { namespace Math {
+	/** Identity **/
+	template<typename T> inline T Id(T const &x) { return x; }
+
 	/** Four basic operations **/
-	template<typename T> inline T Sum(T const a, T const b) { return a + b; }
-	template<typename T> inline T Sub(T const a, T const b) { return a - b; }
-	template<typename T> inline T Mul(T const a, T const b) { return a * b; }
-	template<typename T> inline T Div(T const a, T const b) { return a / b; }
+	template<typename T> inline T Sum(T const &a, T const &b) { return a + b; }
+	template<typename T> inline T Sub(T const &a, T const &b) { return a - b; }
+	template<typename T> inline T Mul(T const &a, T const &b) { return a * b; }
+	template<typename T> inline T Div(T const &a, T const &b) { return a / b; }
 
 	/** Division mod **/
-	template<typename T> inline T Mod(T const a, T const b) { return a % b; }
+	template<typename T> inline T Mod(T const &a, T const &b) { return a % b; }
 
 	/** Absolute value **/
-	template<typename T> inline T Abs(T const x) { return std::abs(x); };
+	template<typename T> inline T Abs(T const &x) { return std::abs(x); };
 
 	/** Complex Conjugate **/
-	template<typename T> inline T Conj(T const x) { return x; };
-	template<typename T> inline std::complex<T> Conj(std::complex<T> const x) { return std::conj(x); };
+	template<typename T> inline T Conj(T const &x) { return x; };
+	template<typename T> inline std::complex<T> Conj(std::complex<T> const &x) { return std::conj(x); };
 
 	/** Square Root **/
-	template<typename T> inline T Sqrt(T const x) { return std::sqrt(x); }
+	template<typename T> inline T Sqrt(T const &x) { return std::sqrt(x); }
 }}
 
-#endif
+#endif /* END _GAS_MATH_H_ */

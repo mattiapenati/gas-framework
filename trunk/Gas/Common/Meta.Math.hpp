@@ -27,60 +27,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_SPARSEMATRIX_H_
-#define _GAS_SPARSEMATRIX_H_
+#ifndef _GAS_META_MATH_H_ /* BEGIN _GAS_META_MATH_H_ */
+#define _GAS_META_MATH_H_
 
-#include <cstddef>
-#include <cassert>
-#include <vector>
-#include "Gas/Common/Common.h"
-#include "Interface.hpp"
+#include "Math.hpp"
 
-namespace LinearAlgebra {
-	namespace Storage {
-		template<size_t M, size_t N, typename T=double>
-		class Coordinate: Interface::Matrix<M, N, T> {
-			private:
-				Common::List<T> val_;
-				Common::List<size_t> i_;
-				Common::List<size_t> j_;
-			public:
-				inline T &operator()(size_t const i, size_t const j) {
-					assert((i < M) and (j < N));
-					range(k, 0, val_.size()) {
-						if ((i_(k) == i) and (j_(k) == j)) return val_(k);
-						if (((i_(k) >= i) and (j_(k) > j)) or (i_(k) > i)) return 0;
-					}
-					return 0;
-				}
-				inline T const &operator()(size_t const i, size_t const j) {
-					assert((i < M) and (j < N));
-					range(k, 0, val_.size()) {
-						if ((i_(k) == i) and (j_(k) == j)) return val_(k);
-						if (((i_(k) >= i) and (j_(k) > j)) or (i_(k) > i)) return 0;
-					}
-					return 0;
-				}
-		};
-		template<size_t M, size_t N, typename T=double>
-		class Row: Interface::Matrix<M, N, T> {
-			private:
-			public:
-				Row();
-		};
-		template<size_t M, size_t N, typename T=double>
-		class Column: Interface::Matrix<M, N, T> {
-			private:
-			public:
-				Column();
-		};
-	}
-	template<size_t M, size_t N, typename T=double>
-	class SparseMatrix: Interface::Matrix<M, N, T> {
-		private:
-		public:
-			SparseMatrix();
-	};
-}
+/* These macro is used to define a mathematical function to use with meta
+ * programming, it is simple, you must define the function in the namespace
+ * Common::Math then use the macro. The second version is for binary operator,
+ * like plus or minus. All method are inlined for better performance.
+ * You can access to each function by the default method <FUNCTION_NAME>::RET(x) 
+ * or <BINARY_OPERATOR_NAME>::RET(a, b).
+ */
+#define GAS_DEFINE_META_MATH_FUNCTION(f) \
+template<typename T> \
+struct f { \
+	static inline T const RET(T const &x){ \
+		return Common::Math::f<T>(x); \
+	} \
+};
 
-#endif
+#define GAS_DEFINE_META_MATH_BINARY(f) \
+template<typename T> \
+struct f { \
+	static inline T const RET(T const &a, T const &b){ \
+		return Common::Math::f<T>(a, b); \
+	} \
+};
+
+namespace Common { namespace Meta { namespace Math {
+	/* Identity */ GAS_DEFINE_META_MATH_FUNCTION(Id)
+
+	/* Four basic operations */
+	GAS_DEFINE_META_MATH_BINARY(Sum)
+	GAS_DEFINE_META_MATH_BINARY(Sub)
+	GAS_DEFINE_META_MATH_BINARY(Mul)
+	GAS_DEFINE_META_MATH_BINARY(Div)
+
+	/* Division mod */
+	GAS_DEFINE_META_MATH_BINARY(Mod)
+
+	/* Abs  */ GAS_DEFINE_META_MATH_FUNCTION(Abs)
+	/* Conj */ GAS_DEFINE_META_MATH_FUNCTION(Conj)
+	/* Sqrt */ GAS_DEFINE_META_MATH_FUNCTION(Sqrt)
+}}}
+
+#endif /* END _GAS_META_MATH_H_ */
