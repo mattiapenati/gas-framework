@@ -203,7 +203,7 @@ namespace LinearAlgebra {
 		return A /= a;
 	}
 
-	/** Product between two matrices
+	/** Product Matrix Vector (default)
 	 *  @param A The first matrix
 	 *  @param B The second matrix **/
 	template<size_t P, size_t Q, typename T>
@@ -236,7 +236,7 @@ namespace LinearAlgebra {
 		return y;
 	}
 
-	/** Product between two matrices
+	/** Product between two matrices (default)
 	 *  @param A The first matrix
 	 *  @param B The second matrix **/
 	template<size_t P, size_t Q, size_t K, typename T>
