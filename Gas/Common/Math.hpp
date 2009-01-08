@@ -48,6 +48,11 @@ namespace Common { namespace Math {
 	/** Division mod **/
 	template<typename T> inline T Mod(T const &a, T const &b) { return a % b; }
 
+	/** Max **/
+	template<typename T> inline T Max(T const &a, T const &b) { return ((a < b) ? b : a); }
+	/** Min **/
+	template<typename T> inline T Min(T const &a, T const &b) { return ((a < b) ? a : b); }
+
 	/** Absolute value **/
 	template<typename T> inline T Abs(T const &x) { return std::abs(x); };
 

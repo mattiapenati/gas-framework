@@ -27,16 +27,55 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_H_
-#define _GAS_H_
+#ifndef _GAS_DEFINE_H_
+#define _GAS_DEFINE_H_
 
-// Automatically define _GAS_BE_VERBOSE_ if is defined _GAS_BE_VERY_VERBOSE_ 
-#ifdef _GAS_BE_VERY_VERBOSE_
-#define _GAS_BE_VERBOSE_
-#endif
+/*
+ * General definition
+ */
 
-#include "Common/Common.h"
-#include "LinearAlgebra/LinearAlgebra.h"
-#include "Integration/Integration.h"
+#undef MIN
+#define MIN(A, B) ((A < B) ? A : B)
+#undef MAX
+#define MAX(A, B) ((A < B) ? B : A)
+#undef NULL
+#define NULL 0
+
+/*
+ * Utility for Array.hpp
+ */
+
+/* The size of a small array */
+#undef _GAS_SMALL_ARRAY_
+#define _GAS_SMALL_ARRAY_ 1024
+/* The macro to check if an array is small or big */
+#undef _GAS_IS_SMALL_ARRAY_
+#define _GAS_IS_SMALL_ARRAY_(N, T) ((N * sizeof(T))<=_GAS_SMALL_ARRAY_)
+
+/*
+ * Utility for Meta.Math
+ */
+/* These macro is used to define a mathematical function to use with meta
+ * programming, it is simple, you must define the function in the namespace
+ * Common::Math then use the macro. The second version is for binary operator,
+ * like plus or minus. All method are inlined for better performance.
+ * You can access to each function by the default method <FUNCTION_NAME>::RET(x) 
+ * or <BINARY_OPERATOR_NAME>::RET(a, b).
+ */
+#define GAS_DEFINE_META_MATH_FUNCTION(f) \
+template<typename T> \
+struct f { \
+	static inline T const RET(T const &x){ \
+		return Common::Math::f<T>(x); \
+	} \
+};
+
+#define GAS_DEFINE_META_MATH_BINARY(f) \
+template<typename T> \
+struct f { \
+	static inline T const RET(T const &a, T const &b){ \
+		return Common::Math::f<T>(a, b); \
+	} \
+};
 
 #endif
