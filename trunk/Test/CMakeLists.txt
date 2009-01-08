@@ -1,6 +1,6 @@
 # LinearAlgebra
-add_executable(VectorTest LinearAlgebra/VectorTest.cpp)
-target_link_libraries(VectorTest cppunit)
+add_executable(Vector LinearAlgebra/Vector.cpp)
+target_link_libraries(Vector cppunit)
 
 # Common
 add_executable(Array Common/Array.cpp)

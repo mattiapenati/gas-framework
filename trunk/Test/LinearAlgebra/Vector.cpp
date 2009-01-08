@@ -33,6 +33,7 @@
 #include <cppunit/TestSuite.h>
 #include <cppunit/ui/text/TestRunner.h>
 
+#define _GAS_BE_VERY_VERBOSE_
 #include <Gas/Gas.h>
 
 using namespace LinearAlgebra;
@@ -40,7 +41,7 @@ using namespace LinearAlgebra;
 namespace Test {
 	class VectorTest: public CppUnit::TestFixture {
 		private:
-			Vector<1000, double> v1, v2, v3, v4, v5;
+			Vector<4, double> v1, v2, v3, v4, v5;
 		public:
 			void setUp() {
 				range(i, 0, v1.Size()) {

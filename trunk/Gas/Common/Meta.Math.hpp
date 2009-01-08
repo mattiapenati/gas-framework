@@ -30,30 +30,8 @@
 #ifndef _GAS_META_MATH_H_ /* BEGIN _GAS_META_MATH_H_ */
 #define _GAS_META_MATH_H_
 
+#include "Macro.hpp"
 #include "Math.hpp"
-
-/* These macro is used to define a mathematical function to use with meta
- * programming, it is simple, you must define the function in the namespace
- * Common::Math then use the macro. The second version is for binary operator,
- * like plus or minus. All method are inlined for better performance.
- * You can access to each function by the default method <FUNCTION_NAME>::RET(x) 
- * or <BINARY_OPERATOR_NAME>::RET(a, b).
- */
-#define GAS_DEFINE_META_MATH_FUNCTION(f) \
-template<typename T> \
-struct f { \
-	static inline T const RET(T const &x){ \
-		return Common::Math::f<T>(x); \
-	} \
-};
-
-#define GAS_DEFINE_META_MATH_BINARY(f) \
-template<typename T> \
-struct f { \
-	static inline T const RET(T const &a, T const &b){ \
-		return Common::Math::f<T>(a, b); \
-	} \
-};
 
 namespace Common { namespace Meta { namespace Math {
 	/* Identity */ GAS_DEFINE_META_MATH_FUNCTION(Id)
@@ -66,6 +44,9 @@ namespace Common { namespace Meta { namespace Math {
 
 	/* Division mod */
 	GAS_DEFINE_META_MATH_BINARY(Mod)
+
+	/* Max  */ GAS_DEFINE_META_MATH_BINARY(Max)
+	/* Min  */ GAS_DEFINE_META_MATH_BINARY(Min)
 
 	/* Abs  */ GAS_DEFINE_META_MATH_FUNCTION(Abs)
 	/* Conj */ GAS_DEFINE_META_MATH_FUNCTION(Conj)

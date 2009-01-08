@@ -34,18 +34,7 @@
 
 #include <cstring>
 
-/* TODO Move in some configuration file */
-#undef _GAS_SMALL_ARRAY_
-#define _GAS_SMALL_ARRAY_ 1024
-
-#undef _GAS_IS_SMALL_ARRAY_
-#define _GAS_IS_SMALL_ARRAY_(N, T) ((N * sizeof(T))<=_GAS_SMALL_ARRAY_)
-
-/* TODO Move somewhere */
-#undef MIN
-#define MIN(A, B) ((A < B) ? A : B)
-#undef MAX
-#define MAX(A, B) ((A < B) ? B : A)
+#include "Macro.hpp"
 
 namespace Common {
 	/* Compile-time array */
