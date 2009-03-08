@@ -7,5 +7,6 @@ link_directories(${GAS_BINARY_DIR}/Gas)
 # Subdirectory
 add_subdirectory(Documentation)
 add_subdirectory(Gas)
+add_subdirectory(Gas/SparseLib++)
 add_subdirectory(Main)
 add_subdirectory(Test)

@@ -30,6 +30,7 @@
 #ifndef _GAS_COMMON_H_
 #define _GAS_COMMON_H_
 
+
 /* Structure */
 #include "Array.hpp"
 	// #include "List.hpp"

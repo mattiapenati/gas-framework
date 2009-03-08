@@ -31,7 +31,7 @@
 #define _GAS_ITERABLE_H_
 
 /* The most common cicle over integer */
-#define range(V, A, B) for(int V = A; V < B; ++V)
+#define range(V, A, B) for(int V = int(A); V < int(B); ++V)
 /* To use with Iterable object */
 #define foreach(T, V, L) for(T &V = L.Rewind(); L.HasNext(); V = L.Next())
 
