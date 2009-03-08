@@ -10,9 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the <ORGANIZATION> nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -33,15 +30,16 @@
 #include <cppunit/TestSuite.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#define _GAS_BE_VERY_VERBOSE_
+// #define _GAS_VERBOSITY_ 10
 #include <Gas/Gas.h>
+#include <iostream>
 
 using namespace LinearAlgebra;
 
 namespace Test {
 	class VectorTest: public CppUnit::TestFixture {
 		private:
-			Vector<4, double> v1, v2, v3, v4, v5;
+			Vector<400, double> v1, v2, v3, v4, v5;
 		public:
 			void setUp() {
 				range(i, 0, v1.Size()) {
@@ -75,7 +73,11 @@ namespace Test {
 				CPPUNIT_ASSERT(v4 == v2);
 			}
 			void testAddition() {
-				CPPUNIT_ASSERT(v4 == (v2 + v3));
+				v5 = v2 + v3;
+//				bool T = (v4 == v2 + v3);
+//				range(i, 0, v4.Size()) { std::cout<<v4(i)<<std::endl; }
+//				std::cout << T << std::endl;
+				CPPUNIT_ASSERT(v4 == v2 + v3);
 			}
 
 			static CppUnit::Test *suite() {

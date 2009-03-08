@@ -10,9 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the <ORGANIZATION> nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -30,13 +27,28 @@
 #ifndef _GAS_H_
 #define _GAS_H_
 
-// Automatically define _GAS_BE_VERBOSE_ if is defined _GAS_BE_VERY_VERBOSE_ 
-#ifdef _GAS_BE_VERY_VERBOSE_
-#define _GAS_BE_VERBOSE_
+/* Definition of size_t */
+#ifndef __SIZE_TYPE__
+#define __SIZE_TYPE__ long unsigned int
+#endif
+#if !(defined (size_t))
+typedef __SIZE_TYPE__ size_t;
+#endif
+
+#ifndef _GAS_VERBOSITY_
+#define _GAS_VERBOSITY_ 0
+#endif
+
+#if _GAS_VERBOSITY_ >= 1
+#include <iostream>
+#endif
+
+#ifdef _GAS_CHECK_INDEX_
+#include <cassert>
 #endif
 
 #include "Common/Common.h"
-#include "LinearAlgebra/LinearAlgebra.h"
+#include "LinearAlgebra/LinearAlgebra.hpp"
 #include "Integration/Integration.h"
 
 #endif

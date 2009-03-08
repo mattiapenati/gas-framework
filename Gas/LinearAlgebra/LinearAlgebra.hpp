@@ -10,9 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the <ORGANIZATION> nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,32 +24,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_SOLVER_H_
-#define _GAS_SOLVER_H_
-
-#include "Vector.hpp"
-#include "Matrix.hpp"
+#ifndef _GAS_LINEARALGEBRA_H_ /* BEGIN _GAS_LINEARALGEBRA_H_ */
+#define _GAS_LINEARALGEBRA_H_
 
 namespace LinearAlgebra {
-	namespace Solver {
-		template <size_t N, typename T>
-		class Solver {
-			public:
-				virtual Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b&) = 0;
-		};
-
-		template <size_t N, typename T>
-		class LU: virtual public Solver<N, T> {
-			public:
-				Vector<N, T> &operator()(Matrix<N, N, T> &A, Vector<N, T> b&);
-		};
+	template<size_t N, typename T=double, typename C=Common::Array<T, N> > class Vector;
+	template<size_t M, size_t N, typename T=double, typename C=Common::Array<Common::Array<T, N>, M> > class Matrix;
+	namespace Meta {
+		template<size_t N, typename T, typename E, typename F=Common::Meta::Math::Id<T> > class Expression;
+		template<size_t N, typename T, typename L, typename R, typename F> class BinaryExpression;
 	}
-
-	template <size_t N, typename T>
-	Vector<N, T> Solve(Matrix<N, N, T> &A, Vector<N, T> b&, Solver::Solver<N, T> Solver);
-
-	template <size_t N, typename T>
-	Vector<N, T> Solve(Matrix<N, N, T> &A, Vector<N, T> b&);
 }
 
-#endif
+#include "Meta.hpp"
+#include "Vector.hpp"
+//#include "Matrix.hpp"
+
+#endif /* END _GAS_LINEARALGEBRA_H_ */

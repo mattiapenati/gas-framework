@@ -10,9 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the <ORGANIZATION> nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -44,11 +41,13 @@ namespace Common {
 			template<size_t M, typename S, bool C>
 			struct Storage {
 				S data_[M];
+				Storage() {}
+				~Storage() {}
 				Storage<M, S, C> &operator=(Storage<M, S, C> const &s) { memcpy(&data_, &(s.data_), M * sizeof(S)); return *this; }
 			};
 			template<size_t M, typename S>
 			struct Storage<M, S, false> {
-				T *data_;
+				S *data_;
 				Storage() { data_ = new S[M]; }
 				~Storage() { delete[] data_; }
 				Storage<M, S, false> &operator=(Storage<M, S, false> const &s) { memcpy(data_, s.data_, M * sizeof(S)); return *this; }
