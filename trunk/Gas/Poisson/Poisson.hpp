@@ -51,7 +51,8 @@ class Poisson {
 	public:
 		typedef CDT::Point Point;
 		typedef std::list<Point> PointList;
-		
+		typedef std::list<Vb> VertexList;
+
 		Poisson(PointList &);
 		~Poisson();
 		void solve();
@@ -73,3 +74,16 @@ class Poisson {
 		// Copia la soluzione nella tringolazione
 		void saveSolution_(Vector &);
 };
+
+void makeTriangulation_(){
+	VertexList Pb_;
+	
+	for (int i=0;i<boundary_.size();i++){
+		Pb_(i)=cdt.insert(boundary_(i));
+	}
+	for (int i=0;i<Pb_.size()-2;i++) {
+		cdt.insert_constraint(Pb_(i),Pb_(i+1));	
+	}
+	Mesher mesher(cdt_);
+	mesher.refine_mesh();
+}
