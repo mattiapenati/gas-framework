@@ -1,10 +1,3 @@
-include_directories(
-	${GAS_SOURCE_DIR}/Gas/SparseLib++/
-	${GAS_SOURCE_DIR}/Gas/SparseLib++/mv/
-)
-add_definitions(-DCOMPLEX=std::complex<double>)
-
-
 add_library(sparse STATIC
 	compcol_double.cc
 	comprow_double.cc
