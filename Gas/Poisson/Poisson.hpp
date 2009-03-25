@@ -211,6 +211,36 @@ void Poisson::makeMatrix(Matrix &A) {
 	A.newsize(n, n, nz);
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
 	while (itF != cdt_.finite_faces_end()) {
+		// Coordinate vertici del triangolo
+		double x0 = itF->vertex(0)->point().x();
+		double y0 = itF->vertex(0)->point().y();
+		double x1 = itF->vertex(1)->point().x();
+		double y1 = itF->vertex(1)->point().y();
+		double x2 = itF->vertex(2)->point().x();
+		double y2 = itF->vertex(2)->point().y();
+		// Indici vertici del triangolo
+		int i0 = itF->vertex(0)->info().index();
+		int i1 = itF->vertex(1)->info().index();
+		int i2 = itF->vertex(2)->info().index();
+		// Determinante dello Jacobiano
+		double invdetJ = 1/((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
+		// Vettori ausiliari
+		double phi01 = y0 - y2 + x2 - x0;
+		double phi02 = y1 - y0 + x0 - x1;
+		double phi11 = y2 - y0;
+		double phi12 = y0 - y1;
+		double phi21 = x0 - x2;
+		double phi22 = x1 - x0;
+		// Assemblaggio matrice di stiffness
+		A(i0,i0) = (0.5)*invdetJ*((phi01*phi01) + (phi02*phi02));
+		A(i0,i1) = (0.5)*invdetJ*((phi11*phi01) + (phi12*phi02));
+		A(i0,i2) = (0.5)*invdetJ*((phi21*phi01) + (phi22*phi02));		
+		A(i1,i0) = (0.5)*invdetJ*((phi01*phi11) + (phi02*phi12));
+		A(i1,i1) = (0.5)*invdetJ*((phi11*phi11) + (phi12*phi12));		
+		A(i1,i2) = (0.5)*invdetJ*((phi21*phi11) + (phi22*phi12));	
+		A(i2,i0) = (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
+		A(i2,i1) = (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
+		A(i2,i2) = (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
 	}
 }
 
