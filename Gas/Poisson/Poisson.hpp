@@ -41,7 +41,8 @@ class Poisson {
 	private:
 		// LinearAlgebra
 		typedef CompRow_Mat_double Matrix;
-		
+		typedef MV_Vector_double Vector;		
+
 		CDT cdt_;
 	private:
 		typedef std::list<CDT::Vertex_handle> VertexList;
@@ -52,6 +53,7 @@ class Poisson {
 		void setBConditions();
 		// Costruzione matrice
 		void makeMatrix(Matrix &);
+		void makeTermineNoto(Vector &);
 };
 
 /*
@@ -66,6 +68,8 @@ Poisson::Poisson(PointList const &boundary) {
 	Matrix A;
 	makeMatrix(A);
 	// Costruzione termine noto
+	Vector F;
+	makeTermineNoto(F);
 	// Soluzione del sistema lineare
 	// Salvataggio della soluzione nella griglia
 }
@@ -232,16 +236,34 @@ void Poisson::makeMatrix(Matrix &A) {
 		double phi21 = x0 - x2;
 		double phi22 = x1 - x0;
 		// Assemblaggio matrice di stiffness
-		A(i0,i0) = (0.5)*invdetJ*((phi01*phi01) + (phi02*phi02));
-		A(i0,i1) = (0.5)*invdetJ*((phi11*phi01) + (phi12*phi02));
-		A(i0,i2) = (0.5)*invdetJ*((phi21*phi01) + (phi22*phi02));		
-		A(i1,i0) = (0.5)*invdetJ*((phi01*phi11) + (phi02*phi12));
-		A(i1,i1) = (0.5)*invdetJ*((phi11*phi11) + (phi12*phi12));		
-		A(i1,i2) = (0.5)*invdetJ*((phi21*phi11) + (phi22*phi12));	
-		A(i2,i0) = (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
-		A(i2,i1) = (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
-		A(i2,i2) = (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
+		A.set(i0,i0) = (0.5)*invdetJ*((phi01*phi01) + (phi02*phi02));
+		A.set(i0,i1) = (0.5)*invdetJ*((phi11*phi01) + (phi12*phi02));
+		A.set(i0,i2) = (0.5)*invdetJ*((phi21*phi01) + (phi22*phi02));		
+		A.set(i1,i0) = (0.5)*invdetJ*((phi01*phi11) + (phi02*phi12));
+		A.set(i1,i1) = (0.5)*invdetJ*((phi11*phi11) + (phi12*phi12));		
+		A.set(i1,i2) = (0.5)*invdetJ*((phi21*phi11) + (phi22*phi12));	
+		A.set(i2,i0) = (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
+		A.set(i2,i1) = (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
+		A.set(i2,i2) = (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
 	}
 }
+/*
+ * Costruzione termine noto
+ */
+void Poisson::makeTermineNoto(Vector &F) {
+	// Calcolo dimensione del vettore termine noto
+	unsigned int n = 0u;
+	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
+	CDT::Vertex_circulator cV;
+	while (itV != cdt_.finite_vertices_end()) {
+		cV = cdt_.incident_vertices(itV);
+		if (!(cV->info().isDirichlet()))
+			++n;
+	}
+	//Assegnazione del termine noto
+	F.newsize(n);
+	F = 1;
+}
+
 
 #endif // POISSON_HPP
