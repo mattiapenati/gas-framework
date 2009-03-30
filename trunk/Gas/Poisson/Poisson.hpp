@@ -14,6 +14,7 @@
 
 #include "Gas/SparseLib++/comprow_double.h"
 
+#include "Gas/SparseLib++/mv/mvvi.h"
 #include <list>
 #include <fstream>
 #include <iostream>
@@ -42,6 +43,7 @@ class Poisson {
 		// LinearAlgebra
 		typedef CompRow_Mat_double Matrix;
 		typedef MV_Vector_double Vector;		
+		typedef MV_Vector_int VectorInt;
 
 		CDT cdt_;
 	private:
@@ -62,8 +64,8 @@ class Poisson {
 Poisson::Poisson(PointList const &boundary) {
 	// Costruzione della griglia
 	insertNodes(boundary);
-	enumNodes();
 	setBConditions();
+	enumNodes();
 	// Costruzione matrice
 	Matrix A;
 	makeMatrix(A);
@@ -165,19 +167,6 @@ void Poisson::insertNodes(PointList const &boundary_) {
 }
 
 /*
- * Associa ad ogni nodo un indice
- */
-void Poisson::enumNodes() {
-	unsigned int i = 0u;
-	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
-	while(itV != cdt_.finite_vertices_end()) {
-		itV->info().index() = i;
-		++i;
-		++itV;
-	}
-}
-
-/*
  * Inserisce le condizioni al contorno
  */
 void Poisson::setBConditions() {
@@ -187,6 +176,21 @@ void Poisson::setBConditions() {
 		cV->info().toDirichlet();
 		++cV;
 	} while(cV != begin);
+}
+
+/*
+ * Associa ad ogni nodo un indice
+ */
+void Poisson::enumNodes() {
+	unsigned int i = 0u;
+	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
+	while(itV != cdt_.finite_vertices_end()) {
+		if (!itV->info().isDirichlet()) {
+			itV->info().index() = i;
+			++i;
+		}
+		++itV;
+	}
 }
 
 /*
@@ -201,7 +205,7 @@ void Poisson::makeMatrix(Matrix &A) {
 	CDT::Vertex_circulator begin;
 	while (itV != cdt_.finite_vertices_end()) {
 		cV = cdt_.incident_vertices(itV);
-		if (!(cV->info().isDirichlet()))
+		if (!(itV->info().isDirichlet()))
 			++n;
 		begin = cV;
 		do {
@@ -214,6 +218,9 @@ void Poisson::makeMatrix(Matrix &A) {
 	// Inserimento valori
 	A.newsize(n, n, nz);
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
+	Vector Tmp;
+	Tmp.newsize(n*n);
+	Tmp = 0;
 	while (itF != cdt_.finite_faces_end()) {
 		// Coordinate vertici del triangolo
 		double x0 = itF->vertex(0)->point().x();
@@ -235,16 +242,34 @@ void Poisson::makeMatrix(Matrix &A) {
 		double phi12 = y0 - y1;
 		double phi21 = x0 - x2;
 		double phi22 = x1 - x0;
+
+		
 		// Assemblaggio matrice di stiffness
-		A.set(i0,i0) = (0.5)*invdetJ*((phi01*phi01) + (phi02*phi02));
-		A.set(i0,i1) = (0.5)*invdetJ*((phi11*phi01) + (phi12*phi02));
-		A.set(i0,i2) = (0.5)*invdetJ*((phi21*phi01) + (phi22*phi02));		
-		A.set(i1,i0) = (0.5)*invdetJ*((phi01*phi11) + (phi02*phi12));
-		A.set(i1,i1) = (0.5)*invdetJ*((phi11*phi11) + (phi12*phi12));		
-		A.set(i1,i2) = (0.5)*invdetJ*((phi21*phi11) + (phi22*phi12));	
-		A.set(i2,i0) = (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
-		A.set(i2,i1) = (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
-		A.set(i2,i2) = (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
+		Tmp(n*i0+i0) += (0.5)*invdetJ*((phi01*phi01) + (phi02*phi02));
+		Tmp(n*i0+i1) += (0.5)*invdetJ*((phi11*phi01) + (phi12*phi02));
+		Tmp(n*i0+i2) += (0.5)*invdetJ*((phi21*phi01) + (phi22*phi02));		
+		Tmp(n*i1+i0) += (0.5)*invdetJ*((phi01*phi11) + (phi02*phi12));
+		Tmp(n*i1+i1) += (0.5)*invdetJ*((phi11*phi11) + (phi12*phi12));		
+		Tmp(n*i1+i2) += (0.5)*invdetJ*((phi21*phi11) + (phi22*phi12));	
+		Tmp(n*i2+i0) += (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
+		Tmp(n*i2+i1) += (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
+		Tmp(n*i2+i2) += (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
+	}
+	int j = 0;
+	int k = 0;
+	for(int i = 0; i < n*n; ++i) {
+		if(Tmp(i) != 0.) {
+			// Valore
+			A.val(j) = Tmp(i);
+			// Indice colonna
+			A.col_ind(j) = i % n;
+			// Indice riga
+			if (i % n == 0) {
+				A.row_ptr(k) = j;
+				k++;
+			}
+			j++;
+		}
 	}
 }
 /*
@@ -252,13 +277,12 @@ void Poisson::makeMatrix(Matrix &A) {
  */
 void Poisson::makeTermineNoto(Vector &F) {
 	// Calcolo dimensione del vettore termine noto
-	unsigned int n = 0u;
+	int n = 0;
 	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
-	CDT::Vertex_circulator cV;
 	while (itV != cdt_.finite_vertices_end()) {
-		cV = cdt_.incident_vertices(itV);
-		if (!(cV->info().isDirichlet()))
+		if (!(itV->info().isDirichlet()))
 			++n;
+		++itV;
 	}
 	//Assegnazione del termine noto
 	F.newsize(n);
