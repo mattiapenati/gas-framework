@@ -254,6 +254,9 @@ void Poisson::makeMatrix(Matrix &A) {
 		Tmp(n*i2+i0) += (0.5)*invdetJ*((phi01*phi21) + (phi02*phi22));	
 		Tmp(n*i2+i1) += (0.5)*invdetJ*((phi11*phi21) + (phi12*phi22));	
 		Tmp(n*i2+i2) += (0.5)*invdetJ*((phi21*phi21) + (phi22*phi22));
+		
+		// Avanzamento dell'iteratore
+		++itF;
 	}
 	int j = 0;
 	int k = 0;
