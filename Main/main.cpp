@@ -1,6 +1,6 @@
 #include "Gas/Poisson/Poisson.hpp"
 
-#define NP 15
+#define NP 25
 
 #include <cmath>
 
