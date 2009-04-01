@@ -4,6 +4,11 @@
 
 #include <cmath>
 
+
+double f(double const & x, double const & y) {
+	return 4.;
+}
+
 int main(int argc, char **argv) {
 	Poisson::PointList bound;
 	double th = 0.;
@@ -14,7 +19,7 @@ int main(int argc, char **argv) {
 		y = std::sin(th);
 		bound.push_back(Poisson::Point(x, y));
 	}
-	Poisson p(bound);
+	Poisson p(bound, f);
 	p.saveToSVG("grid.svg");
 	return 0;
 }
