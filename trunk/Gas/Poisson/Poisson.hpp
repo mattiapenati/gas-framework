@@ -34,11 +34,13 @@ class Poisson {
 		typedef CGAL::Constrained_Delaunay_triangulation_2<K, Tds> CDT;
 		
 		typedef CGAL::Delaunay_mesh_size_criteria_2<CDT> Criteria;
+		
+		typedef double (*func)(double const &, double const &);
 	public:
 		typedef CDT::Point Point;
 		typedef std::list<Point> PointList;
 	public:
-		Poisson(PointList const &);
+		Poisson(PointList const &, func);
 		~Poisson();
 		void saveToSVG(char const *, bool const);
 	private:
@@ -49,6 +51,8 @@ class Poisson {
 		CDT cdt_;
 		
 		unsigned int n_point;
+		
+		func dato_al_bordo;
 	private:
 		typedef std::list<CDT::Vertex_handle> VertexList;
 		
@@ -71,7 +75,10 @@ class Poisson {
 /*
  * Costruttore di default
  */
-Poisson::Poisson(PointList const &boundary) {
+Poisson::Poisson(PointList const &boundary, func f) {
+	
+	dato_al_bordo = f;
+	
 	// Costruzione della griglia
 	insertNodes(boundary);
 	setBConditions();
@@ -113,7 +120,7 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 	// Calcolo altezza e larghezza
 	double xmin, xmax, ymin, ymax, umin, umax;
 	double x, y, u;
-	int color;
+	int color, r, g ,b;
 	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
 	xmin = xmax = itV->point().x();
 	ymin = ymax = itV->point().y();
@@ -157,10 +164,13 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 			u /= 3;
 			
 			// Calcolo dei colori
-			color = 255 * (u - umin ) / (umax - umin); 
+			color = 255 * (u - umin ) / (umax - umin);
+			r = color;
+			g = color;
+			b = color;
 			
 			// Stampa a file
-			f << "<g id=\"triangulation\" fill=\"rgb(0, 0, "<<color<<")\" stroke=\"white\" widht=\"3\">\n";
+			f << "<g id=\"triangulation\" fill=\"rgb("<<r<<", "<<g<<", "<<b<<")\" stroke=\"white\" widht=\"3\">\n";
 			f << "\t<polygon points=\""<<static_cast<int>(x1)<<", "<<static_cast<int>(y1)<<" "\
 			  << static_cast<int>(x2)<<", "<<static_cast<int>(y2)<<" "\
 			  << static_cast<int>(x3)<<", "<<static_cast<int>(y3)<<"\" />\n";
@@ -345,9 +355,9 @@ void Poisson::makeTermineNoto(Vector &F) {
 		bool b2 = !itF->vertex(2)->info().isDirichlet();
 		
 		// Inserimento valori
-		if (b0) F[i0] += detJ * 2 / 3;
-		if (b1) F[i1] += detJ * 2 / 3;
-		if (b2) F[i2] += detJ * 2 / 3;
+		if (b0) F[i0] += detJ * dato_al_bordo(x0, y0) / 6;
+		if (b1) F[i1] += detJ * dato_al_bordo(x1, y1) / 6;
+		if (b2) F[i2] += detJ * dato_al_bordo(x2, y2) / 6;
 		
 		// Avanzamento dell'iteratore
 		++itF;
