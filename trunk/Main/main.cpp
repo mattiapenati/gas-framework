@@ -6,20 +6,16 @@
 
 
 double f(double const & x, double const & y) {
-	return 4.;
+	return std::sin(2 * x)*std::sin(2 * y);
 }
 
 int main(int argc, char **argv) {
 	Poisson::PointList bound;
-	double th = 0.;
-	double x, y;
-	for (int i = 0; i < NP; ++i) {
-		th = 2. * i * M_PI / NP; 
-		x = std::cos(th);
-		y = std::sin(th);
-		bound.push_back(Poisson::Point(x, y));
-	}
-	Poisson p(bound, f);
-	p.saveToSVG("grid.svg");
+	bound.push_back(Poisson::Point(+M_PI, +M_PI));
+	bound.push_back(Poisson::Point(-M_PI, +M_PI));
+	bound.push_back(Poisson::Point(-M_PI, -M_PI));
+	bound.push_back(Poisson::Point(+M_PI, -M_PI));
+	Poisson p(bound, f, 0.2);
+	p.saveToSVG("grid.svg", false);
 	return 0;
 }
