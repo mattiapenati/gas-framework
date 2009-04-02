@@ -21,6 +21,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 class Poisson {
 	private:
@@ -40,7 +41,7 @@ class Poisson {
 		typedef CDT::Point Point;
 		typedef std::list<Point> PointList;
 	public:
-		Poisson(PointList const &, func);
+		Poisson(PointList const &, func, double const & criteria = 0.);
 		~Poisson();
 		void saveToSVG(char const *, bool const);
 	private:
@@ -57,7 +58,7 @@ class Poisson {
 		typedef std::list<CDT::Vertex_handle> VertexList;
 		
 		// Generazione griglia
-		void insertNodes(PointList const &);
+		void insertNodes(PointList const &, double const &);
 		void enumNodes();
 		void setBConditions();
 		
@@ -75,12 +76,12 @@ class Poisson {
 /*
  * Costruttore di default
  */
-Poisson::Poisson(PointList const &boundary, func f) {
+Poisson::Poisson(PointList const &boundary, func f, double const & criteria) {
 	
 	dato_al_bordo = f;
 	
 	// Costruzione della griglia
-	insertNodes(boundary);
+	insertNodes(boundary, criteria);
 	setBConditions();
 	enumNodes();
 	
@@ -143,40 +144,41 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 	f << "<svg width=\""<<W<<"px\" height=\""<<H<<"px\" " \
 	  << "version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 	// Triangolazione
-	if (triangulation) {
-		CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
-		while(itF != cdt_.finite_faces_end()) {
-			// Calcolo dei punti
-			double x1 = itF->vertex(0)->point().x(); double y1 = itF->vertex(0)->point().y();
-			double x2 = itF->vertex(1)->point().x(); double y2 = itF->vertex(1)->point().y();
-			double x3 = itF->vertex(2)->point().x(); double y3 = itF->vertex(2)->point().y();
-			x1 = (x1 - xmin) / (xmax - xmin); y1 = 1 - (y1 - ymin) / (ymax - ymin);
-			x2 = (x2 - xmin) / (xmax - xmin); y2 = 1 - (y2 - ymin) / (ymax - ymin);
-			x3 = (x3 - xmin) / (xmax - xmin); y3 = 1 - (y3 - ymin) / (ymax - ymin);
-			x1 = x1 * W; y1 = y1 * H;
-			x2 = x2 * W; y2 = y2 * H;
-			x3 = x3 * W; y3 = y3 * H;
-			
-			u = 0.;
-			u += itF->vertex(0)->info().value();
-			u += itF->vertex(1)->info().value();
-			u += itF->vertex(2)->info().value();
-			u /= 3;
-			
-			// Calcolo dei colori
-			color = 255 * (u - umin ) / (umax - umin);
-			r = color;
-			g = color;
-			b = color;
-			
-			// Stampa a file
-			f << "<g id=\"triangulation\" fill=\"rgb("<<r<<", "<<g<<", "<<b<<")\" stroke=\"white\" widht=\"3\">\n";
-			f << "\t<polygon points=\""<<static_cast<int>(x1)<<", "<<static_cast<int>(y1)<<" "\
-			  << static_cast<int>(x2)<<", "<<static_cast<int>(y2)<<" "\
-			  << static_cast<int>(x3)<<", "<<static_cast<int>(y3)<<"\" />\n";
-			f << "</g>\n";
-			++itF;
-		}
+	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
+	while(itF != cdt_.finite_faces_end()) {
+		// Calcolo dei punti
+		double x1 = itF->vertex(0)->point().x(); double y1 = itF->vertex(0)->point().y();
+		double x2 = itF->vertex(1)->point().x(); double y2 = itF->vertex(1)->point().y();
+		double x3 = itF->vertex(2)->point().x(); double y3 = itF->vertex(2)->point().y();
+		x1 = (x1 - xmin) / (xmax - xmin); y1 = 1 - (y1 - ymin) / (ymax - ymin);
+		x2 = (x2 - xmin) / (xmax - xmin); y2 = 1 - (y2 - ymin) / (ymax - ymin);
+		x3 = (x3 - xmin) / (xmax - xmin); y3 = 1 - (y3 - ymin) / (ymax - ymin);
+		x1 = x1 * W; y1 = y1 * H;
+		x2 = x2 * W; y2 = y2 * H;
+		x3 = x3 * W; y3 = y3 * H;
+		
+		u = 0.;
+		u += itF->vertex(0)->info().value();
+		u += itF->vertex(1)->info().value();
+		u += itF->vertex(2)->info().value();
+		u /= 3;
+		
+		// Calcolo dei colori
+		color = 255 * (u - umin ) / (umax - umin);
+		r = color;
+		g = color;
+		b = 0;
+		
+		// Stampa a file
+		if (triangulation)
+			f << "<g id=\"triangulation\" fill=\"rgb("<<r<<", "<<g<<", "<<b<<")\" stroke=\"white\" width=\"1\">\n";
+		else
+			f << "<g id=\"triangulation\" fill=\"rgb("<<r<<", "<<g<<", "<<b<<")\" stroke=\"rgb("<<r<<", "<<g<<", "<<b<<")\" width=\"1\">\n";
+		f << "\t<polygon points=\""<<static_cast<int>(x1)<<", "<<static_cast<int>(y1)<<" "\
+			<< static_cast<int>(x2)<<", "<<static_cast<int>(y2)<<" "\
+			<< static_cast<int>(x3)<<", "<<static_cast<int>(y3)<<"\" />\n";
+		f << "</g>\n";
+		++itF;
 	}
 	f  << "</svg>\n";
 }
@@ -184,12 +186,19 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 /*
  * Inserimento dei nodi
  */
-void Poisson::insertNodes(PointList const &boundary_) {
+void Poisson::insertNodes(PointList const &boundary_, double const & criteria) {
+	
+	// Criterio mesher
+	double minimo = 0.;
+	double d;
+	double x0, y0, x1, y1;
+	
 	// Vertex handle list
 	VertexList Pb_;
 	
 	// Inserimento punti
 	PointList::const_iterator itP;
+	
 	for (itP = boundary_.begin(); itP != boundary_.end(); ++itP)
 		Pb_.push_back(cdt_.insert(*itP));
 	
@@ -197,8 +206,28 @@ void Poisson::insertNodes(PointList const &boundary_) {
 	VertexList::const_iterator itV1 = Pb_.begin();
 	VertexList::const_iterator itV2 = Pb_.begin();
 	++itV2;
+	
+	x0 = (*itV1)->point().x();
+	y0 = (*itV1)->point().y();
+	x1 = (*itV2)->point().x();
+	y1 = (*itV2)->point().y();
+	
+	minimo = std::sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1));
+	
 	while(itV2 != Pb_.end()) {
 		cdt_.insert_constraint(*itV1, *itV2);
+		
+		// lunghezza del lato
+		x0 = (*itV1)->point().x();
+		y0 = (*itV1)->point().y();
+		x1 = (*itV2)->point().x();
+		y1 = (*itV2)->point().y();
+	
+		d = std::sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1));
+		if (d < minimo)
+			minimo = d;
+		
+		// avanzamento
 		++itV1;
 		++itV2;
 	}
@@ -206,8 +235,20 @@ void Poisson::insertNodes(PointList const &boundary_) {
 	// Ultimo lato
 	cdt_.insert_constraint(Pb_.front(), Pb_.back());
 	
+	x0 = Pb_.front()->point().x();
+	y0 = Pb_.front()->point().y();
+	x1 = Pb_.back()->point().x();
+	y1 = Pb_.back()->point().y();
+
+	d = std::sqrt((x0-x1)*(x0-x1)+(y0-y1)*(y0-y1));
+	if (d < minimo)
+		minimo = d;
+	
+	if (criteria != 0.)
+		minimo = criteria;
+	
 	// Raffinamento
-	CGAL::refine_Delaunay_mesh_2(cdt_, Criteria(0.125, 0.4));
+	CGAL::refine_Delaunay_mesh_2(cdt_, Criteria(0.125, minimo));
 }
 
 /*
@@ -258,19 +299,18 @@ void Poisson::makeMatrix(Matrix &A) {
 		// Area del triangolo
 		double detJ = ((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
 		detJ = std::abs(detJ);
-		if (detJ <= 0.001) {
+		if (detJ <= 0.0001) {
 			++itF;    // Questo serve per evitare un bug nella libreria CGAL
 			continue;
 		}
+		
+		// Determinante dello Jacobiano
+		double invdetJ = 1./detJ;
 		
 		// Indici vertici del triangolo
 		int i0 = itF->vertex(0)->info().index();
 		int i1 = itF->vertex(1)->info().index();
 		int i2 = itF->vertex(2)->info().index();
-		
-		// Determinante dello Jacobiano
-		double invdetJ = 0.5/detJ;
-		// std::cout << invdetJ << std::endl;
 		
 		// Vettori ausiliari
 		double phi01 = y0 - y2 + x2 - x0;
@@ -287,15 +327,16 @@ void Poisson::makeMatrix(Matrix &A) {
 		
 		// Assemblaggio matrice di stiffness
 		
-		if (b0 && b0) Tmp(n_point*i0+i0) += invdetJ*((phi01*phi01) + (phi02*phi02));
-		if (b0 && b1) Tmp(n_point*i0+i1) += invdetJ*((phi11*phi01) + (phi12*phi02));
-		if (b0 && b2) Tmp(n_point*i0+i2) += invdetJ*((phi21*phi01) + (phi22*phi02));		
-		if (b1 && b0) Tmp(n_point*i1+i0) += invdetJ*((phi01*phi11) + (phi02*phi12));
-		if (b1 && b1) Tmp(n_point*i1+i1) += invdetJ*((phi11*phi11) + (phi12*phi12));		
-		if (b1 && b2) Tmp(n_point*i1+i2) += invdetJ*((phi21*phi11) + (phi22*phi12));	
-		if (b2 && b0) Tmp(n_point*i2+i0) += invdetJ*((phi01*phi21) + (phi02*phi22));	
-		if (b2 && b1) Tmp(n_point*i2+i1) += invdetJ*((phi11*phi21) + (phi12*phi22));	
-		if (b2 && b2) Tmp(n_point*i2+i2) += invdetJ*((phi21*phi21) + (phi22*phi22));
+		// Termine di diffusione
+		if (b0 && b0) Tmp(n_point*i0+i0) += 0.5*invdetJ*((phi01*phi01) + (phi02*phi02));
+		if (b0 && b1) Tmp(n_point*i0+i1) += 0.5*invdetJ*((phi11*phi01) + (phi12*phi02));
+		if (b0 && b2) Tmp(n_point*i0+i2) += 0.5*invdetJ*((phi21*phi01) + (phi22*phi02));		
+		if (b1 && b0) Tmp(n_point*i1+i0) += 0.5*invdetJ*((phi01*phi11) + (phi02*phi12));
+		if (b1 && b1) Tmp(n_point*i1+i1) += 0.5*invdetJ*((phi11*phi11) + (phi12*phi12));		
+		if (b1 && b2) Tmp(n_point*i1+i2) += 0.5*invdetJ*((phi21*phi11) + (phi22*phi12));	
+		if (b2 && b0) Tmp(n_point*i2+i0) += 0.5*invdetJ*((phi01*phi21) + (phi02*phi22));	
+		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*((phi11*phi21) + (phi12*phi22));	
+		if (b2 && b2) Tmp(n_point*i2+i2) += 0.5*invdetJ*((phi21*phi21) + (phi22*phi22));
 		
 		// Avanzamento dell'iteratore
 		++itF;
@@ -339,7 +380,7 @@ void Poisson::makeTermineNoto(Vector &F) {
 		// Area del triangolo
 		double detJ = ((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
 		detJ = std::abs(detJ);
-		if (detJ <= 0.001) {
+		if (detJ <= 0.0001) {
 			++itF;    // Questo serve per evitare un bug nella libreria CGAL
 			continue;
 		} 
@@ -370,10 +411,9 @@ void Poisson::makeTermineNoto(Vector &F) {
 
 void Poisson::solveSystem(Matrix const & A, Vector & x, Vector const & b) {
 	double tol = 1.e-6;
-	int result, maxit = n_point;
+	int maxit = n_point;
+	int result;
 	CompRow_Mat_double Atmp(A);
-	
-	printPattern("stiffness.ppm", Atmp);
 	
 	DiagPreconditioner_double D(Atmp);
 	
@@ -397,21 +437,21 @@ void Poisson::saveSolution(Vector const & x) {
  * Pattern della matrice
  */
 void Poisson::printPattern(char const * name, Matrix const & A) {
-	std::fstream ppm;
-	ppm.open(name, std::ios_base::out);
+	std::fstream pbm;
+	pbm.open(name, std::ios_base::out);
 	
 	unsigned int cols = A.dim(0);
 	unsigned int rows = A.dim(1);
 	
-	ppm<<"P3"<<std::endl<<cols<<" "<<rows<<std::endl<<"255"<<std::endl;
+	pbm<<"P1"<<std::endl<<cols<<" "<<rows<<std::endl;
 	
 	for (unsigned int i = 0 ; i < rows; ++i) {
 		for (unsigned int j = 0 ; j < cols; ++j) {
-			if (A(i, j) == 0) {
-				ppm<<"255 255 255"<<std::endl;
-			} else {
-				ppm<<"0 0 0"<<std::endl;
-			}
+			if (A(i, j) == 0)
+				pbm<<"1 ";
+			else
+				pbm<<"0 ";
+			pbm<<std::endl;
 		}
 	}
 }
