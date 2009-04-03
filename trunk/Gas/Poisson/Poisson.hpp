@@ -66,8 +66,9 @@ class Poisson {
 		void makeMatrixTermineNoto(Matrix &, Vector &);
 		void printPattern(char const *, Matrix const &);
 		
-		//void makeTermineNoto(Vector &);
+		// Risoluzione del sistema lineare
 		void solveSystem(Matrix const &, Vector &, Vector const &);
+		
 		// Salvataggio soluzione
 		void saveSolution(Vector const &);
 		
@@ -85,14 +86,10 @@ Poisson::Poisson(PointList const &boundary, func f, double const & criteria) {
 	setBConditions();
 	enumNodes();
 	
-	// Costruzione matrice
+	// Costruzione matrice termine noto
 	Matrix A;
 	Vector F;	
 	makeMatrixTermineNoto(A, F);
-	
-	// Costruzione termine noto
-
-//	makeTermineNoto(F);
 	
 	// Soluzione del sistema lineare
 	Vector x(n_point, 0.);
