@@ -63,10 +63,10 @@ class Poisson {
 		void setBConditions();
 		
 		// Costruzione matrice
-		void makeMatrix(Matrix &);
+		void makeMatrixTermineNoto(Matrix &, Vector &);
 		void printPattern(char const *, Matrix const &);
 		
-		void makeTermineNoto(Vector &);
+		//void makeTermineNoto(Vector &);
 		void solveSystem(Matrix const &, Vector &, Vector const &);
 		// Salvataggio soluzione
 		void saveSolution(Vector const &);
@@ -87,11 +87,12 @@ Poisson::Poisson(PointList const &boundary, func f, double const & criteria) {
 	
 	// Costruzione matrice
 	Matrix A;
-	makeMatrix(A);
+	Vector F;	
+	makeMatrixTermineNoto(A, F);
 	
 	// Costruzione termine noto
-	Vector F;
-	makeTermineNoto(F);
+
+//	makeTermineNoto(F);
 	
 	// Soluzione del sistema lineare
 	Vector x(n_point, 0.);
@@ -281,11 +282,13 @@ void Poisson::enumNodes() {
 }
 
 /*
- * Assemblaggio della matrice di stiffness
+ * Assemblaggio della matrice di stiffness e del termine noto
  */
-void Poisson::makeMatrix(Matrix &A) {
+void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 	// Inserimento valori
 	Vector Tmp;
+	F.newsize(n_point);
+	F = 0.;
 	Tmp.newsize(n_point * n_point);
 	Tmp = 0.;
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
@@ -338,6 +341,13 @@ void Poisson::makeMatrix(Matrix &A) {
 		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*((phi11*phi21) + (phi12*phi22));	
 		if (b2 && b2) Tmp(n_point*i2+i2) += 0.5*invdetJ*((phi21*phi21) + (phi22*phi22));
 		
+		// Costruzione termine noto
+		
+		// Inserimento valori
+		if (b0) F[i0] += detJ * dato_al_bordo(x0, y0) / 6;
+		if (b1) F[i1] += detJ * dato_al_bordo(x1, y1) / 6;
+		if (b2) F[i2] += detJ * dato_al_bordo(x2, y2) / 6;
+		
 		// Avanzamento dell'iteratore
 		++itF;
 	}
@@ -359,49 +369,6 @@ void Poisson::makeMatrix(Matrix &A) {
 			A.row_ind(j) = i / n_point;
 			j++;
 		}
-	}
-}
-/*
- * Costruzione termine noto
- */
-void Poisson::makeTermineNoto(Vector &F) {
-	//Assegnazione del termine noto
-	F.newsize(n_point);
-	F = 0.;
-	
-	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
-	while(itF != cdt_.finite_faces_end()) {
-		
-		// Coordinate vertici del triangolo
-		double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
-		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
-		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
-		
-		// Area del triangolo
-		double detJ = ((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
-		detJ = std::abs(detJ);
-		if (detJ <= 0.0001) {
-			++itF;    // Questo serve per evitare un bug nella libreria CGAL
-			continue;
-		} 
-		
-		// Indici vertici del triangolo
-		int i0 = itF->vertex(0)->info().index();
-		int i1 = itF->vertex(1)->info().index();
-		int i2 = itF->vertex(2)->info().index();
-		
-		// Condizioni al bordo
-		bool b0 = !itF->vertex(0)->info().isDirichlet();
-		bool b1 = !itF->vertex(1)->info().isDirichlet();
-		bool b2 = !itF->vertex(2)->info().isDirichlet();
-		
-		// Inserimento valori
-		if (b0) F[i0] += detJ * dato_al_bordo(x0, y0) / 6;
-		if (b1) F[i1] += detJ * dato_al_bordo(x1, y1) / 6;
-		if (b2) F[i2] += detJ * dato_al_bordo(x2, y2) / 6;
-		
-		// Avanzamento dell'iteratore
-		++itF;
 	}
 }
 
