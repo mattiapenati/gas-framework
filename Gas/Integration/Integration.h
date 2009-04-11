@@ -30,6 +30,20 @@
 #ifndef _GAS_INTEGRATION_H_
 #define _GAS_INTEGRATION_H_
 
-#include "Integration1D.hpp"
+// #include "Integration1D.hpp"
+
+#include "Integrator.hpp"
+
+namespace Geometry {
+
+#include "geometry/Triangle.hpp"
+
+}
+
+namespace Method {
+
+#include "method/NewtonCotes_2.hpp"
+
+}
 
 #endif
