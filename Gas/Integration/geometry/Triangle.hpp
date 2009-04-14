@@ -11,6 +11,7 @@ class Triangle {
 		/* parametri della trasformazione */
 		double J[2][2];
 		double b[2];
+		double detJ;
 	public:
 		Triangle () {
 		}
@@ -25,7 +26,12 @@ class Triangle {
 			x[2] = face.vertex(2)->point().x(); y[2] = face.vertex(2)->point().y();
 			
 			/* calcolare J e b: questi sono necessari */
-			/* TODO */
+			J[0][0] = x[1] - x[0]; 
+			J[0][1] = x[2] - x[0];
+			J[1][0] = y[1] - y[0];
+			J[1][1] = y[2] - y[0];
+			b[0] = x[0];
+			b[1] = y[0];
 		}
 		
 		/* copia */
@@ -41,18 +47,17 @@ class Triangle {
 		
 		/* trasforma le coordinate dal riferimento 
 		 * a questo triangolo */
-		double xTransform (double const & x) {
-			/* TODO x = J x + b */
+		double xTransform (double const & x, double const & y) {
+			x = J[0][0] * x + J[0][1] * y + b[0];
 			return x;
 		}
-		double yTransform (double const & y) {
-			/* TODO y = J y + b */
+		double yTransform (double const & x, double const & y) {
+			y = J[1][0] * x + J[1][1] * y + b[1];
 			return y;
 		}
-		
 		/* il determinante di J */
 		double area() {
-			/* TODO */
+			detJ = J[0][0]*J[1][1] - J[1][0]*J[0][1];
 			return 0.;
 		}
 };
