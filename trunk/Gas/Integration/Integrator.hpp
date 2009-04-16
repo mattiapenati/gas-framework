@@ -5,7 +5,7 @@
  * - costruisco l'integratore con il metodo richiesto, Newton-Cotes
  *   su un triangolo (basato sulla faccia CGAL) e di ordine 2
  *
- *    typedef Integrator< NewtonCotes_2<Geometry::Triangle<Fb>, 1> > Int
+ *    typedef Integrator< Method::NewtonCotes_2<Geometry::Triangle<Fb>, 1> > Int
  *    Int it;
  *
  * - definisco il dominio su cui viene applicato partendo dalla faccia

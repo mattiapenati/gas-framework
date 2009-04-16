@@ -1,8 +1,7 @@
 #ifndef GAS_TRIANGLE_HPP
 #define GAS_TRIANGLE_HPP
 
-/* questo template definisce il tipo che viene usato 
- * per memorizzare una faccia */
+/* questo template definisce il tipo che viene usato per memorizzare una faccia */
 template<typename Fb>
 class Triangle {
 	public:
@@ -47,18 +46,15 @@ class Triangle {
 		
 		/* trasforma le coordinate dal riferimento 
 		 * a questo triangolo */
-		double xTransform (double const & x, double const & y) {
-			x = J[0][0] * x + J[0][1] * y + b[0];
-			return x;
+		double xTransform (double const & x, double const & y) const {
+			return J[0][0] * x + J[0][1] * y + b[0];
 		}
-		double yTransform (double const & x, double const & y) {
-			y = J[1][0] * x + J[1][1] * y + b[1];
-			return y;
+		double yTransform (double const & x, double const & y) const {
+			return J[1][0] * x + J[1][1] * y + b[1];
 		}
 		/* il determinante di J */
-		double area() {
-			detJ = J[0][0]*J[1][1] - J[1][0]*J[0][1];
-			return 0.;
+		double area () const {
+			return J[0][0]*J[1][1] - J[1][0]*J[0][1];
 		}
 };
 

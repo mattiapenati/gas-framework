@@ -12,10 +12,12 @@
 
 #include "Info.hpp"
 
-#include "Gas/SparseLib++/coord_double.h"
-#include "Gas/SparseLib++/comprow_double.h"
-#include "Gas/SparseLib++/diagpre_double.h"
-#include "Gas/Iml/cg.h"
+#include "../SparseLib++/coord_double.h"
+#include "../SparseLib++/comprow_double.h"
+#include "../SparseLib++/diagpre_double.h"
+#include "../Iml/cg.h"
+
+#include "../Integration/Integration.h"
 
 #include <list>
 #include <fstream>
@@ -40,6 +42,7 @@ class Poisson {
 	public:
 		typedef CDT::Point Point;
 		typedef std::list<Point> PointList;
+
 	public:
 		Poisson(PointList const &, func, double const & criteria = 0.);
 		~Poisson();
@@ -48,14 +51,21 @@ class Poisson {
 		// LinearAlgebra
 		typedef Coord_Mat_double Matrix;
 		typedef MV_Vector_double Vector;
-
+		
+		// Integrator
+		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle<CDT::Face>, 1> >  Integrator2;
+		
 		CDT cdt_;
+		Integrator2 NC;
 		
 		unsigned int n_point;
 		
 		func dato_al_bordo;
 	private:
-		typedef std::list<CDT::Vertex_handle> VertexList;
+		// Base P1
+		static double P1_phi0 (double const & x, double const & y) { return 1 - x -y; }
+		static double P1_phi1 (double const & x, double const & y) { return x; }
+		static double P1_phi2 (double const & x, double const & y) { return y; }
 		
 		// Generazione griglia
 		void insertNodes(PointList const &, double const &);
@@ -77,7 +87,7 @@ class Poisson {
 /*
  * Costruttore di default
  */
-Poisson::Poisson(PointList const &boundary, func f, double const & criteria) {
+Poisson::Poisson(PointList const &boundary, func f, double const & criteria) : NC() {
 	
 	dato_al_bordo = f;
 	
@@ -192,6 +202,7 @@ void Poisson::insertNodes(PointList const &boundary_, double const & criteria) {
 	double x0, y0, x1, y1;
 	
 	// Vertex handle list
+	typedef std::list<CDT::Vertex_handle> VertexList;
 	VertexList Pb_;
 	
 	// Inserimento punti
@@ -286,6 +297,7 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 	Vector Tmp;
 	F.newsize(n_point);
 	F = 0.;
+	// TODO migliorare l'utilizzo delle matrici sparse
 	Tmp.newsize(n_point * n_point);
 	Tmp = 0.;
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
@@ -296,11 +308,16 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
 		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
 		
+		// Geometria dell'integratore
+		Integrator2::Geometry g(*itF);
+		
 		// Area del triangolo
-		double detJ = ((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
+		double detJ = g.area();
+		
+		// Questo serve per evitare un bug nella libreria CGAL
 		detJ = std::abs(detJ);
-		if (detJ <= 0.0001) {
-			++itF;    // Questo serve per evitare un bug nella libreria CGAL
+		if (detJ <= 1.0e-4) {
+			++itF;
 			continue;
 		}
 		
@@ -330,20 +347,21 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		// Termine di diffusione
 		if (b0 && b0) Tmp(n_point*i0+i0) += 0.5*invdetJ*((phi01*phi01) + (phi02*phi02));
 		if (b0 && b1) Tmp(n_point*i0+i1) += 0.5*invdetJ*((phi11*phi01) + (phi12*phi02));
-		if (b0 && b2) Tmp(n_point*i0+i2) += 0.5*invdetJ*((phi21*phi01) + (phi22*phi02));		
+		if (b0 && b2) Tmp(n_point*i0+i2) += 0.5*invdetJ*((phi21*phi01) + (phi22*phi02));
 		if (b1 && b0) Tmp(n_point*i1+i0) += 0.5*invdetJ*((phi01*phi11) + (phi02*phi12));
-		if (b1 && b1) Tmp(n_point*i1+i1) += 0.5*invdetJ*((phi11*phi11) + (phi12*phi12));		
-		if (b1 && b2) Tmp(n_point*i1+i2) += 0.5*invdetJ*((phi21*phi11) + (phi22*phi12));	
-		if (b2 && b0) Tmp(n_point*i2+i0) += 0.5*invdetJ*((phi01*phi21) + (phi02*phi22));	
-		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*((phi11*phi21) + (phi12*phi22));	
+		if (b1 && b1) Tmp(n_point*i1+i1) += 0.5*invdetJ*((phi11*phi11) + (phi12*phi12));
+		if (b1 && b2) Tmp(n_point*i1+i2) += 0.5*invdetJ*((phi21*phi11) + (phi22*phi12));
+		if (b2 && b0) Tmp(n_point*i2+i0) += 0.5*invdetJ*((phi01*phi21) + (phi02*phi22));
+		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*((phi11*phi21) + (phi12*phi22));
 		if (b2 && b2) Tmp(n_point*i2+i2) += 0.5*invdetJ*((phi21*phi21) + (phi22*phi22));
 		
-		// Costruzione termine noto
+		// Definizione del dominio dell'integrazione
+		NC.domain(g);
 		
-		// Inserimento valori
-		if (b0) F[i0] += detJ * dato_al_bordo(x0, y0) / 6;
-		if (b1) F[i1] += detJ * dato_al_bordo(x1, y1) / 6;
-		if (b2) F[i2] += detJ * dato_al_bordo(x2, y2) / 6;
+		// Costruzione termine noto
+		if (b0) F[i0] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi0);
+		if (b1) F[i1] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi1);
+		if (b2) F[i2] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi2);
 		
 		// Avanzamento dell'iteratore
 		++itF;
