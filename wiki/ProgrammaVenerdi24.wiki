@@ -1,0 +1,11 @@
+= Mattina =
+
+ * *9:00*: ritrovo e colazione al bar di architettura.
+ * *9:30*: inizio dei lavori (con anziani al seguito). Scrittura dell'algoritmo degli stimatori (calcolo e raffinamento). Opzionale: inserimento termine di reazione. 
+ * *12:30*: pranzo e pausa caffè + sigaretta al bar di architettura.
+
+= Pomeriggio =
+
+ * *14:00*: ritorno dalla pausa.
+ * *14:05*: ricominciano i lavori (senza gli anziani). Implementazione e test del codice.
+ * *15:30*: un'altra pausa con sigaretta.
