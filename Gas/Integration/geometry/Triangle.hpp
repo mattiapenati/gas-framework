@@ -10,7 +10,7 @@ class Triangle {
 		/* parametri della trasformazione */
 		double J[2][2];
 		double b[2];
-		double detJ;
+
 	public:
 		Triangle () {
 		}
@@ -53,7 +53,7 @@ class Triangle {
 			return J[1][0] * x + J[1][1] * y + b[1];
 		}
 		/* il determinante di J */
-		double area () const {
+		double det () const {
 			return J[0][0]*J[1][1] - J[1][0]*J[0][1];
 		}
 };

@@ -53,7 +53,7 @@ class Poisson {
 		typedef MV_Vector_double Vector;
 		
 		// Integrator
-		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle<CDT::Face>, 1> >  Integrator2;
+		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle<CDT::Face>, 2> >  Integrator2;
 		
 		CDT cdt_;
 		Integrator2 NC;
@@ -312,7 +312,7 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		Integrator2::Geometry g(*itF);
 		
 		// Area del triangolo
-		double detJ = g.area();
+		double detJ = g.det();
 		
 		// Questo serve per evitare un bug nella libreria CGAL
 		detJ = std::abs(detJ);
