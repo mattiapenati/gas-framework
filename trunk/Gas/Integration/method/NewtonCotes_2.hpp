@@ -48,9 +48,9 @@ class NewtonCotes_2<Geometry::Triangle<Fb>, 1> {
 	public:
 		NewtonCotes_2 () : g_() {
 			/* init nodes and weight */
-			x[0] = 0.; x[1] = 1.; x[2] = 0.;
-			y[0] = 0.; y[1] = 0.; y[2] = 1.;
-			w[0] = w[1] = w[2] = 1./6.;
+			x[0] = 0.1666666666667; x[1] = 0.6666666666667; x[2] = 0.1666666666667;
+			y[0] = 0.6666666666667; y[1] = 0.1666666666667; y[2] = 0.1666666666667;
+			w[0] = w[1] = w[2] = 0.6666666666667;
 		}
 		
 		void setGeometry(Geometry const & g) {
@@ -70,6 +70,8 @@ class NewtonCotes_2<Geometry::Triangle<Fb>, 1> {
 			r += w[1] * f( t.x(x[1], y[1]) , t.y(x[1], y[1]) );
 			r += w[2] * f( t.x(x[2], y[2]) , t.y(x[2], y[2]) );
 			
+			r *= g_.det();
+			
 			return r;
 		}
 		template<typename TransformationPolicy1, typename TransformationPolicy2>
@@ -82,7 +84,7 @@ class NewtonCotes_2<Geometry::Triangle<Fb>, 1> {
 			r += w[1] * f( t1.x(x[1], y[1]) , t1.y(x[1], y[1]) ) * g( t2.x(x[1], y[1]) , t2.y(x[1], y[1]) );
 			r += w[2] * f( t1.x(x[2], y[2]) , t1.y(x[2], y[2]) ) * g( t2.x(x[2], y[2]) , t2.y(x[2], y[2]) );
 			
-			r *= g_.area();
+			r *= g_.det();
 			
 			return r;
 		}
@@ -127,8 +129,8 @@ class NewtonCotes_2<Geometry::Triangle<Fb>, 2> {
 	public:
 		NewtonCotes_2 () : g_() {
 			/* init nodes and weight */
-			x[0] = 0.; x[1] = 1.; x[2] = 0.; x[3] = 0.; x[4] = 0.5; x[5] = 0.5;
-			y[0] = 0.; y[1] = 0.; y[2] = 1.; y[3] = 0.5; y[4] = 0.; y[5] = 0.5;
+			x[0] = 0.0915762135098; x[1] = 0.8168475729805; x[2] = 0.0915762135098; x[3] = 0.1081030181681; x[4] = 0.4459484909160; x[5] = 0.4459484909160;
+			y[0] = 0.0915762135098; y[1] = 0.0915762135098; y[2] = 0.8168475729805; y[3] = 0.4459484909160; y[4] = 0.1081030181681; y[5] = 0.4459484909160;
 			w[0] = w[1] = w[2] = 0.2199034873106;
 			w[3] = w[4] = w[5] = 0.446763179356;
 		}
@@ -149,24 +151,24 @@ class NewtonCotes_2<Geometry::Triangle<Fb>, 2> {
 			r += w[4] * f( t.x(x[4], y[4]) , t.y(x[4], y[4]) );
 			r += w[5] * f( t.x(x[5], y[5]) , t.y(x[5], y[5]) );
 			
-			r *= g_.area();
+			r *= g_.det();
 			
 			return r;
 		}
 		template<typename TransformationPolicy1, typename TransformationPolicy2>
 		double applyMul (Function const & f, Function const & g) {
-			TransformationPolicy1 t1;
-			TransformationPolicy2 t2;
+			TransformationPolicy1 t1(g_);
+			TransformationPolicy2 t2(g_);
 			double r = 0.;
 			
-			r += w[0] * f( t1.x(x[0]) , t1.y(y[0]) ) * g( t2.x(x[0]) , t2.y(y[0]) );
-			r += w[1] * f( t1.x(x[1]) , t1.y(y[1]) ) * g( t2.x(x[1]) , t2.y(y[1]) );
-			r += w[2] * f( t1.x(x[2]) , t1.y(y[2]) ) * g( t2.x(x[2]) , t2.y(y[2]) );
-			r += w[3] * f( t1.x(x[3]) , t1.y(y[3]) ) * g( t2.x(x[3]) , t2.y(y[3]) );
-			r += w[4] * f( t1.x(x[4]) , t1.y(y[4]) ) * g( t2.x(x[4]) , t2.y(y[4]) );
-			r += w[5] * f( t1.x(x[5]) , t1.y(y[5]) ) * g( t2.x(x[5]) , t2.y(y[5]) );
+			r += w[0] * f( t1.x(x[0], y[0]) , t1.y(x[0], y[0]) ) * g( t2.x(x[0], y[0]) , t2.y(x[0], y[0]) );
+			r += w[1] * f( t1.x(x[1], y[1]) , t1.y(x[1], y[1]) ) * g( t2.x(x[1], y[1]) , t2.y(x[1], y[1]) );
+			r += w[2] * f( t1.x(x[2], y[2]) , t1.y(x[2], y[2]) ) * g( t2.x(x[2], y[2]) , t2.y(x[2], y[2]) );
+			r += w[3] * f( t1.x(x[3], y[3]) , t1.y(x[3], y[3]) ) * g( t2.x(x[3], y[3]) , t2.y(x[3], y[3]) );
+			r += w[4] * f( t1.x(x[4], y[4]) , t1.y(x[4], y[4]) ) * g( t2.x(x[4], y[4]) , t2.y(x[4], y[4]) );
+			r += w[5] * f( t1.x(x[5], y[5]) , t1.y(x[5], y[5]) ) * g( t2.x(x[5], y[5]) , t2.y(x[5], y[5]) );
 			
-			r *= g_.area();
+			r *= g_.det();
 			
 			return r;
 		}
