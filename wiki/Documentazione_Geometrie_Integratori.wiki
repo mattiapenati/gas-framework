@@ -1,0 +1,47 @@
+=*IMPLEMENTAZIONE DI FORMULE DI QUADRATURA NUMERICA*=
+
+== Introduzione ==
+
+_Geometria di riferimento:_
+ * come funziona l'integrazione numerica (nodi e pesi)
+ * necessità di implementare una classe che si occupi della trasformazione della geometria
+
+== Prima Parte ==
+
+ # _Geometria del triangolo:_ (nostro caso particolare)
+    * Trasformazione affine: x = J x + b
+ # _Design d'interfaccia:_
+    * class Triangle {
+      semplificato, solo metodi senza distinguere public o private
+     }
+    * per ogni metodo quali scelte sono state fatte?
+       * costruttore: templatizzato in modo tale da rendere più agevole l'estensione della classe per l'utilizzo di strutture dati per la triangolazione differenti da quella scelta nel nostro caso.(Esempio di estensione)
+       * xTrasform e yTrasform
+       * det()
+ # _Un esempio di costruzione di una nuova geometria :_
+    * costruzione matematica
+    * immediata costruzione della classe
+       * design e implementazione
+ # _Possibili estensioni:_
+    * square, geometrie curvilinee
+
+== Seconda Parte ==
+
+ # _Somiglianze:_
+     * Metodo: sommatoria dei pesi moltiplicati per i valori nodali
+         * utilizzo dell'ereditarietà
+     * definizione di una classe generica che implementi l'algoritmo di integrazione
+ # _Differenze:_
+     * Nodi e Pesi:
+         * trucco con i template in modo da evitare la scrittura di codice ridondante
+ # _Design d'interfaccia:_ (di method2)
+     * costruttore, domain, integrate senza template
+     * integrazione del prodotto di più funzioni, poichè nei metodi di Galerkin compaiono forme bilineari e trilineari
+     * policies, utilizzo e motivazione (le funzioni di base sono sempre le stesse quando ci si riconduce al triangolo di riferimento)
+     * modifica al codice:
+         * template<> double integrate()
+         * integrateMul()
+ # _Definizione del metodo di integrazione:_
+     * Newton Cotes2 
+     * implementazione
+ # _Esempio pratico di utilizzo dell'integratore_
