@@ -24,208 +24,61 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_LINEARALGEBRA_VECTOR_H_ /* BEGIN _GAS_LINEARALGEBRA_VECTOR_H_ */
-#define _GAS_LINEARALGEBRA_VECTOR_H_
+template < typename Type , unsigned int Dimension >
+class Vector {
 
-#include "Gas/Gas.h"
-
-/* Definitions of classes methods */
-namespace LinearAlgebra {
-
-	/* A simple class for vector that use the expressions templates for evaluating operations */
-	template<size_t N, typename T, typename C>
-	class Vector {
-		public:
-			/* Constructor */
-			Vector();
-			Vector(T const);
-			Vector(Vector<N, T, C> const &);
-			template<typename D>
-			Vector(Vector<N, T, D> const &);
-			template<typename E, typename F>
-			explicit Vector(Meta::Expression<N, T, E, F> const &);
-
-			/* Desctructor */
-			~Vector();
-
-			/* Question */
-			inline size_t Size();
-			inline T &operator()(size_t const);
-			inline T const &operator()(size_t const) const;
-
-			/* Check */
-			bool operator==(T const &);
-			template<typename D>
-			bool operator==(Vector<N, T, D> const &);
-			template<typename E, typename F>
-			bool operator==(Meta::Expression<N, T, E, F> const &);
-
-			/* Copy */
-			Vector<N, T, C> &operator=(T const &);
-			template<typename D>
-			Vector<N, T, C> &operator=(Vector<N, T, D> const &);
-			template<typename E, typename F>
-			Vector<N, T, C> &operator=(Meta::Expression<N, T, E, F> const &);
-
-			/* Sum */
-			Vector<N, T, C> &operator+=(T const &);
-			template<typename D>
-			Vector<N, T, C> &operator+=(Vector<N, T, D> const &);
-			template<typename E, typename F>
-			Vector<N, T, C> &operator+=(Meta::Expression<N, T, E, F> const &);
-
-			/* Subtract */
-			Vector<N, T, C> &operator-=(T const &);
-			template<typename D>
-			Vector<N, T, C> &operator-=(Vector<N, T, D> const &);
-			template<typename E, typename F>
-			Vector<N, T, C> &operator-=(Meta::Expression<N, T, E, F> const &);
-
-			/* Multiply */
-			Vector<N, T, C> &operator*=(T const &);
-
-			/* Divide */
-			Vector<N, T, C> &operator/=(T const &);
-
-		private:
-			C v_;
-	};
-
-	/* Vector<N, T, C> + Vector<N, T, D> */
-	template<size_t N, typename T, typename C, typename D>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, Vector<N, T, D>, Common::Meta::Math::Sum<T> > >
-	operator+(Vector<N, T, C> &, Vector<N, T, D> &);
-	/* T + Vector<N, T, C> */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, T, Vector<N, T, C>, Common::Meta::Math::Sum<T> > >
-	operator+(T const &, Vector<N, T, C> &);
-	/* Vector<N, T> + T */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, T, Common::Meta::Math::Sum<T> > >
-	operator+(Vector<N, T, C> &, T const &);
-	/* Expression<N, T, E, F> + Vector<N, T, C> */
-	template<size_t N, typename T, typename E, typename F, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Meta::Expression<N, T, E, F>, Vector<N, T, C>, Common::Meta::Math::Sum<T> > >
-	operator+(Meta::Expression<N, T, E, F> const &, Vector<N, T, C> &);
-	/* Vector<N, T, C> + Expression<N, T, E, F> */
-	template<size_t N, typename T, typename C, typename E, typename F>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, Meta::Expression<N, T, E, F>, Common::Meta::Math::Sum<T> > >
-	operator+(Vector<N, T, C> &, Meta::Expression<N, T, E, F> const &);
-
-	/* Vector<N, T, C> - Vector<N, T, D> */
-	template<size_t N, typename T, typename C, typename D>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, Vector<N, T, D>, Common::Meta::Math::Sub<T> > >
-	operator-(Vector<N, T, C> &, Vector<N, T, D> &);
-	/* T - Vector<N, T, C> */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, T, Vector<N, T, C>, Common::Meta::Math::Sub<T> > >
-	operator-(T const &, Vector<N, T, C> &);
-	/* Vector<N, T, C> - T */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, T, Common::Meta::Math::Sub<T> > >
-	operator-(Vector<N, T, C> &, T const &);
-	/* Expression<N, T, E, F> - Vector<N, T, C> */
-	template<size_t N, typename T, typename E, typename F, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Meta::Expression<N, T, E, F>, Vector<N, T, C>, Common::Meta::Math::Sub<T> > >
-	operator-(Meta::Expression<N, T, E, F> const &, Vector<N, T, C> &);
-	/* Vector<N, T, C> - Expression<N, T, E, F> */
-	template<size_t N, typename T, typename C, typename E, typename F>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, Meta::Expression<N, T, E, F>, Common::Meta::Math::Sub<T> > >
-	operator-(Vector<N, T, C> &, Meta::Expression<N, T, E, F> const &);
-
-	/* T * Vector<N, T, C> */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, T, Vector<N, T, C>, Common::Meta::Math::Mul<T> > >
-	operator*(T const &, Vector<N, T, C> &);
-	/* Vector<N, T, C> * T */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, T, Common::Meta::Math::Mul<T> > >
-	operator*(Vector<N, T, C> &, T const &);
-
-	/* Vector<N, T, C> / T */
-	template<size_t N, typename T, typename C>
-	Meta::Expression<N, T, Meta::BinaryExpression<N, T, Vector<N, T, C>, T, Common::Meta::Math::Div<T> > >
-	operator/(Vector<N, T, C> &, T const &);
-
-	/* Vector<N, T, C> * Vector<N, T, D> */
-	template<size_t N, typename T, typename C, typename D>
-	T operator*(Vector<N, T, C> const &, Vector<N, T, D> const &);
-	/* Vector<N, T, C> * Expression<N, T, E, F> */
-	template<size_t N, typename T, typename C, typename E, typename F>
-	T operator*(Vector<N, T, C> const &, Meta::Expression<N, T, E, F> const &);
-	/* Expression<N, T, E, G> * Vector<N, T, C> */
-	template<size_t N, typename T, typename E, typename F, typename C> 
-	T operator*(Meta::Expression<N, T, E, F> const &, Vector<N, T, C> const &);
+	public:
+		/* constructor */
+		Vector ( );
+		Vector ( Type const & );
+		
+		/* destructor */
+		~Vector ( );
+		
+		/* access */
+		inline Type & operator() ( unsigned int const & );
+		inline Type const & operator() ( unsigned int const & ) const;
 	
-	namespace Meta {
-		/* A container for expression */
-		template<size_t N, typename T, typename F, typename C>
-		class Expression<N, T, Vector<N, T, C>, F> {
-			public:
-				explicit Expression(Vector<N, T, C> const &);
-				~Expression();
-				inline T const operator()(size_t const &) const;
-			private:
-				Vector<N, T, C> const &e_;
-		};
-		/* A container for binary expression: F(Vector<N, T, C>, Vector<N, T, D>) */
-		template<size_t N, typename T, typename C, typename D, typename F>
-		class BinaryExpression<N, T, Vector<N, T, C>, Vector<N, T, D>, F> {
-			public:
-				explicit BinaryExpression(Vector<N, T, C> const &, Vector<N, T, D> const &);
-				~BinaryExpression();
-				inline T const operator()(size_t const &) const;
-			private:
-				Vector<N, T, C> const &l_;
-				Vector<N, T, D> const &r_;
-		};
-		/* A container for binary expression: F(Vector<N, T, C>, R) */
-		template<size_t N, typename T, typename C, typename R, typename F>
-		class BinaryExpression<N, T, Vector<N, T, C>, R, F> {
-			public:
-				explicit BinaryExpression(Vector<N, T, C> const &, R const &);
-				~BinaryExpression();
-				inline T const operator()(size_t const &) const;
-			private:
-				Vector<N, T, C> const &l_;
-				R r_;
-		};
-		/* A container for binary expression: F(L, Vector<N, T, C>) */
-		template<size_t N, typename T, typename L, typename C, typename F>
-		class BinaryExpression<N, T, L, Vector<N, T, C>, F> {
-			public:
-				explicit BinaryExpression(L const &, Vector<N, T, C> const &);
-				~BinaryExpression();
-				inline T const operator()(size_t const &) const;
-			private:
-				L l_;
-				Vector<N, T, C> const &r_;
-		};
-		/* A container for binary expression: F(Vector<N, T, C>, T) */
-		template<size_t N, typename T, typename C, typename F>
-		class BinaryExpression<N, T, Vector<N, T, C>, T, F> {
-			public:
-				explicit BinaryExpression(Vector<N, T, C> const &, T const &);
-				~BinaryExpression();
-				inline T const operator()(size_t const &) const;
-			private:
-				Vector<N, T, C> const &l_;
-				T r_;
-		};
-		/* A container for binary expression: F(T, Vector<N, T, C>) */
-		template<size_t N, typename T, typename C, typename F>
-		class BinaryExpression<N, T, T, Vector<N, T, C>, F> {
-			public:
-				explicit BinaryExpression(T const &, Vector<N, T, C> const &);
-				~BinaryExpression();
-				inline T const operator()(size_t const &) const;
-			private:
-				T l_;
-				Vector<N, T, C> const &r_;
-		};
-	}
+	private:
+		Type value_[Dimension];
+
+};
+
+/* default constructor */
+template < typename Type , unsigned int Dimension >
+Vector < Type , Dimension >::Vector ( ) {
 }
 
-#include "Vector.cpp"
+/* constructor by value */
+template < typename Type , unsigned int Dimension >
+Vector < Type , Dimension >::Vector ( Type const & scalar ) {
+	for ( unsigned int i = 0u ; i < Dimension ; ++i )
+		value_[i] = scalar;
+}
 
-#endif /* END _GAS_LINEARALGEBRA_VECTOR_H_ */
+/* destructor */
+template < typename Type , unsigned int Dimension >
+Vector < Type , Dimension >::~Vector ( ) {
+}
+
+/* access */
+template < typename Type , unsigned int Dimension >
+Type & Vector < Type , Dimension >::operator() ( unsigned int const & i ) {
+	return value_[i];
+}
+template < typename Type , unsigned int Dimension >
+Type const & Vector < Type , Dimension >::operator() ( unsigned int const & i ) const {
+	return value_[i];
+}
+
+/* dot product */
+template < typename Type , unsigned int Dimension >
+Type dot ( Vector < Type , Dimension > const & v , Vector < Type , Dimension > const & w ) {
+	Type r();
+	
+	for ( unsigned int i = 0u ; i < Dimension ; ++i ) {
+		r += v(i) * w(i);
+	}
+	
+	return r;
+}

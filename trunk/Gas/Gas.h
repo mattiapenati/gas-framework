@@ -47,8 +47,9 @@ typedef __SIZE_TYPE__ size_t;
 #include <cassert>
 #endif
 
-// #include "Common/Common.h"
-// #include "LinearAlgebra/LinearAlgebra.hpp"
+#include <cmath>
+
+#include "LinearAlgebra/LinearAlgebra.h"
 #include "Integration/Integration.h"
 #include "Poisson/Poisson.hpp"
 
