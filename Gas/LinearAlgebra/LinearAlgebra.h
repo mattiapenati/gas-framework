@@ -24,20 +24,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_LINEARALGEBRA_H_ /* BEGIN _GAS_LINEARALGEBRA_H_ */
+#ifndef _GAS_LINEARALGEBRA_H_
 #define _GAS_LINEARALGEBRA_H_
 
 namespace LinearAlgebra {
-	template<size_t N, typename T=double, typename C=Common::Array<T, N> > class Vector;
-	template<size_t M, size_t N, typename T=double, typename C=Common::Array<Common::Array<T, N>, M> > class Matrix;
-	namespace Meta {
-		template<size_t N, typename T, typename E, typename F=Common::Meta::Math::Id<T> > class Expression;
-		template<size_t N, typename T, typename L, typename R, typename F> class BinaryExpression;
-	}
+
+#include "Vector.hpp"
+#include "Matrix.hpp"
+
+namespace Solver {
+
+#include "solver/solver.hpp"
+#include "solver/upper.hpp"
+#include "solver/lower.hpp"
+#include "solver/lower1.hpp"
+#include "solver/lu.hpp"
+#include "solver/diagonal.hpp"
+#include "solver/cholesky.hpp"
+
 }
 
-#include "Meta.hpp"
-#include "Vector.hpp"
-//#include "Matrix.hpp"
+}
 
-#endif /* END _GAS_LINEARALGEBRA_H_ */
+#endif // _GAS_LINEARALGEBRA_H_

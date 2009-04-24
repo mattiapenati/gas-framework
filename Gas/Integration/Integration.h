@@ -42,6 +42,7 @@ namespace Geometry {
 
 namespace Method {
 
+#include "method/method_2.hpp"
 #include "method/NewtonCotes_2.hpp"
 
 }

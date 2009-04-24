@@ -10,9 +10,6 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the <ORGANIZATION> nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -27,250 +24,62 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_MATRIX_H_
-#define _GAS_MATRIX_H_
+template < typename Type , unsigned int Row , unsigned int Column >
+class Matrix {
 
-#include <cstdlib>
-extern "C" {
-#include <cblas.h>
-}
-#include "Vector.hpp"
-#include "Gas/Common/Common.h"
-
-namespace LinearAlgebra {
-	template<size_t M, size_t N, typename T=double>
-	class Matrix {
-		private:
-			T data[M][N];
-		public:
-			Matrix();
-			Matrix(T const);
-			Vector<N, T> operator[](size_t const);
-			bool operator==(T const &);
-			bool operator==(Matrix<M, N, T> const &);
-			Matrix<M, N, T> &operator=(T const &);
-			Matrix<M, N, T> &operator=(Matrix<M, N, T> const &);
-			Matrix<M, N, T> &operator+=(T const &);
-			Matrix<M, N, T> &operator+=(Matrix<M, N, T> const &);
-			Matrix<M, N, T> &operator-=(T const &);
-			Matrix<M, N, T> &operator-=(Matrix<M, N, T> const &);
-			Matrix<M, N, T> &operator*=(T const &);
-			Matrix<M, N, T> &operator/=(T const &);	
+	public:
+		/* constructor */
+		Matrix ( );
+		Matrix ( Type const & );
+		Matrix ( Matrix < Type , Row , Column > const & );
 		
-			template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator+(Matrix<P, Q, S>, Matrix<P, Q, S> const &);
-	//		template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator+(Vector<P, Q, S>, S const &);		
-	//		template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator+(S const &, Vector<M, S>);
-			template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator-(Matrix<P, Q, S>, Matrix<P, Q, S> const &);
-	//		template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator-(Vector<M, S>, S const &);
-	//		template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator-(S const &, Vector<M, S>);
-			template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator*(S const &, Matrix<P, Q, S>);
-	//		template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator*(Vector<M, S>, S const &);
-			template<size_t P, size_t Q, typename S> friend Matrix<P, Q, S> &operator/(Matrix<P, Q, S>, S const &);
-			template<size_t P, size_t Q, typename S> friend Vector<P, S> operator*(Matrix<P, Q, S> const &, Vector<Q, S> const &);
-			template<size_t P, size_t Q, size_t K, typename S> friend Matrix<P, Q, S> operator*(Matrix<P, K, S> const &, Matrix<K, Q, S> const &);
-	//		template<size_t P, size_t Q, typename S> friend std::ostream &operator<<(std::ostream &, Vector<M, S> const &);
-	};
+		/* destructor */
+		~Matrix ( );
+		
+		/* access */
+		inline Type & operator() ( unsigned int const & , unsigned int const & );
+		inline Type const & operator() ( unsigned int const & , unsigned int const & ) const ;
+	
+	private:
+		Type value_[Row][Column];
 
-	/** The default constructor **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T>::Matrix() {
-	}
+};
 
-	/** The constructor to initialize the entire matrix with the same scalar value
-	 *  @param Value The scalar vaule to use **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T>::Matrix(T const Value) {
-		range(i, 0, N) range(j, 0, M) data[i][j] = Value;
-	}
+/* default constructor */
+template < typename Type , unsigned int Row , unsigned int Column >
+Matrix < Type , Row , Column >::Matrix ( ) {
+}
 
-	/** The operator [] to access to the components of vector
-	 *  @param i The index of component **/
-	template<size_t M, size_t N, typename T>
-	Vector<N, T> Matrix<M, N, T>::operator[](size_t const Index) {
-		return Vector<N, T>::Factory(&data[Index]);
-	}
-
-	/** The operator == to compare all components of a matrix with a scalar value
-	 *  @param a The scalar value to compare **/
-	template<size_t M, size_t N, typename T>
-	bool Matrix<M, N, T>::operator==(T const &a) {
-		range(i, 0, M) range(j, 0, N){ if (data[i][j] != a) return 0; }
-		return 1;
-	}
-
-	/** The operator == to compare two matrix
-	 *  @param A The second matrix **/
-	template<size_t M, size_t N, typename T>
-	bool Matrix<M, N, T>::operator==(Matrix<M, N, T> const &A) {
-		if (this != &A) {
-			range(i, 0, M) range(j, 0, N){ if (data[i][j] != A.data[i][j]) return 0; }
+/* constructor by value */
+template < typename Type , unsigned int Row , unsigned int Column >
+Matrix < Type , Row , Column >::Matrix ( Type const & scalar ) {
+	for ( unsigned int i = 0u ; i < Row ; ++i ) {
+		for ( unsigned int j = 0u ; j < Column ; ++j ) {
+			value_[i][j] = scalar;
 		}
-		return 1;
 	}
-
-	/** The operator = to copy a scalar value to all components
-	 *  @param a The scalar value to copy **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator=(T const &a) {
-		range(i, 0, M) range(j, 0, N) data[i][j] = a;
-		return *this;
-	}
-
-	/** The operator = to copy a matrix in a matrix
-	 *  @param A The matrix to copy **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator=(Matrix<M, N, T> const &A) {
-		if (this != &A) { range(i, 0, M) range(j, 0, N) data[i][j] = A.data[i][j]; }
-		return *this;
-	}
-
-	/** The operator += to add a scalar value to all components
-	 *  @param a The scalar value to add **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator+=(T const &a) {
-		if (a != 0) { range(i, 0, M) range(j, 0, N)data[i][j] += a; }
-		return *this;
-	}
-
-	/** The operator += to add a matrix
-	 * @param A The matrix to add**/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator+=(Matrix<M, N, T> const &A) {
-		range(i, 0, M) range(j, 0, M) data[i][j] += A.data[i][j];
-		return *this;
-	}
-
-	/** The operator -= to subtract a scalar value to all components
-	 *  @param a The scalar value to subtract **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator-=(T const &a) {
-		if (a != 0) { range(i, 0, M) range(j, 0, M) data[i][j] -= a; }
-		return *this;
-	}
-
-	/** The operator -= to subtract a matrix
-	 * @param A The matrix to subtract**/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator-=(Matrix<M, N, T> const &A) {
-		range(i, 0, M) range(j, 0, N) data[i][j] -= A.data[i][j];
-		return *this;
-	}
-
-	/** The operator *= to multiply all components by a scalar value 
-	 *  @param a The scalar value to multiply **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator*=(T const &a) {
-		range(i, 0, M) range(j, 0, N) data[i][j] *= a;
-		return *this;
-	}
-
-	/** The operator /= to divide all components by a scalar value
-	 *  @param a The scalar value to divide **/
-	template<size_t M, size_t N, typename T>
-	Matrix<M, N, T> &Matrix<M, N, T>::operator/=(T const &a) {
-		range(i, 0, M) range(j, 0, N) data[i][j] /= a;
-		return *this;
-	}
-	/** The operator + to add two matrices
-	 *  @param A The first matrix
-	 *  @param B The second matrix **/
-	template<size_t P, size_t Q, typename S>
-	Matrix<P, Q, S> &operator+(Matrix<P, Q, S> A, Matrix<P, Q, S> const &B) {
-		return A += B;
-	}
-
-	/** The operator - to subtract two matrices
-	 *  @param A The first matrix
-	 *  @param B The second matrix **/
-	template<size_t P, size_t Q, typename S>
-	Matrix<P, Q, S> &operator-(Matrix<P, Q, S> A, Matrix<P, Q, S> const &B) {
-		return A -= B;
-	}
-
-	/** Moltiplication by a scalar value
-	 *  @param a The scalar value
-	 *  @param A The matrix **/
-	template<size_t P, size_t Q, typename S> 
-	Matrix<P, Q, S> &operator*(S const &a, Matrix<P, Q, S> A) {
-		return A *= a;
-	}
-
-	/** Division by a scalar value
-	 *  @param A The matrix
-	 *  @param a The scalar value**/
-	template<size_t P, size_t Q, typename S> 
-	Matrix<P, Q, S> &operator/(Matrix<P, Q, S> A, S const &a) {
-		return A /= a;
-	}
-
-	/** Product Matrix Vector (default)
-	 *  @param A The first matrix
-	 *  @param B The second matrix **/
-	template<size_t P, size_t Q, typename T>
-	Vector<P, T> operator *(Matrix<P, Q, T> const &A, Vector<Q, T> const &v) {
-		Vector<P, T> y;
-		range(i, 0, P) {
-			y[i] = 0;
-			range(j, 0, Q) y[i] += A[i][j] * v[j];
+}
+/* copy constructor */
+template < typename Type , unsigned int Row , unsigned int Column >
+Matrix < Type , Row , Column >::Matrix ( Matrix < Type , Row , Column > const & matrix ) {
+	for ( unsigned int i = 0u ; i < Row ; ++i ) {
+		for ( unsigned int j = 0u ; j < Column ; ++j ) {
+			value_[i][j] = matrix(i,j);
 		}
-		return y;
-	}
-
-	/** Product Matrix Vector (double)
-	 * @param A The matrix
-	 * @param v The vector **/
-	template<size_t P, size_t Q>
-	Vector<P, double> operator*(Matrix<P, Q, double> const &A, Vector<Q, double> const &v){
-		Vector<P, double> y;
-		cblas_dgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
-		return y;
-	}
-
-	/** Product Matrix Vector (float)
-	 * @param A The matrix
-	 * @param v The vector **/
-	template<size_t P, size_t Q>
-	Vector<P, float> operator*(Matrix<P, Q, float> const &A, Vector<Q, float> const &v){
-		Vector<P, float> y;
-		cblas_sgemv(CblasRowMajor, CblasNoTrans, P, Q, 1, &A.data, Q, &v.data, 1, 0, &y.data, 1);
-		return y;
-	}
-
-	/** Product between two matrices (default)
-	 *  @param A The first matrix
-	 *  @param B The second matrix **/
-	template<size_t P, size_t Q, size_t K, typename T>
-	Matrix<P, Q, T> operator*(Matrix<P, K, T> const &A, Matrix<K, Q, T> const &B) {
-		Matrix<P, Q, T> C;
-		range(i, 0, P) {
-			range(j, 0, Q) {
-				C[i][j] = 0;
-				range(k, 0, K) C[i][j] += A[i][k] * B[k][j];
-			}
-		}
-		return C;
-	}
-
-	/** Product Matrix Matrix (double)
-	 * @param A The first matrix
-	 * @param B The second matrix **/
-	template<size_t P, size_t Q, size_t K>
-	Matrix<P, Q, double> operator*(Matrix<P, K, double> const &A, Matrix<K, Q, double> const &B){
-		Matrix<P, Q, double> C;
-		cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, &A.data, K, &B.data, Q, 1, &C.data, Q);
-		return C;
-	}	
-
-	/** Product Matrix Matrix (float)
-	 * @param A The first matrix
-	 * @param B The second matrix **/
-	template<size_t P, size_t Q, size_t K>
-	Matrix<P, Q, float> operator*(Matrix<P, K, float> const &A, Matrix<K, Q, float> const &B){
-		Matrix<P, Q, float> C;
-		cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, P, K, Q, 1, &A.data, K, &B.data, Q, 1, &C.data, Q);
-		return C;	
 	}
 }
 
-#endif
+/* destructor */
+template < typename Type , unsigned int Row , unsigned int Column >
+Matrix < Type , Row , Column >::~Matrix ( ) {
+}
 
+/* access */
+template < typename Type , unsigned int Row , unsigned int Column >
+Type & Matrix < Type , Row , Column >::operator() ( unsigned int const & i , unsigned int const & j ) {
+	return value_[i][j];
+}
+template < typename Type , unsigned int Row , unsigned int Column >
+Type const & Matrix < Type , Row , Column >::operator() ( unsigned int const & i , unsigned int const & j ) const {
+	return value_[i][j];
+}

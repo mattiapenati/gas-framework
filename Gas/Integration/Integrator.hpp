@@ -1,6 +1,3 @@
-#ifndef GAS_INTEGRATOR_HPP
-#define GAS_INTEGRATOR_HPP
-
 /* un esempio di utilizzo
  * - costruisco l'integratore con il metodo richiesto, Newton-Cotes
  *   su un triangolo (basato sulla faccia CGAL) e di ordine 2
@@ -53,7 +50,7 @@ class Integrator {
 		 * la geometria del problema viene definita 
 		 * dal metodo scelto */
 		self & domain (Geometry const & g) {
-			m_.setGeometry(g);
+			m_.domain(g);
 			return *this;
 		}
 		
@@ -61,7 +58,7 @@ class Integrator {
 		 * una singola funzione */
 		template<typename TransformationPolicy>
 		double integrate (Function const & f) {
-			return m_.template apply<TransformationPolicy>(f);
+			return m_.template integrate<TransformationPolicy>(f);
 		}
 		
 		/* questo metodo viene usato per la moltiplicazione
@@ -69,8 +66,6 @@ class Integrator {
 		 * termine di reazione */
 		template<typename TransformationPolicy1, typename TransformationPolicy2>
 		double integrateMul (Function const & f, Function const & g) {
-			return m_.template applyMul<TransformationPolicy1, TransformationPolicy2>(f, g);
+			return m_.template integrateMul<TransformationPolicy1, TransformationPolicy2>(f, g);
 		}
 };
-
-#endif // GAS_INTEGRATOR_HPP

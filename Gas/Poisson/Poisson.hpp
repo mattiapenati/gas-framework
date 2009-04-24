@@ -3,8 +3,10 @@
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
+#include <CGAL/Constrained_triangulation_face_base_2.h>
 
 #include <CGAL/Triangulation_vertex_base_with_info_2.h>
+#include <CGAL/Triangulation_face_base_with_info_2.h>
 
 #include <CGAL/Delaunay_mesher_2.h>
 #include <CGAL/Delaunay_mesh_face_base_2.h>
@@ -18,12 +20,16 @@
 #include "../Iml/cg.h"
 
 #include "../Integration/Integration.h"
+#include "../LinearAlgebra/LinearAlgebra.h"
 
 #include <list>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <cmath>
+
+#undef MAX
+#define MAX(A, B) ((A > B) ? A : B)
 
 class Poisson {
 	private:
@@ -32,7 +38,11 @@ class Poisson {
 		
 		// Triangolazione
 		typedef CGAL::Triangulation_vertex_base_with_info_2<PointInfo, K> Vb;
-		typedef CGAL::Delaunay_mesh_face_base_2<K> Fb;
+		typedef CGAL::Delaunay_mesh_face_base_2<K, 
+			CGAL::Constrained_triangulation_face_base_2<K, 
+				CGAL::Triangulation_face_base_with_info_2<FaceInfo , K>
+			>
+		> Fb;
 		typedef CGAL::Triangulation_data_structure_2<Vb, Fb> Tds;
 		typedef CGAL::Constrained_Delaunay_triangulation_2<K, Tds> CDT;
 		
@@ -53,19 +63,24 @@ class Poisson {
 		typedef MV_Vector_double Vector;
 		
 		// Integrator
-		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle<CDT::Face>, 2> >  Integrator2;
+		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle, 2> >  Integrator2;
 		
 		CDT cdt_;
 		Integrator2 NC;
 		
 		unsigned int n_point;
 		
-		func dato_al_bordo;
+		func forzante;
 	private:
 		// Base P1
 		static double P1_phi0 (double const & x, double const & y) { return 1 - x -y; }
 		static double P1_phi1 (double const & x, double const & y) { return x; }
 		static double P1_phi2 (double const & x, double const & y) { return y; }
+		
+		// Base Clement
+		static double C_phi0 (double const & x , double const & y) { return 1.; }
+		static double C_phi1 (double const & x , double const & y) { return x; }
+		static double C_phi2 (double const & x , double const & y) { return y; }
 		
 		// Generazione griglia
 		void insertNodes(PointList const &, double const &);
@@ -82,6 +97,9 @@ class Poisson {
 		// Salvataggio soluzione
 		void saveSolution(Vector const &);
 		
+		// Calcolo dei residui
+		void calcRes();
+		
 };
 
 /*
@@ -89,7 +107,7 @@ class Poisson {
  */
 Poisson::Poisson(PointList const &boundary, func f, double const & criteria) : NC() {
 	
-	dato_al_bordo = f;
+	forzante = f;
 	
 	// Costruzione della griglia
 	insertNodes(boundary, criteria);
@@ -107,6 +125,9 @@ Poisson::Poisson(PointList const &boundary, func f, double const & criteria) : N
 	
 	// Salvataggio della soluzione nella griglia
 	saveSolution(x);
+	
+	// Calcolo residuo
+	calcRes();
 }
 
 /*
@@ -127,8 +148,8 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 		<< "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n" \
 		<< "  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n";
 	// Calcolo altezza e larghezza
-	double xmin, xmax, ymin, ymax, umin, umax;
-	double x, y, u;
+	double xmin, xmax, ymin, ymax, umin, umax, rmin, rmax;
+	double x, y, u, res;
 	int color, r, g ,b;
 	CDT::Finite_vertices_iterator itV = cdt_.finite_vertices_begin();
 	xmin = xmax = itV->point().x();
@@ -153,6 +174,16 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 	  << "version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 	// Triangolazione
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
+	rmin = itF->info().res();
+	rmax = itF->info().res();
+	++itF;
+	while(itF != cdt_.finite_faces_end()) {
+		res = itF->info().res();
+		if (res > rmax) rmax = res;
+		if (res < rmin) rmin = res;
+		++itF;
+	}
+	itF = cdt_.finite_faces_begin();
 	while(itF != cdt_.finite_faces_end()) {
 		// Calcolo dei punti
 		double x1 = itF->vertex(0)->point().x(); double y1 = itF->vertex(0)->point().y();
@@ -170,9 +201,11 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 		u += itF->vertex(1)->info().value();
 		u += itF->vertex(2)->info().value();
 		u /= 3;
+		res = itF->info().res();
 		
 		// Calcolo dei colori
 		color = 255 * (u - umin ) / (umax - umin);
+		// color = 255 * (res - rmin ) / (rmax - rmin);
 		r = color;
 		g = color;
 		b = 0;
@@ -189,6 +222,29 @@ void Poisson::saveToSVG(char const *filename, bool const triangulation=true) {
 		++itF;
 	}
 	f  << "</svg>\n";
+}
+
+/*
+ * Pattern della matrice
+ */
+void Poisson::printPattern(char const * name, Matrix const & A) {
+	std::fstream pbm;
+	pbm.open(name, std::ios_base::out);
+	
+	unsigned int cols = A.dim(0);
+	unsigned int rows = A.dim(1);
+	
+	pbm<<"P1"<<std::endl<<cols<<" "<<rows<<std::endl;
+	
+	for (unsigned int i = 0 ; i < rows; ++i) {
+		for (unsigned int j = 0 ; j < cols; ++j) {
+			if (A(i, j) == 0)
+				pbm<<"1 ";
+			else
+				pbm<<"0 ";
+			pbm<<std::endl;
+		}
+	}
 }
 
 /*
@@ -359,9 +415,9 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		NC.domain(g);
 		
 		// Costruzione termine noto
-		if (b0) F[i0] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi0);
-		if (b1) F[i1] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi1);
-		if (b2) F[i2] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(dato_al_bordo, Poisson::P1_phi2);
+		if (b0) F[i0] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(forzante, Poisson::P1_phi0);
+		if (b1) F[i1] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(forzante, Poisson::P1_phi1);
+		if (b2) F[i2] += NC.integrateMul<Integrator2::Transform, Integrator2::NoTransform>(forzante, Poisson::P1_phi2);
 		
 		// Avanzamento dell'iteratore
 		++itF;
@@ -416,25 +472,153 @@ void Poisson::saveSolution(Vector const & x) {
 }
 
 /*
- * Pattern della matrice
+ * Calcolo dei residui sulla faccia
  */
-void Poisson::printPattern(char const * name, Matrix const & A) {
-	std::fstream pbm;
-	pbm.open(name, std::ios_base::out);
+void Poisson::calcRes() {
 	
-	unsigned int cols = A.dim(0);
-	unsigned int rows = A.dim(1);
+	// Integratore
+	Integrator2 integr;
 	
-	pbm<<"P1"<<std::endl<<cols<<" "<<rows<<std::endl;
+	// Iteratori
+	CDT::Finite_faces_iterator itF;
+	CDT::Finite_vertices_iterator itV;
 	
-	for (unsigned int i = 0 ; i < rows; ++i) {
-		for (unsigned int j = 0 ; j < cols; ++j) {
-			if (A(i, j) == 0)
-				pbm<<"1 ";
-			else
-				pbm<<"0 ";
-			pbm<<std::endl;
-		}
+	/* Passo 1 : calcolo dei gradienti in ogni faccia e hk */
+	itF = cdt_.finite_faces_begin();
+	while (itF != cdt_.finite_faces_end()) {
+		
+		// Coordinate vertici del triangolo
+		double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
+		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
+		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
+		
+		// Distanze
+		double d01 = std::sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
+		double d02 = std::sqrt( (x0-x2)*(x0-x2) + (y0-y2)*(y0-y2) );
+		double d12 = std::sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+		
+		// Valori nodali
+		double u0 = itF->vertex(0)->info().value();
+		double u1 = itF->vertex(1)->info().value();
+		double u2 = itF->vertex(2)->info().value();
+		
+		// Coefficienti del gradiente
+		double a01 = (u1 - u0) / d01;
+		double a02 = (u2 - u0) / d02;
+		
+		// Gradiente
+		itF->info().gradx() = a01 * (x1 - x0) / d01 + a02 * (x2 - x0) / d02;
+		itF->info().grady() = a01 * (y1 - y0) / d01 + a02 * (y2 - y0) / d02;
+		
+		// max lati
+		itF->info().h() = MAX(MAX(d01, d02), d12);
+		
+		++itF;
+	}
+	/* Passo 2 : calcolo dei Clement */
+	itV = cdt_.finite_vertices_begin();
+	while (itV != cdt_.finite_vertices_end()) {
+		// Coordinate del punto
+		double x = itV->point().x();
+		double y = itV->point().y();
+		// Matrice di stiffness
+		LinearAlgebra::Matrix<double,3,3> M(0.);
+		// Vettore termine noto
+		LinearAlgebra::Vector<double,3> bx(0.) , by(0.);
+		// Vettore soluzione
+		LinearAlgebra::Vector<double,3> ax(0.) , ay(0.);
+		// Temporanei
+		double t;
+		
+		// Ciclo sulle facce incidenti al vertice
+		CDT::Face_circulator cF, end;
+		cF = cdt_.incident_faces(itV);
+		end = cF;
+		do {
+			// Matrice di proiezione locale
+			if (!cdt_.is_infinite(cF)) {
+				Integrator2::Geometry g(*cF);
+				integr.domain(g);
+				
+				M(0,0) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi0, Poisson::C_phi0);
+				M(0,1) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi0, Poisson::C_phi1);
+				M(0,2) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi0, Poisson::C_phi2);
+				M(1,0) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi1, Poisson::C_phi0);
+				M(1,1) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi1, Poisson::C_phi1);
+				M(1,2) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi1, Poisson::C_phi2);
+				M(2,0) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi2, Poisson::C_phi0);
+				M(2,1) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi2, Poisson::C_phi1);
+				M(2,2) += integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(Poisson::C_phi2, Poisson::C_phi2);
+				
+				bx(0) += cF->info().gradx() * integr.integrate<Integrator2::Transform>(Poisson::C_phi0);
+				bx(1) += cF->info().gradx() * integr.integrate<Integrator2::Transform>(Poisson::C_phi1);
+				bx(2) += cF->info().gradx() * integr.integrate<Integrator2::Transform>(Poisson::C_phi2);
+				
+				by(0) += cF->info().grady() * integr.integrate<Integrator2::Transform>(Poisson::C_phi0);
+				by(1) += cF->info().grady() * integr.integrate<Integrator2::Transform>(Poisson::C_phi1);
+				by(2) += cF->info().grady() * integr.integrate<Integrator2::Transform>(Poisson::C_phi2);
+			}
+			++cF;
+		} while(cF != end);
+		
+		// Soluzione del sistema
+		LinearAlgebra::Solver::LU::solve( M , ax , bx );
+		LinearAlgebra::Solver::LU::solve( M , ay , by );
+		
+		// Gradienti
+		itV->info().gradCx() = ax(0) + ax(1) * x + ax(2) * y;
+		itV->info().gradCy() = ay(0) + ay(1) * x + ay(2) * y;
+		
+		++itV;
+	}
+	/* Passo 3+4 : calcolo laplaciano + residuo  */
+	itF = cdt_.finite_faces_begin();
+	while (itF != cdt_.finite_faces_end()) {
+		
+		// Coordinate vertici del triangolo
+		double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
+		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
+		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
+		
+		// Distanze
+		double d01 = std::sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
+		double d02 = std::sqrt( (x0-x2)*(x0-x2) + (y0-y2)*(y0-y2) );
+		
+		// Valori nodali
+		double gx0 = itF->vertex(0)->info().gradCx();
+		double gx1 = itF->vertex(1)->info().gradCx();
+		double gx2 = itF->vertex(2)->info().gradCx();
+		double gy0 = itF->vertex(0)->info().gradCy();
+		double gy1 = itF->vertex(1)->info().gradCy();
+		double gy2 = itF->vertex(2)->info().gradCy();
+		
+		// Coefficienti del gradiente
+		double ax01 = (gx1 - gx0) / d01;
+		double ax02 = (gx2 - gx0) / d02;
+		double ay01 = (gy1 - gy0) / d01;
+		double ay02 = (gy2 - gy0) / d02;
+		
+		// Laplaciano
+		double lapo = ax01 * (x1 - x0) / d01 + ax02 * (x2 - x0) / d02 +
+			ay01 * (y1 - y0) / d01 + ay02 * (y2 - y0) / d02;
+		
+		// Calcolo del residuo
+		itF->info().res() = 0.;
+		Integrator2::Geometry g(*itF);
+		integr.domain(g);
+		
+		// Residuo sulla faccia
+		itF->info().res() += itF->info().h() * std::sqrt(
+			integr.integrateMul<Integrator2::Transform, Integrator2::Transform>(forzante , forzante) + 
+			2 * lapo * integr.integrate<Integrator2::Transform>(forzante) +
+			lapo * lapo * std::abs(g.det()) * 0.5 
+		);
+		
+		// Residuo al bordo TODO
+		double t = 0.;
+		itF->info().res() += std::sqrt(itF->info().h()) * t;
+		
+		++itF;
 	}
 }
 
