@@ -264,3 +264,15 @@ det ( MatrixExpression<Type, Dimension, Dimension, Operand, Function> const & ma
 		r *= F(i,i);
 	return r; 
 }
+
+/* det 2x2 */
+template < typename Type >
+inline Type
+det ( Matrix<Type, 2, 2> const & matrix ) {
+	return matrix(0,0)*matrix(1,1)-matrix(1,0)*matrix(0,1);
+}
+template < typename Type , typename Operand , typename Function >
+inline Type
+det ( MatrixExpression<Type, 2, 2, Operand, Function> const & matrix ) {
+	return matrix(0,0)*matrix(1,1)-matrix(1,0)*matrix(0,1);
+}

@@ -1,19 +1,19 @@
-/*
- * Copyright (c) 2008, Davide Ferrarese & Mattia Penati
- * All rights reserved.
- * 
+/*                                                          
+ * Copyright (c) 2008, Alfonso Fascì, Davide Ferrarese, Mattia Penati     
+ * All rights reserved.                                     
+ *                                                          
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 
+ *                                                                            
+ * 1. Redistributions of source code must retain the above copyright notice,  
+ *    this list of conditions and the following disclaimer.                   
+ * 2. Redistributions in binary form must reproduce the above copyright       
+ *    notice, this list of conditions and the following disclaimer in the     
+ *    documentation and/or other materials provided with the distribution.    
+ *                                                                            
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE  
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
@@ -27,13 +27,21 @@
 #ifndef _GAS_H_
 #define _GAS_H_
 
-/* Definition of size_t */
+/* definition of size_t */
 #ifndef __SIZE_TYPE__
 #define __SIZE_TYPE__ long unsigned int
 #endif
 #if !(defined (size_t))
 typedef __SIZE_TYPE__ size_t;
-#endif
+#endif // __SIZE_TYPE__
+
+/* definizione delle macro */
+#ifndef MAX
+#define MAX(A, B) ((A > B) ? A : B) 
+#endif // MAX
+#ifndef MIN
+#define MIN(A, B) ((A < B) ? A : B) 
+#endif // MIN
 
 #ifndef _GAS_VERBOSITY_
 #define _GAS_VERBOSITY_ 0
@@ -51,6 +59,7 @@ typedef __SIZE_TYPE__ size_t;
 #include <iostream>
 
 #include "LinearAlgebra/LinearAlgebra.h"
+#include "Geometry/Geometry.h"
 #include "Integration/Integration.h"
 #include "Poisson/Poisson.hpp"
 

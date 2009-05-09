@@ -64,7 +64,7 @@ class Poisson {
 		typedef MV_Vector_double Vector;
 		
 		// Integrator
-		typedef Integrator < Method::NewtonCotes_2<Geometry::Triangle, 2> >  Integrator2;
+		typedef Integrator < Method::NewtonCotes<Geometry::Triangle, 2> >  Integrator2;
 		
 		CDT cdt_;
 		Integrator2 NC;
