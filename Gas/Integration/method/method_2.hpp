@@ -3,7 +3,6 @@ class Method_2 {
 	
 	public:
 		typedef Geometry_ Geometry;
-		typedef double (*Function) ( double const & , double const & );
 	
 	private:
 		/* punti trasformati dal riferimento */
@@ -34,11 +33,11 @@ class Method_2 {
 		void domain ( Geometry_ const & );
 		
 		/* integratori */
-		template < typename TransformationPolicy >
-		double integrate ( Function const & ) const ;
+		template < typename TransformationPolicy , typename FunctionType >
+		double integrate ( FunctionType const & ) const ;
 		
-		template < typename TransformationPolicy1 , typename TransformationPolicy2 >
-		double integrateMul ( Function const & , Function const & ) const ;
+		template < typename TransformationPolicy1 , typename TransformationPolicy2 , typename FunctionType1 , typename FunctionType2 >
+		double integrateMul ( FunctionType1 const & , FunctionType2 const & ) const ;
 	
 	private:
 		Geometry_ g_;
@@ -58,8 +57,8 @@ void Method_2 < Method_ , Geometry_ >::domain ( Geometry_ const & g ) {
 
 /* integratore semplice */
 template < typename Method_ , typename Geometry_ >
-template < typename TransformationPolicy >
-double Method_2 < Method_ , Geometry_ >::integrate ( Function const & f ) const {
+template < typename TransformationPolicy , typename FunctionType >
+double Method_2 < Method_ , Geometry_ >::integrate ( FunctionType const & f ) const {
 	
 	TransformationPolicy t(g_);
 	double r = 0.;
@@ -76,8 +75,8 @@ double Method_2 < Method_ , Geometry_ >::integrate ( Function const & f ) const 
 
 /* integratore di moltiplicazione */
 template < typename Method_ , typename Geometry_ >
-template < typename TransformationPolicy1 , typename TransformationPolicy2 >
-double Method_2 < Method_ , Geometry_ >::integrateMul ( Function const & f , Function const & g ) const {
+template < typename TransformationPolicy1 , typename TransformationPolicy2 , typename FunctionType1 , typename FunctionType2 >
+double Method_2 < Method_ , Geometry_ >::integrateMul ( FunctionType1 const & f , FunctionType2 const & g ) const {
 	
 	TransformationPolicy1 t1(g_);
 	TransformationPolicy2 t2(g_);

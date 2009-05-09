@@ -29,6 +29,15 @@
 
 namespace LinearAlgebra {
 
+template < typename Type > struct id { static inline Type RET ( Type const & x ) { return x; } }; 
+
+template < typename Type > struct add { static inline Type RET ( Type const & x , Type const & y ) { return x + y; } };
+template < typename Type > struct sub { static inline Type RET ( Type const & x , Type const & y ) { return x - y; } };
+template < typename Type > struct mul { static inline Type RET ( Type const & x , Type const & y ) { return x * y; } };
+template < typename Type > struct div { static inline Type RET ( Type const & x , Type const & y ) { return x / y; } };
+
+template < typename Type > struct mul_mat_vet {};
+
 #include "Vector.hpp"
 #include "Matrix.hpp"
 

@@ -1,4 +1,5 @@
 #include "Gas/Gas.h"
+#include <sstream>
 
 double u ( double const & x , double const & y ) {
 	return std::sin( M_PI * x ) * std::sin( M_PI * y );
@@ -18,7 +19,17 @@ int main(int argc, char **argv) {
 	bound.push_back(Poisson::Point(-1, +1));
 	bound.push_back(Poisson::Point(-1, -1));
 	bound.push_back(Poisson::Point(+1, -1));
-	Poisson p(bound, f, 0.15);
+	Poisson p(bound, f, 0.2);
 	p.saveToSVG("grid.svg", true);
+	unsigned int inseriti;
+	unsigned int iterata = 1;
+	do {
+		inseriti = p.refine(6.e-3);
+		std::cout << "Iterata " << iterata << ": " << inseriti << " punti inseriti/eliminati" << std::endl;
+		std::ostringstream s1;
+		s1 << "grid" << iterata << ".svg";		
+		p.saveToSVG(s1.str().data(), true);
+		++iterata;
+	} while(inseriti);
 	return 0;
 }

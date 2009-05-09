@@ -24,6 +24,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function = id<Type> >
+struct MatrixExpression {
+	Operand const & o_;
+	
+	inline MatrixExpression ( Operand const & o ) : o_(o) {}
+	inline Type const operator() ( unsigned int const & i , unsigned int const & j ) const { return Function::RET( o_(i,j) ); }
+};
+
+template < typename Type , unsigned int Row , unsigned int Column , typename LeftOperand , typename RightOperand , typename Function >
+struct MatrixBinaryExpression {
+	LeftOperand const & l_;
+	RightOperand const & r_;
+	
+	inline MatrixBinaryExpression ( LeftOperand const & l , RightOperand const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i , unsigned int const & j ) const { return Function::RET(l_(i,j) , r_(i,j)); }
+};
+
+/* specialization for scalar types */
+template < typename Type , unsigned int Row , unsigned int Column , typename RightOperand , typename Function >
+struct MatrixBinaryExpression<Type, Row, Column, Type, RightOperand, Function> {
+	Type const & l_;
+	RightOperand const & r_;
+	
+	inline MatrixBinaryExpression ( Type const & l , RightOperand const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i , unsigned int const & j ) const { return Function::RET(l_ , r_(i,j)); }
+};
+template < typename Type , unsigned int Row , unsigned int Column , typename LeftOperand , typename Function >
+struct MatrixBinaryExpression<Type, Row, Column, LeftOperand, Type, Function> {
+	LeftOperand const & l_;
+	Type const & r_;
+	
+	inline MatrixBinaryExpression ( LeftOperand const & l , Type const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i , unsigned int const & j ) const { return Function::RET(l_(i,j) , r_); }
+};
+/* specialization to write less code */
+template < typename Type , unsigned int Row , unsigned int Column , typename LeftOperand , typename RightOperand , typename ExpressionFunction , typename BinaryFunction >
+struct MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, LeftOperand, RightOperand, BinaryFunction>, ExpressionFunction> {
+	MatrixBinaryExpression<Type, Row, Column, LeftOperand, RightOperand, BinaryFunction> const o_;
+	
+	inline MatrixExpression ( LeftOperand const & l , RightOperand const & r ) : o_(l , r) {}
+	inline Type const operator() ( unsigned int const & i , unsigned int const & j ) const { return ExpressionFunction::RET( o_(i,j) ); }
+};
+
+/* main class */
 template < typename Type , unsigned int Row , unsigned int Column >
 class Matrix {
 
@@ -35,6 +79,10 @@ class Matrix {
 		
 		/* destructor */
 		~Matrix ( );
+		
+		/* assign */
+		inline Matrix<Type, Row, Column> & operator= ( Matrix<Type, Row, Column> const & );
+		template < typename Operand , typename Function > inline Matrix<Type, Row, Column> & operator= ( MatrixExpression<Type, Row, Column, Operand, Function> const & );
 		
 		/* access */
 		inline Type & operator() ( unsigned int const & , unsigned int const & );
@@ -69,6 +117,29 @@ Matrix < Type , Row , Column >::Matrix ( Matrix < Type , Row , Column > const & 
 	}
 }
 
+/* assign from matrix */
+template < typename Type , unsigned int Row , unsigned int Column >
+Matrix<Type, Row, Column> & Matrix< Type , Row , Column >::operator= ( Matrix<Type, Row, Column> const & matrix ) {
+	for ( unsigned int i = 0u ; i < Row ; ++i ) {
+		for ( unsigned int j = 0u ; j < Column ; ++j ) {
+			value_[i][j] = matrix(i,j);
+		}
+	}
+	return *this;
+}
+
+/* assign from exrpession */
+template < typename Type , unsigned int Row , unsigned int Column >
+template < typename Operand , typename Function >
+Matrix<Type, Row, Column> & Matrix< Type , Row , Column >::operator= ( MatrixExpression<Type, Row, Column, Operand, Function> const & expression ) {
+	for ( unsigned int i = 0u ; i < Row ; ++i ) {
+		for ( unsigned int j = 0u ; j < Column ; ++j ) {
+			value_[i][j] = expression(i,j);
+		}
+	}
+	return *this;
+}
+
 /* destructor */
 template < typename Type , unsigned int Row , unsigned int Column >
 Matrix < Type , Row , Column >::~Matrix ( ) {
@@ -82,4 +153,72 @@ Type & Matrix < Type , Row , Column >::operator() ( unsigned int const & i , uns
 template < typename Type , unsigned int Row , unsigned int Column >
 Type const & Matrix < Type , Row , Column >::operator() ( unsigned int const & i , unsigned int const & j ) const {
 	return value_[i][j];
+}
+
+/* add */
+template < typename Type , unsigned int Row , unsigned int Column >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Matrix<Type, Row, Column>, add<Type> >, id<Type> >
+operator+ ( Matrix<Type, Row, Column> const & x , Matrix<Type, Row, Column> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Matrix<Type, Row, Column>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Matrix<Type, Row, Column>, add<Type> >, id<Type> >
+operator+ ( MatrixExpression<Type, Row, Column, Operand, Function> const & x , Matrix<Type, Row, Column> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Matrix<Type, Row, Column>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, MatrixExpression<Type, Row, Column, Operand, Function>, add<Type> >, id<Type> >
+operator+ ( Matrix<Type, Row, Column> const & x , MatrixExpression<Type, Row, Column, Operand, Function> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, MatrixExpression<Type, Row, Column, Operand, Function>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename LeftOperand , typename LeftFunction , typename RightOperand , typename RightFunction >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction>, MatrixExpression<Type, Row, Column, RightOperand, RightFunction>, add<Type> >, id<Type> >
+operator+ ( MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction> const & x , MatrixExpression<Type, Row, Column, RightOperand, RightFunction> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction>, MatrixExpression<Type, Row, Column, RightOperand, RightFunction>, add<Type> >, id<Type> >( x , y );
+}
+
+/* sub */
+template < typename Type , unsigned int Row , unsigned int Column >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Matrix<Type, Row, Column>, sub<Type> >, id<Type> >
+operator- ( Matrix<Type, Row, Column> const & x , Matrix<Type, Row, Column> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Matrix<Type, Row, Column>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Matrix<Type, Row, Column>, sub<Type> >, id<Type> >
+operator- ( MatrixExpression<Type, Row, Column, Operand, Function> const & x , Matrix<Type, Row, Column> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Matrix<Type, Row, Column>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, MatrixExpression<Type, Row, Column, Operand, Function>, sub<Type> >, id<Type> >
+operator- ( Matrix<Type, Row, Column> const & x , MatrixExpression<Type, Row, Column, Operand, Function> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, MatrixExpression<Type, Row, Column, Operand, Function>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename LeftOperand , typename LeftFunction , typename RightOperand , typename RightFunction >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction>, MatrixExpression<Type, Row, Column, RightOperand, RightFunction>, sub<Type> >, id<Type> >
+operator- ( MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction> const & x , MatrixExpression<Type, Row, Column, RightOperand, RightFunction> const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, LeftOperand, LeftFunction>, MatrixExpression<Type, Row, Column, RightOperand, RightFunction>, sub<Type> >, id<Type> >( x , y );
+}
+
+/* mul */
+template < typename Type , unsigned int Row , unsigned int Column >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Type, mul<Type> >, id<Type> >
+operator* ( Matrix<Type, Row, Column> const & x , Type const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Type, mul<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Type, mul<Type> >, id<Type> >
+operator* ( MatrixExpression<Type, Row, Column, Operand, Function> const & x , Type const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Type, mul<Type> >, id<Type> >( x , y );
+}
+
+/* div */
+template < typename Type , unsigned int Row , unsigned int Column >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Type, div<Type> >, id<Type> >
+operator/ ( Matrix<Type, Row, Column> const & x , Type const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Type, div<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Type, div<Type> >, id<Type> >
+operator/ ( MatrixExpression<Type, Row, Column, Operand, Function> const & x , Type const & y ) {
+	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Type, div<Type> >, id<Type> >( x , y );
 }

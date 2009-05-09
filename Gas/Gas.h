@@ -48,6 +48,7 @@ typedef __SIZE_TYPE__ size_t;
 #endif
 
 #include <cmath>
+#include <iostream>
 
 #include "LinearAlgebra/LinearAlgebra.h"
 #include "Integration/Integration.h"
