@@ -25,7 +25,7 @@
  */
 
 template < typename Method_ , typename Geometry_ >
-class method_2 {
+class method_1 {
 	
 	public:
 		typedef Geometry_ Geometry;
@@ -35,15 +35,13 @@ class method_2 {
 		struct TransformPolicy {
 			Geometry_ const *gp;
 			inline TransformPolicy ( Geometry_ const & g ) : gp( &g ) { };
-			inline double x ( double const & x_ , double const & y_ ) { return gp->xTransform( x_ , y_ ); }
-			inline double y ( double const & x_ , double const & y_ ) { return gp->yTransform( x_ , y_ ); }
+			inline double x ( double const & x_ ) { return gp->xTransform( x_ ); }
 		};
 		/* punti senza trasformazione */
 		struct NoTransformPolicy {
 			Geometry_ const *gp;
 			inline NoTransformPolicy ( Geometry_ const & g ) : gp( &g ) { };
-			inline double x ( double const & x_ , double const & y_ ) { return x_; }
-			inline double y ( double const & x_ , double const & y_ ) { return y_; }
+			inline double x ( double const & x_ ) { return x_; }
 		};
 		
 	public:
@@ -53,7 +51,7 @@ class method_2 {
 	public:
 		
 		/* costruttore */
-		method_2 ( );
+		method_1 ( );
 		
 		/* assegnamento geometria */
 		void domain ( Geometry_ const & );
@@ -72,29 +70,26 @@ class method_2 {
 
 /* costruttore di default */
 template < typename Method_ , typename Geometry_ >
-method_2 < Method_ , Geometry_ >::method_2 ( ) {
+method_1 < Method_ , Geometry_ >::method_1 ( ) {
 }
 
 /* assegnamento della geometria */
 template < typename Method_ , typename Geometry_ >
-void method_2 < Method_ , Geometry_ >::domain ( Geometry_ const & g ) {
+void method_1 < Method_ , Geometry_ >::domain ( Geometry_ const & g ) {
 	g_ = g;
 }
 
 /* integratore semplice */
 template < typename Method_ , typename Geometry_ >
 template < typename TransformationPolicy , typename FunctionType >
-double method_2 < Method_ , Geometry_ >::integrate ( FunctionType const & f ) const {
+double method_1 < Method_ , Geometry_ >::integrate ( FunctionType const & f ) const {
 	
 	TransformationPolicy t(g_);
 	double r = 0.;
 	unsigned int n  = Method_::nPoints;
 	
-	for ( unsigned int i = 0 ; i < n ; ++i ) {
-		r += Method_::w[i] * f( t.x(Method_::x[i], Method_::y[i]) , t.y(Method_::x[i], Method_::y[i]) );
-	}
-	
-	r *= std::abs(g_.det());
+	for ( unsigned int i = 0 ; i < n ; ++i )
+		r += std::abs(g_.det(Method_::x[i])) * Method_::w[i] * f(t.x(Method_::x[i]));
 	
 	return r;
 }
@@ -102,20 +97,15 @@ double method_2 < Method_ , Geometry_ >::integrate ( FunctionType const & f ) co
 /* integratore di moltiplicazione */
 template < typename Method_ , typename Geometry_ >
 template < typename TransformationPolicy1 , typename TransformationPolicy2 , typename FunctionType1 , typename FunctionType2 >
-double method_2 < Method_ , Geometry_ >::integrateMul ( FunctionType1 const & f , FunctionType2 const & g ) const {
+double method_1 < Method_ , Geometry_ >::integrateMul ( FunctionType1 const & f , FunctionType2 const & g ) const {
 	
 	TransformationPolicy1 t1(g_);
 	TransformationPolicy2 t2(g_);
 	double r = 0.;
 	unsigned int n  = Method_::nPoints;
 	
-	for ( unsigned int i = 0 ; i < n ; ++i ) {
-		r += Method_::w[i] * 
-			f( t1.x(Method_::x[i], Method_::y[i]) , t1.y(Method_::x[i], Method_::y[i]) ) * 
-			g( t2.x(Method_::x[i], Method_::y[i]) , t2.y(Method_::x[i], Method_::y[i]) );
-	}
-	
-	r *= std::abs(g_.det());
+	for ( unsigned int i = 0 ; i < n ; ++i )
+		r += std::abs(g_.det(Method_::x[i])) * Method_::w[i] * f(t1.x(Method_::x[i])) * g(t2.x(Method_::x[i]));
 	
 	return r;
 }

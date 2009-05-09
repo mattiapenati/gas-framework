@@ -27,6 +27,8 @@
 #ifndef _GAS_LINEARALGEBRA_H_
 #define _GAS_LINEARALGEBRA_H_
 
+#include <cmath>
+
 namespace LinearAlgebra {
 
 template < typename Type > struct id { static inline Type RET ( Type const & x ) { return x; } }; 
@@ -41,6 +43,8 @@ template < typename Type > struct mul_mat_vet {};
 #include "Vector.hpp"
 #include "Matrix.hpp"
 #include "Product.hpp"
+
+#include "Vector2.hpp"
 
 namespace Solver {
 

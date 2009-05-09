@@ -24,20 +24,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+#ifndef _GAS_GEOMETRY_H_
+#define _GAS_GEOMETRY_H_
 
-/* needed by integration formula */
-#include "../Geometry/Geometry.h"
+#include "../LinearAlgebra/LinearAlgebra.h"
 
-#include "Integrator.hpp"
+/*!
+ * Le geometrie permettono di considerare figure geometriche molto semplici e 
+ * trasformarle in una figura di riferimento. Esse sono particolarmente utili
+ * per il cambio di variabili, usati nelle formule di integrazione numerica.
+ */
 
-namespace Method {
+namespace Geometry {
 
-#include "method/method_1.hpp"
-#include "method/method_2.hpp"
-#include "method/NewtonCotes.hpp"
+#include "Interval.hpp"
+#include "Triangle.hpp"
 
 }
 
-#endif
+#endif // _GAS_GEOMETRY_H_

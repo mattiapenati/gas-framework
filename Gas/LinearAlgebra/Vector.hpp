@@ -76,6 +76,8 @@ class Vector {
 		Vector ( );
 		Vector ( Type const & );
 		Vector ( Vector<Type, Dimension> const & );
+		template < typename Operand , typename Function > Vector ( VectorExpression<Type, Dimension, Operand, Function> const & );
+		
 		
 		/* destructor */
 		~Vector ( );
@@ -110,6 +112,14 @@ template < typename Type , unsigned int Dimension >
 Vector < Type , Dimension >::Vector ( Vector<Type, Dimension> const & vector ) {
 	for ( unsigned int i = 0u ; i < Dimension ; ++i )
 		value_[i] = vector(i);
+}
+
+/* exrpession constructor */
+template < typename Type , unsigned int Dimension >
+template < typename Operand , typename Function >
+Vector < Type , Dimension >::Vector ( VectorExpression<Type, Dimension, Operand, Function> const & expression ) {
+	for ( unsigned int i = 0u ; i < Dimension ; ++i )
+		value_[i] = expression(i);
 }
 
 /* destructor */
