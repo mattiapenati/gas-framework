@@ -34,12 +34,12 @@ struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type,
 	inline Type const operator() ( unsigned int const & i ) const {
 		Type r = l_(i,0) * r_(0);
 		for ( unsigned int j = 1; j < Column ; ++j )
-			r += (l_(i,j) * r_(j))l
+			r += (l_(i,j) * r_(j));
 		return r;
 	}
 };
 template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
-struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> > {
+struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> > {
 	Matrix<Type, Row, Column> const & l_;
 	VectorExpression<Type, Column, Operand, Function> const & r_;
 	
@@ -47,19 +47,19 @@ struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type,
 	inline Type const operator() ( unsigned int const & i ) const {
 		Type r = l_(i,0) * r_(0);
 		for ( unsigned int j = 1; j < Column ; ++j )
-			r += (l_(i,j) * r_(j))l
+			r += (l_(i,j) * r_(j));
 		return r;
 	}
 };
 
 /* operator */
 template < typename Type , unsigned int Row , unsigned int Column >
-inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >
+inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >
 operator* ( Matrix<Type, Row, Column> const & m , Vector<Type, Column> const & v ) {
-	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >( m ,v );
+	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >( m ,v );
 }
 template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
-inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >
+inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >
 operator* ( Matrix<Type, Row, Column> const & m , VectorExpression<Type, Column, Operand, Function> const & v ) {
-	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Column, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >( m ,v );
+	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >( m ,v );
 }
