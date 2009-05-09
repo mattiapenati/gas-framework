@@ -13,7 +13,11 @@ class PointInfo {
 		void toDirichlet();
 		void toNeumann();
 		
+		void toBoundary();
+		
 		bool isDirichlet();
+		
+		bool isBoundary();
 		
 		double & gradCx();
 		double & gradCy();
@@ -24,6 +28,7 @@ class PointInfo {
 		unsigned int index_;
 		double value_;
 		BConditionType bcond_;
+		bool bound_list_;
 		
 		/* Gradiente della proiezione di Clement */
 		double gradCx_;
@@ -54,7 +59,7 @@ class FaceInfo {
 		double res_;
 };
 
-PointInfo::PointInfo(): index_(0u), value_(), bcond_(NONE), gradCx_(), gradCy_() {
+PointInfo::PointInfo(): index_(0u), value_(), bcond_(NONE), gradCx_(), gradCy_(), bound_list_(false) {
 }
 
 PointInfo::~PointInfo() {
@@ -66,6 +71,7 @@ PointInfo & PointInfo::operator=(PointInfo const &i) {
 	bcond_ = i.bcond_;
 	gradCx_ = i.gradCx_;
 	gradCy_ = i.gradCy_;
+	bound_list_ = i.bound_list_;
 	
 	return *this;
 }
@@ -86,8 +92,16 @@ void PointInfo::toNeumann() {
 	bcond_ = NEUMANN;
 }
 
+void PointInfo::toBoundary() {
+	bound_list_ = true;
+}
+
 bool PointInfo::isDirichlet() {
 	return (bcond_ == DIRICHLET);
+}
+
+bool PointInfo::isBoundary() {
+	return bound_list_;
 }
 
 double & PointInfo::gradCx() {

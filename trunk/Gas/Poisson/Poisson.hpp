@@ -56,6 +56,7 @@ class Poisson {
 	public:
 		Poisson(PointList const &, func, double const & criteria = 0.);
 		~Poisson();
+		unsigned int refine(double const &);
 		void saveToSVG(char const *, bool const);
 	private:
 		// LinearAlgebra
@@ -125,9 +126,6 @@ Poisson::Poisson(PointList const &boundary, func f, double const & criteria) : N
 	
 	// Salvataggio della soluzione nella griglia
 	saveSolution(x);
-	
-	// Calcolo residuo
-	calcRes();
 }
 
 /*
@@ -312,6 +310,14 @@ void Poisson::insertNodes(PointList const &boundary_, double const & criteria) {
 	if (criteria != 0.)
 		minimo = criteria;
 	
+	// Impostazione dei nodi delal lista al bordo (da non eliminare)
+	CDT::Vertex_circulator cV = cdt_.incident_vertices (cdt_.infinite_vertex());
+	CDT::Vertex_circulator begin = cV;
+	do {
+		cV->info().toBoundary();
+		++cV;
+	} while(cV != begin);
+	
 	// Raffinamento
 	CGAL::refine_Delaunay_mesh_2(cdt_, Criteria(0.125, minimo));
 }
@@ -483,6 +489,9 @@ void Poisson::calcRes() {
 	CDT::Finite_faces_iterator itF;
 	CDT::Finite_vertices_iterator itV;
 	
+	// Norma H1
+	double normH1 = 0.;
+	
 	/* Passo 1 : calcolo dei gradienti in ogni faccia e hk */
 	itF = cdt_.finite_faces_begin();
 	while (itF != cdt_.finite_faces_end()) {
@@ -571,7 +580,42 @@ void Poisson::calcRes() {
 		
 		++itV;
 	}
-	/* Passo 3+4 : calcolo laplaciano + residuo  */
+	/* Passo 3: Norma H1 della soluzione uh */
+	itF = cdt_.finite_faces_begin();
+	while (itF != cdt_.finite_faces_end()) {
+		// Dominio di integrazione
+		Integrator2::Geometry g(*itF);
+		integr.domain(g);
+		
+		// Funzione
+		LinearAlgebra::Matrix<double, 3, 3> M;
+		M(0,0) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi0, Poisson::P1_phi0);
+		M(0,1) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi0, Poisson::P1_phi1);
+		M(0,2) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi0, Poisson::P1_phi2);
+		M(1,0) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi1, Poisson::P1_phi0);
+		M(1,1) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi1, Poisson::P1_phi1);
+		M(1,2) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi1, Poisson::P1_phi2);
+		M(2,0) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi2, Poisson::P1_phi0);
+		M(2,1) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi2, Poisson::P1_phi1);
+		M(2,2) = integr.integrateMul<Integrator2::NoTransform, Integrator2::NoTransform>(Poisson::P1_phi2, Poisson::P1_phi2);
+		
+		double u0 = itF->vertex(0)->info().value();
+		double u1 = itF->vertex(1)->info().value();
+		double u2 = itF->vertex(2)->info().value();
+		
+		normH1 += (
+			u0*u0*M(0,0) + u0*u1*M(0,1) + u0*u2*M(0,2) +
+			u1*u0*M(1,0) + u1*u1*M(1,1) + u1*u2*M(1,2) +
+			u2*u0*M(2,0) + u2*u1*M(2,1) + u2*u2*M(2,2)
+		);
+		
+		// Gradiente
+		normH1 += (itF->info().gradx() * itF->info().gradx()) + (itF->info().grady() * itF->info().grady());
+		
+		++itF;
+	}
+	normH1 = std::sqrt(normH1);
+	/* Passo 4+5 : calcolo laplaciano + residuo  */
 	itF = cdt_.finite_faces_begin();
 	while (itF != cdt_.finite_faces_end()) {
 		
@@ -583,6 +627,7 @@ void Poisson::calcRes() {
 		// Distanze
 		double d01 = std::sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
 		double d02 = std::sqrt( (x0-x2)*(x0-x2) + (y0-y2)*(y0-y2) );
+		double d12 = std::sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
 		
 		// Valori nodali
 		double gx0 = itF->vertex(0)->info().gradCx();
@@ -614,12 +659,129 @@ void Poisson::calcRes() {
 			lapo * lapo * std::abs(g.det()) * 0.5 
 		);
 		
-		// Residuo al bordo TODO
+		// Residuo al bordo
 		double t = 0.;
-		itF->info().res() += std::sqrt(itF->info().h()) * t;
+		
+		if (!cdt_.is_infinite(itF->neighbor(0))) {
+			t += pow(
+				(itF->info().gradx() - itF->neighbor(0)->info().gradx()) * (y1 - y2) +
+				(itF->info().grady() - itF->neighbor(0)->info().grady()) * (x2 - x1)
+			, 2) / d12;
+		}
+		
+		if (!cdt_.is_infinite(itF->neighbor(1))) {
+			t += pow(
+				(itF->info().gradx() - itF->neighbor(1)->info().gradx()) * (y2 - y0) +
+				(itF->info().grady() - itF->neighbor(1)->info().grady()) * (x0 - x2)
+			, 2) / d02;
+		}
+		
+		if (!cdt_.is_infinite(itF->neighbor(2))) {
+			t += pow(
+				(itF->info().gradx() - itF->neighbor(2)->info().gradx()) * (y0 - y1) +
+				(itF->info().grady() - itF->neighbor(2)->info().grady()) * (x1 - x0)
+			, 2) / d01;
+		}
+		
+		itF->info().res() += std::sqrt(itF->info().h() * t) * 0.5;
+		
+		itF->info().res() /= normH1;
 		
 		++itF;
 	}
+}
+
+/*
+ * Raffinamento della mesh
+ */
+unsigned int Poisson::refine(double const & eps) {
+	
+	double max_res = (3. * eps ) / (2. * std::sqrt(cdt_.number_of_faces ()));
+	double min_res = max_res / 3.;
+	
+	PointList da_inserire;
+	std::list<CDT::Vertex_handle> da_eliminare;
+	
+	CDT::Finite_faces_iterator itF;
+	CDT::Finite_vertices_iterator itV;
+	
+	// Calcolo residuo
+	calcRes();
+	
+	// Inserimento
+	itF = cdt_.finite_faces_begin();
+	while (itF != cdt_.finite_faces_end()) {
+		Integrator2::Geometry g(*itF);
+		if ((itF->info().res() > max_res) && (std::abs(g.det()) > 9.e-4)) {
+			double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
+			double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
+			double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
+			da_inserire.push_back(Point(
+				(x0+x1+x2)/3.,
+				(y0+y1+y2)/3.
+			));
+		}
+		++itF;
+	}
+	
+	// Rimozione
+	itV =cdt_.finite_vertices_begin();
+	while (itV != cdt_.finite_vertices_end()) {
+		
+		// Non eliminabili
+		if (itV->info().isBoundary()) {
+			++itV;
+			continue;
+		}
+		
+		// Residuo medio
+		double t = 0.;
+		unsigned int n = 0;
+		CDT::Face_circulator cF = cdt_.incident_faces(itV);
+		CDT::Face_circulator end = cF;
+		do {
+			if (!cdt_.is_infinite(cF)) {
+				t += cF->info().res();
+				++n;
+			}
+			++cF;
+		} while(cF != end);
+		t /= n;
+		
+		// Inserimento
+		if (t < min_res)
+			da_eliminare.push_back(itV);
+		
+		++itV;
+	}
+	
+	if (da_eliminare.size()) {
+		std::list<CDT::Vertex_handle>::iterator it = da_eliminare.begin();
+		while(it != da_eliminare.end()) {
+			cdt_.remove(*it);
+			++it;
+		} 
+	}
+	if (da_inserire.size())
+		cdt_.insert(da_inserire.begin(), da_inserire.end());
+	
+	// Costruzione della griglia
+	setBConditions();
+	enumNodes();
+	
+	// Costruzione matrice termine noto
+	Matrix A;
+	Vector F;	
+	makeMatrixTermineNoto(A, F);
+	
+	// Soluzione del sistema lineare
+	Vector x(n_point, 0.);
+	solveSystem(A, x, F);
+	
+	// Salvataggio della soluzione nella griglia
+	saveSolution(x);
+	
+	return da_inserire.size() + da_eliminare.size();
 }
 
 #endif // POISSON_HPP

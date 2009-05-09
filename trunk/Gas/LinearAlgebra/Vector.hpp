@@ -24,6 +24,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+template < typename Type , unsigned int Dimension , typename Operand , typename Function = id<Type> >
+struct VectorExpression {
+	Operand const & o_;
+	
+	inline VectorExpression ( Operand const & o ) : o_(o) {}
+	inline Type const operator() ( unsigned int const & i ) const { return Function::RET( o_(i) ); }
+};
+
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename RightOperand , typename Function >
+struct VectorBinaryExpression {
+	LeftOperand const & l_;
+	RightOperand const & r_;
+	
+	inline VectorBinaryExpression ( LeftOperand const & l , RightOperand const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i ) const { return Function::RET(l_(i) , r_(i)); }
+};
+
+/* specialization for scalar types */
+template < typename Type , unsigned int Dimension , typename RightOperand , typename Function >
+struct VectorBinaryExpression<Type, Dimension, Type, RightOperand, Function> {
+	Type const & l_;
+	RightOperand const & r_;
+	
+	inline VectorBinaryExpression ( Type const & l , RightOperand const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i ) const { return Function::RET(l_ , r_(i)); }
+};
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename Function >
+struct VectorBinaryExpression<Type, Dimension, LeftOperand, Type, Function> {
+	LeftOperand const & l_;
+	Type const & r_;
+	
+	inline VectorBinaryExpression ( LeftOperand const & l , Type const & r ) : l_(l) , r_(r) {}
+	inline Type const operator() ( unsigned int const & i ) const { return Function::RET(l_(i) , r_); }
+};
+/* specialization to write less code */
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename RightOperand , typename ExpressionFunction , typename BinaryFunction >
+struct VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, LeftOperand, RightOperand, BinaryFunction>, ExpressionFunction> {
+	VectorBinaryExpression<Type, Dimension, LeftOperand, RightOperand, BinaryFunction> const o_;
+	
+	inline VectorExpression ( LeftOperand const & l , RightOperand const & r ) : o_(l , r) {}
+	inline Type const operator() ( unsigned int const & i ) const { return ExpressionFunction::RET(o_(i)); }
+};
+
+/* main class */
 template < typename Type , unsigned int Dimension >
 class Vector {
 
@@ -31,9 +75,14 @@ class Vector {
 		/* constructor */
 		Vector ( );
 		Vector ( Type const & );
+		Vector ( Vector<Type, Dimension> const & );
 		
 		/* destructor */
 		~Vector ( );
+		
+		/* assign */
+		inline Vector<Type, Dimension> & operator= ( Vector<Type, Dimension> const & );
+		template < typename Operand , typename Function > inline Vector<Type, Dimension> & operator= ( VectorExpression<Type, Dimension, Operand, Function> const & );
 		
 		/* access */
 		inline Type & operator() ( unsigned int const & );
@@ -56,9 +105,33 @@ Vector < Type , Dimension >::Vector ( Type const & scalar ) {
 		value_[i] = scalar;
 }
 
+/* copy constructor */
+template < typename Type , unsigned int Dimension >
+Vector < Type , Dimension >::Vector ( Vector<Type, Dimension> const & vector ) {
+	for ( unsigned int i = 0u ; i < Dimension ; ++i )
+		value_[i] = vector(i);
+}
+
 /* destructor */
 template < typename Type , unsigned int Dimension >
 Vector < Type , Dimension >::~Vector ( ) {
+}
+
+/* assign from vector */
+template < typename Type , unsigned int Dimension >
+Vector<Type, Dimension> & Vector < Type , Dimension >::operator= ( Vector<Type, Dimension> const & vector ) {
+	for ( unsigned int i = 0u ; i < Dimension ; ++i )
+		value_[i] = vector(i);
+	return *this;
+}
+
+/* assign from exrpession */
+template < typename Type , unsigned int Dimension >
+template < typename Operand , typename Function >
+Vector<Type, Dimension> & Vector < Type , Dimension >::operator= ( VectorExpression<Type, Dimension, Operand, Function> const & expression ) {
+	for ( unsigned int i = 0u ; i < Dimension ; ++i )
+		value_[i] = expression(i);
+	return *this;
 }
 
 /* access */
@@ -71,14 +144,112 @@ Type const & Vector < Type , Dimension >::operator() ( unsigned int const & i ) 
 	return value_[i];
 }
 
+/* add */
+template < typename Type , unsigned int Dimension >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Vector<Type, Dimension>, add<Type> >, id<Type> >
+operator+ ( Vector<Type, Dimension> const & x , Vector<Type, Dimension> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Vector<Type, Dimension>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Vector<Type, Dimension>, add<Type> >, id<Type> >
+operator+ ( VectorExpression<Type, Dimension, Operand, Function> const & x , Vector<Type, Dimension> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Vector<Type, Dimension>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, VectorExpression<Type, Dimension, Operand, Function>, add<Type> >, id<Type> >
+operator+ ( Vector<Type, Dimension> const & x , VectorExpression<Type, Dimension, Operand, Function> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, VectorExpression<Type, Dimension, Operand, Function>, add<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename LeftFunction , typename RightOperand , typename RightFunction >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, LeftOperand, LeftFunction>, VectorExpression<Type, Dimension, RightOperand, RightFunction>, add<Type> >, id<Type> >
+operator+ ( VectorExpression<Type, Dimension, LeftOperand, LeftFunction> const & x , VectorExpression<Type, Dimension, RightOperand, RightFunction> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, LeftOperand, LeftFunction>, VectorExpression<Type, Dimension, RightOperand, RightFunction>, add<Type> >, id<Type> >( x , y );
+}
+
+/* sub */
+template < typename Type , unsigned int Dimension >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Vector<Type, Dimension>, sub<Type> >, id<Type> >
+operator- ( Vector<Type, Dimension> const & x , Vector<Type, Dimension> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Vector<Type, Dimension>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Vector<Type, Dimension>, sub<Type> >, id<Type> >
+operator- ( VectorExpression<Type, Dimension, Operand, Function> const & x , Vector<Type, Dimension> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Vector<Type, Dimension>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, VectorExpression<Type, Dimension, Operand, Function>, sub<Type> >, id<Type> >
+operator- ( Vector<Type, Dimension> const & x , VectorExpression<Type, Dimension, Operand, Function> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, VectorExpression<Type, Dimension, Operand, Function>, sub<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename LeftFunction , typename RightOperand , typename RightFunction >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, LeftOperand, LeftFunction>, VectorExpression<Type, Dimension, RightOperand, RightFunction>, sub<Type> >, id<Type> >
+operator- ( VectorExpression<Type, Dimension, LeftOperand, LeftFunction> const & x , VectorExpression<Type, Dimension, RightOperand, RightFunction> const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, LeftOperand, LeftFunction>, VectorExpression<Type, Dimension, RightOperand, RightFunction>, sub<Type> >, id<Type> >( x , y );
+}
+
+/* mul */
+template < typename Type , unsigned int Dimension >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Type, mul<Type> >, id<Type> >
+operator* ( Vector<Type, Dimension> const & x , Type const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Type, mul<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Type, mul<Type> >, id<Type> >
+operator* ( VectorExpression<Type, Dimension, Operand, Function> const & x , Type const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Type, mul<Type> >, id<Type> >( x , y );
+}
+
+/* div */
+template < typename Type , unsigned int Dimension >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Type, div<Type> >, id<Type> >
+operator/ ( Vector<Type, Dimension> const & x , Type const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, Vector<Type, Dimension>, Type, div<Type> >, id<Type> >( x , y );
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Type, div<Type> >, id<Type> >
+operator/ ( VectorExpression<Type, Dimension, Operand, Function> const & x , Type const & y ) {
+	return VectorExpression<Type, Dimension, VectorBinaryExpression<Type, Dimension, VectorExpression<Type, Dimension, Operand, Function>, Type, div<Type> >, id<Type> >( x , y );
+}
+
 /* dot product */
 template < typename Type , unsigned int Dimension >
-Type dot ( Vector < Type , Dimension > const & v , Vector < Type , Dimension > const & w ) {
-	Type r();
-	
-	for ( unsigned int i = 0u ; i < Dimension ; ++i ) {
-		r += v(i) * w(i);
-	}
-	
+inline Type dot ( Vector<Type, Dimension> const & v , Vector<Type, Dimension> const & w ) {
+	Type r = (v(0) * w(0));
+	for ( unsigned int i = 1u ; i < Dimension ; ++i )
+		r += (v(i) * w(i));
 	return r;
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline Type dot ( VectorExpression<Type, Dimension, Operand, Function> const & v , Vector<Type, Dimension> const & w ) {
+	Type r = (v(0) * w(0));
+	for ( unsigned int i = 1u ; i < Dimension ; ++i )
+		r += (v(i) * w(i));
+	return r;
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline Type dot ( Vector<Type, Dimension> const & v , VectorExpression<Type, Dimension, Operand, Function> const & w ) {
+	Type r = (v(0) * w(0));
+	for ( unsigned int i = 1u ; i < Dimension ; ++i )
+		r += (v(i) * w(i));
+	return r;
+}
+template < typename Type , unsigned int Dimension , typename LeftOperand , typename LeftFunction , typename RightOperand , typename RightFunction >
+inline Type dot ( VectorExpression<Type, Dimension, LeftOperand, LeftFunction> const & v , VectorExpression<Type, Dimension, RightOperand, RightFunction> const & w ) {
+	Type r = (v(0) * w(0));
+	for ( unsigned int i = 1u ; i < Dimension ; ++i )
+		r += (v(i) * w(i));
+	return r;
+}
+
+/* norm */
+template < typename Type , unsigned int Dimension >
+inline Type norm ( Vector<Type, Dimension> const & v ) {
+	Type r = dot(v, v); 
+	return std::sqrt(r);
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline Type norm ( VectorExpression<Type, Dimension, Operand, Function> const & v ) {
+	Type r = dot(v, v);
+	return std::sqrt(r);
 }

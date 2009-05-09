@@ -30,7 +30,6 @@ class Integrator {
 		typedef Integrator<IntegrationMethod> self;
 	
 		typedef typename IntegrationMethod::Geometry Geometry;
-		typedef typename IntegrationMethod::Function Function;
 		
 		/* queste sono le policies che definiscono se la funzione
 		 * da integrare è definita sulla geometria oppure sulla
@@ -49,23 +48,23 @@ class Integrator {
 		/* impostazione del dominio di integrazione, 
 		 * la geometria del problema viene definita 
 		 * dal metodo scelto */
-		self & domain (Geometry const & g) {
+		inline self & domain (Geometry const & g) {
 			m_.domain(g);
 			return *this;
 		}
 		
 		/* applicazione del metodo di integrazione su 
 		 * una singola funzione */
-		template<typename TransformationPolicy>
-		double integrate (Function const & f) {
+		template<typename TransformationPolicy, typename FunctionType>
+		inline double integrate (FunctionType const & f) {
 			return m_.template integrate<TransformationPolicy>(f);
 		}
 		
 		/* questo metodo viene usato per la moltiplicazione
 		 * tra due funzioni: utile per il termine noto e il
 		 * termine di reazione */
-		template<typename TransformationPolicy1, typename TransformationPolicy2>
-		double integrateMul (Function const & f, Function const & g) {
+		template<typename TransformationPolicy1, typename TransformationPolicy2, typename FunctionType1, typename FunctionType2>
+		inline double integrateMul (FunctionType1 const & f, FunctionType2 const & g) {
 			return m_.template integrateMul<TransformationPolicy1, TransformationPolicy2>(f, g);
 		}
 };
