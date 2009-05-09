@@ -222,3 +222,45 @@ inline MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Col
 operator/ ( MatrixExpression<Type, Row, Column, Operand, Function> const & x , Type const & y ) {
 	return MatrixExpression<Type, Row, Column, MatrixBinaryExpression<Type, Row, Column, MatrixExpression<Type, Row, Column, Operand, Function>, Type, div<Type> >, id<Type> >( x , y );
 }
+
+/* det */
+template < typename Type , unsigned int Dimension >
+inline Type
+det ( Matrix<Type, Dimension, Dimension> const & matrix ) {
+	Matrix<Type, Dimension, Dimension> F;
+	F = matrix;
+	/* factorization */
+	for ( unsigned int k = 0 ; k < Dimension ; ++k ) {
+		for ( unsigned int j = k+1 ; j < Dimension ; ++j )
+			F(j,k) /= F(k,k);
+		for ( unsigned int j = k+1; j < Dimension; ++j ) {
+			for ( unsigned int i = k+1 ; i < Dimension ; ++i )
+				F(i,j) -= F(i,k) * F(k,j);
+		}
+	}
+	/* det */
+	Type r = F(0,0);
+	for ( unsigned int i = 1 ; i < Dimension ; ++i )
+		r *= F(i,i);
+	return r; 
+}
+template < typename Type , unsigned int Dimension , typename Operand , typename Function >
+inline Type
+det ( MatrixExpression<Type, Dimension, Dimension, Operand, Function> const & matrix ) {
+	Matrix<Type, Dimension, Dimension> F;
+	F = matrix;
+	/* factorization */
+	for ( unsigned int k = 0 ; k < Dimension ; ++k ) {
+		for ( unsigned int j = k+1 ; j < Dimension ; ++j )
+			F(j,k) /= F(k,k);
+		for ( unsigned int j = k+1; j < Dimension; ++j ) {
+			for ( unsigned int i = k+1 ; i < Dimension ; ++i )
+				F(i,j) -= F(i,k) * F(k,j);
+		}
+	}
+	/* det */
+	Type r = F(0,0);
+	for ( unsigned int i = 1 ; i < Dimension ; ++i )
+		r *= F(i,i);
+	return r; 
+}
