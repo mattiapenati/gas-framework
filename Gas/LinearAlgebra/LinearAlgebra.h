@@ -40,6 +40,7 @@ template < typename Type > struct mul_mat_vet {};
 
 #include "Vector.hpp"
 #include "Matrix.hpp"
+#include "Product.hpp"
 
 namespace Solver {
 
