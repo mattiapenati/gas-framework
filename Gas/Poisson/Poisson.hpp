@@ -365,10 +365,14 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 	CDT::Finite_faces_iterator itF = cdt_.finite_faces_begin();
 	while(itF != cdt_.finite_faces_end()) {
 		
+		typedef LinearAlgebra::Vector<double,2> vettore;
+		
+		vettore p0, p1, p2;
+		
 		// Coordinate vertici del triangolo
-		double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
-		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
-		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
+		p0[0] = itF->vertex(0)->point().x(); p0[1] = itF->vertex(0)->point().y();
+		p1[0] = itF->vertex(1)->point().x(); p1[1] = itF->vertex(1)->point().y();
+		p2[0] = itF->vertex(2)->point().x(); p2[1] = itF->vertex(2)->point().y();
 		
 		// Geometria dell'integratore
 		Integrator2::Geometry g(*itF);
@@ -391,13 +395,19 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		int i1 = itF->vertex(1)->info().index();
 		int i2 = itF->vertex(2)->info().index();
 		
-		// Vettori ausiliari
-		double phi01 = y0 - y2 + x2 - x0;
-		double phi02 = y1 - y0 + x0 - x1;
-		double phi11 = y2 - y0;
-		double phi12 = y0 - y1;
-		double phi21 = x0 - x2;
-		double phi22 = x1 - x0;
+		
+	
+		vettore  gradphi0(0.), gradphi1(0.), gradphi2(0.);
+	    
+	
+	    // Vettori ausiliari
+		gradphi0[0] = p0[1] - p2[1] + p0[2] - p0[0];
+		gradphi0[1] = p1[1] - p0[1] + p0[0] - p1[0];
+		gradphi1[0] = p2[1] - p0[1];
+		gradphi1[1] = p0[1] - p1[1];
+		gradphi2[0] = p0[0] - p2[0];
+		gradphi2[1] = p1[0] - p0[0];
+	
 		
 		// Condizioni al bordo
 		bool b0 = !itF->vertex(0)->info().isDirichlet();
@@ -407,15 +417,15 @@ void Poisson::makeMatrixTermineNoto(Matrix &A , Vector &F) {
 		// Assemblaggio matrice di stiffness
 		
 		// Termine di diffusione
-		if (b0 && b0) Tmp(n_point*i0+i0) += 0.5*invdetJ*((phi01*phi01) + (phi02*phi02));
-		if (b0 && b1) Tmp(n_point*i0+i1) += 0.5*invdetJ*((phi11*phi01) + (phi12*phi02));
-		if (b0 && b2) Tmp(n_point*i0+i2) += 0.5*invdetJ*((phi21*phi01) + (phi22*phi02));
-		if (b1 && b0) Tmp(n_point*i1+i0) += 0.5*invdetJ*((phi01*phi11) + (phi02*phi12));
-		if (b1 && b1) Tmp(n_point*i1+i1) += 0.5*invdetJ*((phi11*phi11) + (phi12*phi12));
-		if (b1 && b2) Tmp(n_point*i1+i2) += 0.5*invdetJ*((phi21*phi11) + (phi22*phi12));
-		if (b2 && b0) Tmp(n_point*i2+i0) += 0.5*invdetJ*((phi01*phi21) + (phi02*phi22));
-		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*((phi11*phi21) + (phi12*phi22));
-		if (b2 && b2) Tmp(n_point*i2+i2) += 0.5*invdetJ*((phi21*phi21) + (phi22*phi22));
+		if (b0 && b0) Tmp(n_point*i0+i0) += 0.5*invdetJ*dot(gradphi0,gradphi0);
+		if (b0 && b1) Tmp(n_point*i0+i1) += 0.5*invdetJ*dot(gradphi0,gradphi1);
+		if (b0 && b2) Tmp(n_point*i0+i2) += 0.5*invdetJ*dot(gradphi0,gradphi2);
+		if (b1 && b0) Tmp(n_point*i1+i0) += 0.5*invdetJ*dot(gradphi1,gradphi0);
+		if (b1 && b1) Tmp(n_point*i1+i1) += 0.5*invdetJ*dot(gradphi1,gradphi1);
+		if (b1 && b2) Tmp(n_point*i1+i2) += 0.5*invdetJ*dot(gradphi1,gradphi2);
+		if (b2 && b0) Tmp(n_point*i2+i0) += 0.5*invdetJ*dot(gradphi2,gradphi0);
+		if (b2 && b1) Tmp(n_point*i2+i1) += 0.5*invdetJ*dot(gradphi2,gradphi1);
+		if (b2 && b2) Tmp(n_point*i2+i2) += 0.5*invdetJ*dot(gradphi2,gradphi2);
 		
 		// Definizione del dominio dell'integrazione
 		NC.domain(g);
@@ -496,15 +506,22 @@ void Poisson::calcRes() {
 	itF = cdt_.finite_faces_begin();
 	while (itF != cdt_.finite_faces_end()) {
 		
+		typedef LinearAlgebra::Vector<double,2> vettore;
+		
+		typedef LinearAlgebra::Matrix<double,2,2> matrice;
+		
+		vettore p0(0.), p1(0.), p2(0.);
+		
 		// Coordinate vertici del triangolo
-		double x0 = itF->vertex(0)->point().x(); double y0 = itF->vertex(0)->point().y();
-		double x1 = itF->vertex(1)->point().x(); double y1 = itF->vertex(1)->point().y();
-		double x2 = itF->vertex(2)->point().x(); double y2 = itF->vertex(2)->point().y();
+	    p0[0] = itF->vertex(0)->point().x(); p0[1] = itF->vertex(0)->point().y();
+		p1[0] = itF->vertex(1)->point().x(); p1[1] = itF->vertex(1)->point().y();
+		p2[0] = itF->vertex(2)->point().x(); p2[1] = itF->vertex(2)->point().y();
+		
 		
 		// Distanze
-		double d01 = std::sqrt( (x0-x1)*(x0-x1) + (y0-y1)*(y0-y1) );
-		double d02 = std::sqrt( (x0-x2)*(x0-x2) + (y0-y2)*(y0-y2) );
-		double d12 = std::sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+		double d01 = norm(p0-p1);
+		double d02 = norm(p0-p2);
+		double d12 = norm(p1-p2);
 		
 		// Valori nodali
 		double u0 = itF->vertex(0)->info().value();
@@ -512,12 +529,14 @@ void Poisson::calcRes() {
 		double u2 = itF->vertex(2)->info().value();
 		
 		// Coefficienti del gradiente
-		double a01 = (u1 - u0) / d01;
-		double a02 = (u2 - u0) / d02;
+		matrice M;
+		
+		double a01 = (u1 - u0) / d01 / d01;
+		double a02 = (u2 - u0) / d02 / d02;
 		
 		// Gradiente
-		itF->info().gradx() = a01 * (x1 - x0) / d01 + a02 * (x2 - x0) / d02;
-		itF->info().grady() = a01 * (y1 - y0) / d01 + a02 * (y2 - y0) / d02;
+		itF->info().gradx() = a01 * (x1 - x0) + a02 * (x2 - x0);
+		itF->info().grady() = a01 * (y1 - y0) + a02 * (y2 - y0);
 		
 		// max lati
 		itF->info().h() = MAX(MAX(d01, d02), d12);
