@@ -24,8 +24,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_LINEARALGEBRA_H_
-#define _GAS_LINEARALGEBRA_H_
+#ifndef _GAS_LINEARALGEBRA_
+#define _GAS_LINEARALGEBRA_
 
 #include <cmath>
 
@@ -40,13 +40,15 @@ template < typename Type > struct div { static inline Type RET ( Type const & x 
 
 template < typename Type > struct mul_mat_vet {};
 
+}
+
 #include "Vector.hpp"
 #include "Matrix.hpp"
 #include "Product.hpp"
 
 #include "Vector2.hpp"
 
-namespace Solver {
+namespace LinearAlgebra { namespace Solver {
 
 #include "solver/solver.hpp"
 #include "solver/upper.hpp"
@@ -56,8 +58,6 @@ namespace Solver {
 #include "solver/diagonal.hpp"
 #include "solver/cholesky.hpp"
 
-}
+} }
 
-}
-
-#endif // _GAS_LINEARALGEBRA_H_
+#endif // _GAS_LINEARALGEBRA_

@@ -51,7 +51,7 @@
  */
 
 template<typename IntegrationMethod>
-class Integrator {
+class Integrator: public IntegrationMethod {
 	public:
 		typedef Integrator<IntegrationMethod> self;
 	
@@ -63,19 +63,19 @@ class Integrator {
 		typedef typename IntegrationMethod::Transform Transform;
 		typedef typename IntegrationMethod::NoTransform NoTransform;
 		
-	private:
-		IntegrationMethod m_;
-		
 	public:
 		/* constructor */
-		Integrator () : m_ () {
+		Integrator (): IntegrationMethod() {
+		}
+		Integrator (Geometry const & g): IntegrationMethod() {
+			static_cast<IntegrationMethod *>(this)->domain(g);
 		}
 		
 		/* impostazione del dominio di integrazione, 
 		 * la geometria del problema viene definita 
 		 * dal metodo scelto */
 		inline self & domain (Geometry const & g) {
-			m_.domain(g);
+			static_cast<IntegrationMethod *>(this)->domain(g);
 			return *this;
 		}
 		
@@ -83,7 +83,7 @@ class Integrator {
 		 * una singola funzione */
 		template<typename TransformationPolicy, typename FunctionType>
 		inline double integrate (FunctionType const & f) {
-			return m_.template integrate<TransformationPolicy>(f);
+			return static_cast<IntegrationMethod *>(this)->template integrate<TransformationPolicy>(f);
 		}
 		
 		/* questo metodo viene usato per la moltiplicazione
@@ -91,6 +91,6 @@ class Integrator {
 		 * termine di reazione */
 		template<typename TransformationPolicy1, typename TransformationPolicy2, typename FunctionType1, typename FunctionType2>
 		inline double integrateMul (FunctionType1 const & f, FunctionType2 const & g) {
-			return m_.template integrateMul<TransformationPolicy1, TransformationPolicy2>(f, g);
+			return static_cast<IntegrationMethod *>(this)->template integrateMul<TransformationPolicy1, TransformationPolicy2>(f, g);
 		}
 };

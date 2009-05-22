@@ -24,42 +24,51 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _GAS_LINEARALGEBRA_PRODUCT_
+#define _GAS_LINEARALGEBRA_PRODUCT_
+
+namespace LinearAlgebra {
+
 /* specialization for matrix-vector product */
-template < typename Type , unsigned int Row , unsigned int Column >
+template < typename Type, unsigned int Row, unsigned int Column>
 struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> > {
 	Matrix<Type, Row, Column> const & l_;
 	Vector<Type, Column> const & r_;
 	
-	inline VectorBinaryExpression ( Matrix<Type, Row, Column> const & l , Vector<Type, Column> const & r ) : l_(l) , r_(r) {}
-	inline Type const operator() ( unsigned int const & i ) const {
+	inline VectorBinaryExpression (Matrix<Type, Row, Column> const & l, Vector<Type, Column> const & r) : l_(l), r_(r) {}
+	inline Type const operator() (unsigned int const & i) const {
 		Type r = l_(i,0) * r_(0);
-		for ( unsigned int j = 1; j < Column ; ++j )
+		for (unsigned int j = 1; j < Column; ++j)
 			r += (l_(i,j) * r_(j));
 		return r;
 	}
 };
-template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+template < typename Type, unsigned int Row, unsigned int Column, typename Operand, typename Function>
 struct VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> > {
 	Matrix<Type, Row, Column> const & l_;
 	VectorExpression<Type, Column, Operand, Function> const & r_;
 	
-	inline VectorBinaryExpression ( Matrix<Type, Row, Column> const & l , VectorExpression<Type, Column, Operand, Function> const & r ) : l_(l) , r_(r) {}
-	inline Type const operator() ( unsigned int const & i ) const {
+	inline VectorBinaryExpression (Matrix<Type, Row, Column> const & l, VectorExpression<Type, Column, Operand, Function> const & r) : l_(l), r_(r) {}
+	inline Type const operator() (unsigned int const & i) const {
 		Type r = l_(i,0) * r_(0);
-		for ( unsigned int j = 1; j < Column ; ++j )
+		for (unsigned int j = 1; j < Column; ++j)
 			r += (l_(i,j) * r_(j));
 		return r;
 	}
 };
 
 /* operator */
-template < typename Type , unsigned int Row , unsigned int Column >
+template < typename Type, unsigned int Row, unsigned int Column>
 inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >
-operator* ( Matrix<Type, Row, Column> const & m , Vector<Type, Column> const & v ) {
-	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >( m ,v );
+operator* (Matrix<Type, Row, Column> const & m, Vector<Type, Column> const & v) {
+	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, Vector<Type, Column>, mul_mat_vet<Type> >, id<Type> >(m, v);
 }
-template < typename Type , unsigned int Row , unsigned int Column , typename Operand , typename Function >
+template < typename Type, unsigned int Row, unsigned int Column, typename Operand, typename Function>
 inline VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >
-operator* ( Matrix<Type, Row, Column> const & m , VectorExpression<Type, Column, Operand, Function> const & v ) {
-	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >( m ,v );
+operator* (Matrix<Type, Row, Column> const & m, VectorExpression<Type, Column, Operand, Function> const & v) {
+	return VectorExpression<Type, Row, VectorBinaryExpression<Type, Row, Matrix<Type, Row, Column>, VectorExpression<Type, Column, Operand, Function>, mul_mat_vet<Type> >, id<Type> >(m, v);
 }
+
+}
+
+#endif // _GAS_LINEARALGEBRA_PRODUCT_

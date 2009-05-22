@@ -24,21 +24,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+template < typename Geometry , unsigned int Degree > struct Gauss;
 
-/* needed by integration formula */
-#include "../Geometry/Geometry.h"
+/* integrazione su un intervallo */
+template < unsigned int Degree >
+struct Gauss<Geometry::Interval, Degree>: public method_1<Gauss<Geometry::Interval, Degree>, Geometry::Interval> {
+	/* nodi e pesi */
+	static const double x[];
+	static const double w[];
+	/* numbero di punti */
+	static const unsigned int nPoints;
+};
 
-#include "Integrator.hpp"
+/* ordine 1 su intervallo */
+template < > const unsigned int Gauss<Geometry::Interval, 1>::nPoints = 2;
+template < > const double Gauss<Geometry::Interval, 1>::x[2] = {
+	-0.5773502691896258, +0.5773502691896258
+};
+template < > const double Gauss<Geometry::Interval, 1>::w[2] = {
+	1.0000000000000000, 1.0000000000000000
+};
 
-namespace Method {
+/* ordine 2 su intervallo */
+template < > const unsigned int Gauss<Geometry::Interval, 2>::nPoints = 3;
+template < > const double Gauss<Geometry::Interval, 2>::x[3] = {
+	-0.7745966692414834, 0.0000000000000000, +0.7745966692414834
+};
+template < > const double Gauss<Geometry::Interval, 2>::w[3] = {
+	0.5555555555555556, 0.8888888888888889, 0.5555555555555556
+};
 
-#include "method/method_1.hpp"
-#include "method/method_2.hpp"
-#include "method/NewtonCotes.hpp"
-#include "method/Gauss.hpp"
-
-}
-
-#endif
+/* ordine 3 su intervallo */
+template < > const unsigned int Gauss<Geometry::Interval, 3>::nPoints = 4;
+template < > const double Gauss<Geometry::Interval, 3>::x[4] = {
+	-0.8611363115940526, -0.3399810435848563, +0.3399810435848563, +0.8611363115940526
+};
+template < > const double Gauss<Geometry::Interval, 3>::w[4] = {
+	0.3478548451374539, 0.6521451548625461, 0.6521451548625461, 0.3478548451374539
+};

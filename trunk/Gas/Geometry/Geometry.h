@@ -24,22 +24,12 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_GEOMETRY_H_
-#define _GAS_GEOMETRY_H_
+#ifndef _GAS_GEOMETRY_
+#define _GAS_GEOMETRY_
 
-#include "../LinearAlgebra/LinearAlgebra.h"
-
-/*!
- * Le geometrie permettono di considerare figure geometriche molto semplici e 
- * trasformarle in una figura di riferimento. Esse sono particolarmente utili
- * per il cambio di variabili, usati nelle formule di integrazione numerica.
- */
-
-namespace Geometry {
 
 #include "Interval.hpp"
 #include "Triangle.hpp"
 
-}
 
-#endif // _GAS_GEOMETRY_H_
+#endif // _GAS_GEOMETRY_
