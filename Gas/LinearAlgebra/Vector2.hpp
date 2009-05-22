@@ -24,28 +24,33 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _GAS_LINEARALGEBRA_VECTOR2_
+#define _GAS_LINEARALGEBRA_VECTOR2_
+
+namespace LinearAlgebra {
+
 /* main class */
-template < typename Type >
+template <typename Type>
 class Vector<Type, 2> {
 
 	public:
 		/* constructor */
-		Vector ( );
-		Vector ( Type const & );
-		Vector ( Vector<Type, 2> const & );
-		Vector ( Type const & , Type const & );
-		template < typename Operand , typename Function > Vector ( VectorExpression<Type, 2, Operand, Function> const & );
+		Vector ();
+		Vector (Type const &);
+		Vector (Vector<Type, 2> const &);
+		Vector (Type const &, Type const &);
+		template <typename Operand, typename Function> Vector (VectorExpression<Type, 2, Operand, Function> const &);
 		
 		/* destructor */
-		~Vector ( );
+		~Vector ();
 		
 		/* assign */
-		inline Vector<Type, 2> & operator= ( Vector<Type, 2> const & );
-		template < typename Operand , typename Function > inline Vector<Type, 2> & operator= ( VectorExpression<Type, 2, Operand, Function> const & );
+		inline Vector<Type, 2> & operator= (Vector<Type, 2> const &);
+		template <typename Operand, typename Function> inline Vector<Type, 2> & operator= (VectorExpression<Type, 2, Operand, Function> const &);
 		
 		/* access */
-		inline Type & operator() ( unsigned int const & );
-		inline Type const & operator() ( unsigned int const & ) const;
+		inline Type & operator() (unsigned int const &);
+		inline Type const & operator() (unsigned int const &) const;
 	
 	private:
 		Type value_[2];
@@ -53,66 +58,70 @@ class Vector<Type, 2> {
 };
 
 /* default constructor */
-template < typename Type >
-Vector < Type , 2 >::Vector ( ) {
+template <typename Type>
+Vector<Type, 2>::Vector () {
 }
 
 /* constructor by value */
-template < typename Type >
-Vector < Type , 2 >::Vector ( Type const & scalar ) {
+template <typename Type>
+Vector<Type, 2>::Vector (Type const & scalar) {
 	value_[0] = scalar;
 	value_[1] = scalar;
 }
 
 /* copy constructor */
-template < typename Type >
-Vector < Type , 2 >::Vector ( Vector<Type, 2> const & vector ) {
+template <typename Type>
+Vector<Type, 2>::Vector (Vector<Type, 2> const & vector) {
 	value_[0] = vector(0);
 	value_[1] = vector(1);
 }
 /* exrpession constructor */
-template < typename Type >
-template < typename Operand , typename Function >
-Vector < Type , 2 >::Vector ( VectorExpression<Type, 2, Operand, Function> const & expression ) {
+template <typename Type>
+template <typename Operand, typename Function>
+Vector<Type, 2>::Vector (VectorExpression<Type, 2, Operand, Function> const & expression) {
 	value_[0] = expression(0);
 	value_[1] = expression(1);
 }
 
 /* constructor by two values */
-template < typename Type >
-Vector < Type , 2 >::Vector ( Type const & v0 , Type const & v1 ) {
+template <typename Type>
+Vector<Type, 2>::Vector (Type const & v0, Type const & v1) {
 	value_[0] =  v0;
 	value_[1] =  v1;
 }
 
 /* destructor */
-template < typename Type >
-Vector < Type , 2 >::~Vector ( ) {
+template <typename Type>
+Vector<Type, 2>::~Vector () {
 }
 
 /* assign from vector */
-template < typename Type >
-Vector<Type, 2> & Vector < Type , 2 >::operator= ( Vector<Type, 2> const & vector ) {
+template <typename Type>
+Vector<Type, 2> & Vector<Type, 2>::operator= (Vector<Type, 2> const & vector) {
 	value_[0] = vector(0);
 	value_[1] = vector(1);
 	return *this;
 }
 
 /* assign from exrpession */
-template < typename Type >
-template < typename Operand , typename Function >
-Vector<Type, 2> & Vector < Type , 2 >::operator= ( VectorExpression<Type, 2, Operand, Function> const & expression ) {
+template <typename Type>
+template <typename Operand, typename Function>
+Vector<Type, 2> & Vector<Type, 2>::operator= (VectorExpression<Type, 2, Operand, Function> const & expression) {
 	value_[0] = expression(0);
 	value_[1] = expression(1);
 	return *this;
 }
 
 /* access */
-template < typename Type >
-Type & Vector < Type , 2 >::operator() ( unsigned int const & i ) {
+template <typename Type>
+Type & Vector<Type, 2>::operator() (unsigned int const & i) {
 	return value_[i];
 }
-template < typename Type >
-Type const & Vector < Type , 2 >::operator() ( unsigned int const & i ) const {
+template <typename Type>
+Type const & Vector<Type, 2>::operator() (unsigned int const & i) const {
 	return value_[i];
 }
+
+}
+
+#endif // _GAS_LINEARALGEBRA_VECTOR2_

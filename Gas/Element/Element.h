@@ -24,21 +24,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+#ifndef _GAS_ELEMENT_
+#define _GAS_ELEMENT_
 
-/* needed by integration formula */
-#include "../Geometry/Geometry.h"
+namespace Element {
 
-#include "Integrator.hpp"
-
-namespace Method {
-
-#include "method/method_1.hpp"
-#include "method/method_2.hpp"
-#include "method/NewtonCotes.hpp"
-#include "method/Gauss.hpp"
+template <typename Geometry_> class P1;
 
 }
 
-#endif
+#include "P1.Triangle.hpp"
+
+#endif // _GAS_ELEMENT_

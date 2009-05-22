@@ -24,6 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef _GAS_GEOMETRY_TRIANGLE_
+#define _GAS_GEOMETRY_TRIANGLE_
+
+#include "../LinearAlgebra/LinearAlgebra.h"
+
+namespace Geometry {
+
 /*!
  * Questa classe contiene le informazioni geometriche di una geometria 
  * triangolare e permette di trasformare le coordinate dei punti dal triangolo
@@ -40,7 +47,7 @@ class Triangle {
 		/*!
 		 * Costruttore di default, crea una geometria vuota.
 		 */
-		inline Triangle ( );
+		inline Triangle ();
 		/*!
 		 * Unico costruttore, partendo da una faccia della triangolazione
 		 * calcola i paramentri delle trasformazioni. L'utilizzo del template
@@ -48,7 +55,7 @@ class Triangle {
 		 * personalizzata.
 		 * @param f La faccia da cui costruire la geometria.
 		 */
-		template < typename Face > inline Triangle ( Face const & f );
+		template <typename Face> inline Triangle (Face const & f);
 		
 		/*!
 		 * Trasforma le coordinate dal triangolo di riferimento, partendo da
@@ -57,7 +64,8 @@ class Triangle {
 		 * @param y L'ordinata nel riferimento.
 		 * @return L'ascissa nel triangolo attuale.
 		 */
-		inline double xTransform ( double const & x , double const & y ) const;
+		inline double x (double const & x, double const & y) const;
+		inline double invx (double const & x, double const & y) const;
 		
 		/*!
 		 * Trasforma le coordinate dal triangolo di riferimento, partendo da
@@ -66,77 +74,106 @@ class Triangle {
 		 * @param y L'ordinata nel riferimento.
 		 * @return L'ordinata nel triangolo attuale.
 		 */
-		inline double yTransform ( double const & x , double const & y ) const;
+		inline double y (double const & x, double const & y) const;
+		inline double invy (double const & x, double const & y) const;
 		
 		/*!
 		 * Operatore di copia.
 		 * @param t Un altro triangolo.
 		 * @return Ritorna il riferimento al lvalue.
 		 */
-		inline Triangle & operator= ( Triangle const & t );
+		inline Triangle & operator= (Triangle const & t);
 		
 		/*!
 		 * Il determinante della trasformazione, il suo valore diviso per 2
 		 * permette di ottenere l'area del triangolo.
 		 * @return Il determinante della trasformazione.
 		 */
-		inline double det ( ) const;
-	
+		inline double det (double const & x, double const & y) const;
+
+		/*!
+		 * L'area della geometria
+		 */
+		inline double area() const { return std::abs(detJ)/2.; }
+
 	private:
 		/* parametri della trasformazione */
 		LinearAlgebra::Matrix<double, 2, 2> J;
 		LinearAlgebra::Vector<double, 2> b;
 		/* determinante della trasformazione */
 		double detJ;
+		/* trasformazione inversa */
+		LinearAlgebra::Matrix<double, 2, 2> invJ;
 
 };
 
 /* costruttore vuoto */
-Triangle::Triangle ( ) {
+Triangle::Triangle (): J(0.), b(0.), detJ(1.), invJ(0.) {
+	J(0,0) = J(1,1) = invJ(0,0) = invJ(1,1) = 1.;
 }
 
 /* costruttore di copia dalla faccia */
-template < typename Face >
-Triangle::Triangle ( Face const & f ) {
-	
+template <typename Face>
+Triangle::Triangle (Face const & f) {
+
 	/* coordinate dei vertici del triangolo */
 	LinearAlgebra::Vector<double, 2> p0( f.vertex(0)->point().x() , f.vertex(0)->point().y() );
 	LinearAlgebra::Vector<double, 2> p1( f.vertex(1)->point().x() , f.vertex(1)->point().y() );
 	LinearAlgebra::Vector<double, 2> p2( f.vertex(2)->point().x() , f.vertex(2)->point().y() );
-	
+
 	/* temporanei */
 	LinearAlgebra::Vector<double, 2> v1(p1-p0);
 	LinearAlgebra::Vector<double, 2> v2(p2-p0);
-	
+
 	/* calcolo di J e b */
 	J(0,0) = v1(0);
 	J(1,0) = v1(1);
 	J(0,1) = v2(0);
 	J(1,1) = v2(1);
 	b = p0;
-	
+
 	/* det J */
 	detJ = LinearAlgebra::det(J);
+
+	/* calcolo di invJ */
+	invJ(0,0) = J(1,1) / detJ;
+	invJ(1,0) = -J(1,0) / detJ;
+	invJ(0,1) = -J(0,1) / detJ;
+	invJ(1,1) = J(0,0) / detJ;
+
 }
 		
 /* trasforma le coordinate dal riferimento al triangolo attuale */
-double Triangle::xTransform ( double const & x , double const & y ) const {
+double Triangle::x (double const & x , double const & y) const {
 	return J(0,0) * x + J(0,1) * y + b(0);
 }
-double Triangle::yTransform ( double const & x , double const & y ) const {
+double Triangle::y(double const & x , double const & y) const {
 	return J(1,0) * x + J(1,1) * y + b(1);
 }
 
+/* trasformazioni inverse */
+double Triangle::invx (double const & x, double const & y) const {
+	return invJ(0,0) * (x - b(0)) + invJ(0,1) * (y - b(1));
+}
+double Triangle::invy (double const & x, double const & y) const {
+	return invJ(1,0) * (x - b(0)) + invJ(1,1) * (y - b(1));
+}
+
 /* copia della geometria */
-Triangle & Triangle::operator= ( Triangle const & t ) {
+Triangle & Triangle::operator= (Triangle const & t) {
 	J = t.J;
 	b = t.b;
 	detJ = t.detJ;
-	
+	invJ = t.invJ;
+
 	return *this;
 };
 
 /* determinante di J */
-double Triangle::det ( ) const {
+double Triangle::det (double const & x, double const & y) const {
 	return detJ; 
 }
+
+}
+
+#endif // _GAS_GEOMETRY_TRIANGLE_

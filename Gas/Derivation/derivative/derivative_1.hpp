@@ -24,21 +24,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+template < typename Function , typename Derivator >
+class derivative_1 {
+	
+	public:
+		
+		derivative_1 ( Function const & f );
+		
+		double operator() ( double const & x );
+	
+	private:
+		Function const & f_;
+	
+};
 
-/* needed by integration formula */
-#include "../Geometry/Geometry.h"
-
-#include "Integrator.hpp"
-
-namespace Method {
-
-#include "method/method_1.hpp"
-#include "method/method_2.hpp"
-#include "method/NewtonCotes.hpp"
-#include "method/Gauss.hpp"
-
+template < typename Function , typename Derivator >
+derivative_1<Function, Derivator>::derivative_1 ( Function const & f ) : f_(f) {
 }
 
-#endif
+template < typename Function , typename Derivator >
+double derivative_1<Function, Derivator>::operator() ( double const & x ) {
+	double d = 0.
+	for ( unsigned int i = 0 ; i < Derivator::nPoints ; ++i )
+		d += Derivator::w[i] * f_( x + Derivator::h * Derivator::n[i] );
+	d /= Derivator::h;
+	return d;
+}

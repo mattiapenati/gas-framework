@@ -61,6 +61,7 @@ typedef __SIZE_TYPE__ size_t;
 #include "LinearAlgebra/LinearAlgebra.h"
 #include "Geometry/Geometry.h"
 #include "Integration/Integration.h"
+#include "Element/Element.h"
 #include "Poisson/Poisson.hpp"
 
 #endif

@@ -24,21 +24,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _GAS_INTEGRATION_H_
-#define _GAS_INTEGRATION_H_
+#ifndef _GAS_DERIVATION_H_
+#define _GAS_DERIVATION_H_
 
-/* needed by integration formula */
-#include "../Geometry/Geometry.h"
+namespace Derivation {
 
-#include "Integrator.hpp"
-
-namespace Method {
-
-#include "method/method_1.hpp"
-#include "method/method_2.hpp"
-#include "method/NewtonCotes.hpp"
-#include "method/Gauss.hpp"
+template < typename Method > class Derivator;
 
 }
 
-#endif
+#endif // _GAS_DERIVATION_H_
