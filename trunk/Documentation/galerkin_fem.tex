@@ -1,0 +1,100 @@
+\documentclass[10pt]{amsart}
+\usepackage[italian]{babel}
+%\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+%\usepackage{geometry}
+%\geometry{a4paper}
+\usepackage[parfill]{parskip}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{graphics}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[font=small,format=hang,labelfont={sf,bf}]{caption}
+
+%\usepackage[dvips]{epsfig}
+%\DeclareGraphicsExtensions{.ps,.eps}
+%\usepackage{fancyhdr}
+
+\linespread{1.1}
+
+\title[Metodo agli Elementi Finiti]{Metodo di Galerkin}
+\author[A. Fasc\`i, D. Ferrarese, M. Penati]{Alfonso Fasc\`i, Davide Ferrarese, Mattia Penati}
+\dedicatory{Relazione per il corso di Programmazione Avanzata\\[1mm]
+			\emph{Ingegneria Matematica - Laurea Specialistica}}
+
+\begin{document}
+\maketitle
+\section{Metodo di Galerkin Elementi Finiti}
+Il metodo di Galerkin \`e basato sulla formulazione debole di un qualsiasi problema differenziale alle derivate parziali:
+\begin{eqnarray}
+\label{weak_form}
+trovare & u \in V :\,a(u,v)=(f,v) & \forall v \in V.
+\end{eqnarray}
+dove $a(u,v)$ \`e una forma bilineare. Se $V_h$ \`e un sottospazio vettoriale finito dimensionale di $V$, il metodo di Galerkin consiste nell'approssimare (\ref{weak_form}) con un problema finito dimensionale:
+\begin{eqnarray}
+\label{galer_form}
+trovare & u_h \in V_h :\,a(u_h,v_h)=(f,v_h) & \forall v_h \in V_h.
+\end{eqnarray}
+Se $\{ \varphi_1, \dots, \varphi_N\}$ \`e una base di $V_h$, possiamo scrivere:
+\begin{equation}
+u_h = \sum_{j=1}^N u_j \varphi_j (x).
+\end{equation}
+Il numero intero $N$ denota la dimensione dello spazio vettoriale $V_h$. Sfruttando la linearit\`a della forma $a(\cdot, \cdot)$ e del prodotto scalare $(f,\cdot)$ \`e sufficiente scegliere $v_h = \varphi_i$. Dunque il problema di Galerkin \`e equivalente a cercare le $N$ incognite $\{u_1, \dots, u_N\}$ tali che:
+\begin{eqnarray}
+\label{num_galer_form}
+\sum_{j=1}^N u_j \, a(\varphi_j , \varphi_i) = (f, \varphi_i) & & \forall i = 1, \dots, N.
+\end{eqnarray}
+Se introduciamo la matrice di rigidezza $A_G = (a_{ij})$, $(a_{ij}) = a(\varphi_j , \varphi_i)$, il vettore incognito $\mathbf{u} = (u_1 , \dots, u_N)$ e il vettore termine noto $\mathbf{f}_G = [f_i =  (f, \varphi_i)]$, si pu\`o notare che (\ref{num_galer_form}) \`e equivalente al seguente sistema lineare:
+\begin{equation}
+\label{alg_galer_form}
+A_G \mathbf{u} = \mathbf{f}_G.
+\end{equation}
+La struttura di $A_G$, come il grado di accuratezza della soluzione 
+$u_h$, dipende dalla forma delle funzioni di base $\{ \varphi_i \}$, e 
+perci\`o dalla scelta di $V_h$.\\
+Il metodo degli elementi finiti (FEM) \`e una tecnica speciale per la costruzione del sottospazio $V_h$, basato sull'interpolazione polinomiale. Sia $\mathcal{T}_h$  una partizione del generico dominio ${\Omega} \in \mathbb{R}^2$ in $K$ triangoli tale che $\bar{\Omega} = \bigcup_{T \in \mathcal{T}_h} T$. Tale metodo corrisponde a considerare:
+\begin{equation}
+V_h = \{ v_h \in C^0 (\bar{\Omega}) \, : v_{h_{|T}} \in \mathbb{P}_k (T)\, \forall T \in \mathcal{T}_h \},
+\end{equation}
+dove $\mathbb{P}_k$ ($k \ge 1$) \`e lo spazio dei polinomi di grado $k$.
+\section{Codice a Elementi Finiti}
+Nell'esecuzione di un codice a elementi finiti possiamo distinguere 
+quattro fasi principali.
+\begin{enumerate}
+\item {\bf Pre-processing}. Questa fase consiste nell'impostazione del 
+problema e nell'implementazione del dominio di calcolo che richiede la 
+costruzione della reticolazione.
+\item {\bf Assemblaggio}. In questa fase vengono costruite le strutture 
+dati "funzionali", a partire da quelle "geometriche" ricavate dalle 
+mesh e dalle scelte circa il tipo di elementi finiti che si vuole 
+usare. Il termine {\it assemblaggio} si riferisce alla costruzione 
+della matrice del sistema lineare (matrice di rigidezza), passando dal 
+calcolo locale svolto sull'elemento di riferimento a quello globale 
+che concorre a determinare la matrice associata al problema 
+discretizzato. La Figura \ref{assembl} riassume le diverse operazioni 
+durante la fase di assemblaggio.
+\begin{figure}[h]
+ 	\centering
+	\includegraphics[width=0.7\columnwidth]{assemblaggio}
+	\caption{Schematizzazione dell'assemblaggio}
+	\label{assembl}
+\end{figure}\\
+Le informazioni geometriche e topologiche, opportunamente memorizzate 
+descrivono la griglia. Mediante la mappatura sull'elemento di 
+riferimento, si effettua il calcolo della matrice di discretizzazione 
+$\tilde{A}$ e del termine noto $\tilde{\mathbf{b}}$, procedendo prima 
+elemento per elemento (calcolo locale) e poi, sfruttando 
+l'additivit\`a dell'operazione di integrazione, si aggiorna la matrice 
+globale. Alla fine, si opera la prescrizione delle condizioni al 
+bordo, che idealmente elimina i gradi di libert\`a con condizioni di 
+Dirichlet, giungendo alla matrice finale $A$ e al termine noto 
+$\mathbf{b}$.  
+\item {\bf Risoluzione del sistema algebrico}. Il nocciolo risolutivo di 
+base di ogni calcolo ad elementi finiti \`e rappresentato dalla 
+soluzione di un sitema lineare.
+\item {\bf Post-processing}. In quest'ultima fase vengono elaborati i 
+dati numerici generati dal codice in modo da presentare risultati 
+sintetici ed in una forma utilizzabile per gli scopi di analisi.  
+\end{enumerate}
+\end{document}
