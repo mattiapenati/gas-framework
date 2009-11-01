@@ -1,0 +1,1 @@
+ADD_EXECUTABLE(empty empty.cpp)
