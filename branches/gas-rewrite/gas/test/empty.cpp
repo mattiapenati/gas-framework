@@ -27,56 +27,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file gas.h
- * @brief The main header, includes all other files
- */
+#undef gas_ndebug
+#include "gas.h"
 
-#ifndef _gas_
-#define _gas_
+#define TEST empty
 
-/*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
- */
+class TEST {
+	public:
+		TEST ();
+		void execute ();
+		void check ();
+};
 
-#include "functional/derivative.h"
+TEST::TEST () {
+	/* write the initialization code */
+}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+void TEST::execute () {
+	/* write the body of test */
+}
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+void TEST::check () {
+	/* write all assertions */
+}
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
-
-#endif // _gas_
+gas_unit(TEST)

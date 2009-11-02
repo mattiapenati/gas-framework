@@ -27,56 +27,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file gas.h
- * @brief The main header, includes all other files
- */
+#undef gas_ndebug
+#include "gas.h"
 
-#ifndef _gas_
-#define _gas_
+struct fake_interval {
+	inline fake_interval () { }
+	inline double const a() const { return 4.; }
+	inline double const b() const { return 6.; }
+};
 
-/*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
- */
+#define TEST gas_geometry_map_affine_interval
 
-#include "functional/derivative.h"
+class TEST {
+	public:
+		TEST ();
+		void execute ();
+		void check ();
+	private:
+		gas::geometry::map::affine<gas::geometry::unit::interval> i;
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+		double x, X, det, DET, dxdX, dXdx;
+};
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+TEST::TEST (): i(fake_interval()) {
+}
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+void TEST::execute () {
+	X = i.X(5.);
+	x = i.x(0.);
+	dXdx = i.dXdx(5.);
+	dxdX = i.dxdX(0.);
+	DET = i.DET(5.);
+	det = i.det(0.);
+}
 
-#endif // _gas_
+void TEST::check () {
+	gas_assert(X == 0.);
+	gas_assert(x == 5.);
+	gas_assert(dXdx == 1.);
+	gas_assert(dxdX == 1.);
+	gas_assert(DET == 1.);
+	gas_assert(det == 1.);
+}
+
+gas_unit(TEST)

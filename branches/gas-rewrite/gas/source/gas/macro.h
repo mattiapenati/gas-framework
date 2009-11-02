@@ -35,7 +35,25 @@
 #ifndef _gas_macro_
 #define _gas_macro_
 
+/*!
+ * @def pass
+ * @brief An alias for <tt>static_cast<void>(0)</tt>
+ */
 #undef pass
-#define pass static_cast<void>(0);
+#define pass static_cast<void>(0)
+
+/*!
+ * @def range(index, min, max)
+ * @brief An alias for <tt>for(int index = min; index < max; ++i)</tt>
+ */
+#undef range
+#define range(index, min, max) for(int index = min; index < max; ++index)
+
+/*!
+ * @def rangeu(index, max)
+ * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
+ */
+#undef rangeu
+#define rangeu(index, max) for(unsigned int index = 0; index < max; ++i)
 
 #endif // _gas_macro_

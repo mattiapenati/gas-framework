@@ -28,55 +28,87 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file static.h
+ * @brief Classes with static method to evaluate some functions
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_static_
+#define _gas_static_
+
+namespace gas {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief The sum operation
  */
+class add {
 
-#include "functional/derivative.h"
+public:
+	/*!
+	 * @brief Evaluate the sum of two numbers
+	 * @param a The first number
+	 * @param b The second number
+	 * @return The sum of two numbers
+	 */
+	inline static double eval (double const & a, double const & b) {
+		return a + b;
+	}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+};
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+/*!
+ * @brief The subtraction operation
+ */
+class sub {
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+public:
+	/*!
+	 * @brief Evaluate the difference of two numbers
+	 * @param a The first number
+	 * @param b The second number
+	 * @return The difference of two numbers
+	 */
+	inline static double eval (double const & a, double const & b) {
+		return a - b;
+	}
 
-#endif // _gas_
+};
+
+/*!
+ * @brief The multiplication operation
+ */
+class mul {
+
+public:
+	/*!
+	 * @brief Evaluate the product of two numbers
+	 * @param a The first number
+	 * @param b The second number
+	 * @return The product of two numbers
+	 */
+	inline static double eval (double const & a, double const & b) {
+		return a * b;
+	}
+
+};
+
+/*!
+ * @brief The division operation
+ */
+class div {
+
+public:
+	/*!
+	 * @brief Evaluate the quotient of two numbers
+	 * @param a The first number
+	 * @param b The second number
+	 * @return The quotient of two numbers
+	 */
+	inline static double eval (double const & a, double const & b) {
+		return a / b;
+	}
+
+};
+
+}
+
+#endif // _gas_static_

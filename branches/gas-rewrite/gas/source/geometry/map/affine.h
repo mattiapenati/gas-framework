@@ -28,55 +28,31 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file affine.h
+ * @brief A general container for affine transformations
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_geometry_map_affine_
+#define _gas_geometry_map_affine_
+
+namespace gas { namespace geometry { namespace map {
 
 /*!
- * @namespace gas
- * @brief The main namespace
+ * @brief A general container for affine transformations
+ * @param unit_ The geometry on which the map is defined
  *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * You can not used this class directly, but you must write your own
+ * specialization. The <tt>unit_</tt> type have to be a type defined in the
+ * namespace <tt>gas::geometry::unit</tt>.
  */
+template <typename unit_>
+class affine {
+};
 
-#include "functional/derivative.h"
+} } }
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+#endif // _gas_geometry_map_affine_
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
-
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
-
-#endif // _gas_
+// specialization
+#include "affine_interval.h"
+#include "affine_triangle.h"

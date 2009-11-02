@@ -86,21 +86,21 @@ inline void post(char const * exp, char const * file, unsigned int const & line)
 #ifdef gas_nassert
 #define gas_assert(expression) pass
 #else // gas_nassert
-#define gas_assert(expression) ((expression) ? pass : ::gas::assert(#expression, __FILE__, __LINE__))
+#define gas_assert(expression) ((expression) ? pass : gas::assert(#expression, __FILE__, __LINE__))
 #endif // gas_nassert
 
 #undef gas_pre
 #ifndef gas_npre
 #define gas_pre(expression) pass
 #else // gas_npre
-#define gas_pre(expression, message) ((expression) ? pass : ::gas::pre(#expression, __FILE__, __LINE__, message))
+#define gas_pre(expression) ((expression) ? pass : gas::pre(#expression, __FILE__, __LINE__))
 #endif // gas_npre
 
 #undef gas_npost
 #ifdef gas_npost
 #define gas_post(expression) pass
 #else // gas_npost
-#define gas_post(expression, message) ((expression) ? pass: ::gas::post(#expression, __FILE__, __LINE__, message))
+#define gas_post(expression) ((expression) ? pass : gas::post(#expression, __FILE__, __LINE__))
 #endif // gas_npost
 
 #endif // _gas_assertion_

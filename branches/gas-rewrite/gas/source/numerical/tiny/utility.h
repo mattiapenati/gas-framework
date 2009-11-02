@@ -28,55 +28,38 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file utility.h
+ * @brief Some utility to manage vectors and matrices
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_numerical_tiny_utility_
+#define _gas_numerical_tiny_utility_
+
+#include "vector.h"
+#include "../../gas/macro.h"
+
+#include <cstdarg>
+
+namespace gas { namespace numerical { namespace tiny {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief An utlity to create a vector from the list of components
+ * @param s The first component
+ * @param ... The other components
+ * @return An instance of vector
  */
+template <unsigned int size_>
+vector<size_> make_vector (double s, ...) {
+	vector<size_> v;
+	v(0) = s;
+	va_list vl;                    // List of arguments
+	va_start(vl, s);               // Start the list
+	range(i, 1, size_)
+		v(i) = va_arg(vl, double); // Read the next element
+	va_end(vl);                    // End the list
+	return v;
+}
 
-#include "functional/derivative.h"
+} } }
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
-
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
-
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
-
-#endif // _gas_
+#endif // _gas_numerical_tiny_utility_

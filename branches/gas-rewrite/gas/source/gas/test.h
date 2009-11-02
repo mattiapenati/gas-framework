@@ -28,55 +28,47 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file test.h
+ * @brief A minimal class to write unit test
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_test_
+#define _gas_test_
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @def gas_unit(TEST)
+ * @brief An alias for the main of test
  */
 
-#include "functional/derivative.h"
+#define gas_unit(TEST) \
+int main (int argc, char * argv) { \
+	gas::test<TEST>::run(); \
+	return 0; \
+}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+namespace gas {
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+/*!
+ * @brief A minimal class to write unit test
+ * @param Test A class that contain the execution code for the test
+ *
+ * To write a unit test is quite simple, first you have to copy the file
+ * empty.cpp and rename it as you prefer. Give a name at your test (line 33) and
+ * start to code.
+ */
+template <typename test_>
+class test {
+	public:
+		/*!
+		 * @brief Execute the unit test
+		 */
+		static void run () {
+			test_ obj;
+			obj.execute();
+			obj.check();
+		}
+};
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+}
 
-#endif // _gas_
+#endif // _gas_test_

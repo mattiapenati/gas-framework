@@ -83,7 +83,10 @@ public:
 	}
 
 private:
+	/*! @brief The start time */
 	std::clock_t time_start_;
+
+	/*! @brief The elapsed time */
 	std::clock_t time_elapsed_;
 
 };
