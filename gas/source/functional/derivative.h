@@ -28,55 +28,48 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file derivative.h
+ * @brief Functions for build the derivatives of function
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_functional_derivative_
+#define _gas_functional_derivative_
+
+namespace gas { namespace functional {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief Construct the derivative of a function
+ * @param f A function
+ * @return The derivative of the function
  */
+template <typename function_>
+typename function_::d_t d (function_ const & f) {
+	typedef typename function_::d_t r_t;
+	return r_t(f);
+}
 
-#include "functional/derivative.h"
+/*!
+ * @brief Construct the derivative by first argument of a function
+ * @param f A function
+ * @return The derivative by first argument of the function
+ */
+template <typename function_>
+typename function_::dx_t dx (function_ const & f) {
+	typedef typename function_::dx_t rx_t;
+	return rx_t(f);
+}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+/*!
+ * @brief Construct the derivative by second argument of a function
+ * @param f A function
+ * @return The derivative by second argument of the function
+ */
+template <typename function_>
+typename function_::dy_t dy (function_ const & f) {
+	typedef typename function_::dy_t ry_t;
+	return ry_t(f);
+}
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+} }
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
-
-#endif // _gas_
+#endif // _gas_functional_derivative_

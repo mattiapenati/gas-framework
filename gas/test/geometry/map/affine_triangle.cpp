@@ -27,56 +27,80 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file gas.h
- * @brief The main header, includes all other files
- */
+#undef gas_ndebug
+#include "gas.h"
 
-#ifndef _gas_
-#define _gas_
+struct fake_triangle {
+	inline fake_triangle () { }
+	inline double const x (unsigned int const & i) const {
+		switch (i) {
+		case 0: return 3.;
+		case 1: return 9.;
+		case 2: return 6.;
+		}
+	}
+	inline double const y (unsigned int const & i) const {
+		switch (i) {
+		case 0: return 3.;
+		case 1: return 1.;
+		case 2: return 8.;
+		}
+	}
+};
 
-/*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
- */
+#define TEST gas_geometry_map_affine_triangle
 
-#include "functional/derivative.h"
+class TEST {
+	public:
+		TEST ();
+		void execute ();
+		void check ();
+	private:
+		gas::geometry::map::affine<gas::geometry::unit::triangle> g;
+		double x, y, X, Y, det, DET, dxdX, dxdY, dydX, dydY, dXdx, dXdy, dYdx, dYdy;
+};
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+TEST::TEST (): g(fake_triangle()) {
+}
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+void TEST::execute () {
+	x = g.x(1./3., 1./3.);
+	y = g.y(1./3., 1./3.);
+	X = g.X(6., 4.);
+	Y = g.Y(6., 4.);
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+	det = g.det(1./3., 1./3.);
+	DET = g.DET(6., 4.);
 
-#endif // _gas_
+	dxdX = g.dxdX(1./3., 1./3.);
+	dxdY = g.dxdY(1./3., 1./3.);
+	dydX = g.dydX(1./3., 1./3.);
+	dydY = g.dydY(1./3., 1./3.);
+
+	dXdx = g.dXdx(6., 4.);
+	dXdy = g.dXdy(6., 4.);
+	dYdx = g.dYdx(6., 4.);
+	dYdy = g.dYdy(6., 4.);
+}
+
+void TEST::check () {
+	gas_assert(x == 6.);
+	gas_assert(y == 4.);
+	gas_assert(X == 1./3.);
+	gas_assert(Y == 1./3.);
+
+	gas_assert(det == 36.);
+	gas_assert(DET == 1./36.);
+
+	gas_assert(dxdX == 6.);
+	gas_assert(dxdY == 3.);
+	gas_assert(dydX == -2.);
+	gas_assert(dydY == 5.);
+
+	gas_assert(dXdx == 5./36.);
+	gas_assert(dXdy == -1./12.);
+	gas_assert(dYdx == 1./18.);
+	gas_assert(dYdy == 1./6.);
+}
+
+gas_unit(TEST)

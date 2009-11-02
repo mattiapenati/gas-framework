@@ -28,55 +28,58 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file det.h
+ * @brief The determinant of tiny matrix
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_numerical_tiny_det_
+#define _gas_numerical_tiny_det_
+
+#include "matrix.h"
+
+namespace gas { namespace numerical { namespace tiny {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief The determinant of a square matrix
+ * @param A A matrix
+ * @return The determinant
  */
+template <unsigned int size_>
+double det (matrix<size_, size_> A) {
+	// TODO da implementare
+	return 0.;
+}
 
-#include "functional/derivative.h"
+/*!
+ * @brief The determinant of a square expression
+ * @param exp An expression
+ * @return The determinant
+ */
+template <typename left_, typename right_, unsigned int size_, typename operator_>
+double det (matrix_binexp<left_, right_, size_, size_, operator_> const & exp) {
+	// TODO da implementare
+	return 0.;
+}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
+/*!
+ * @brief The determinant of a square matrix (2x2)
+ * @param A A matrix
+ * @return The determinant
+ */
+inline double det (matrix<2u, 2u> const & A) {
+	return A(0,0)*A(1,1)-A(0,1)*A(1,0);
+}
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+/*!
+ * @brief The determinant of a square expression (2x2)
+ * @param exp An expression
+ * @return The determinant
+ */
+template <typename left_, typename right_, typename operator_>
+inline double det (matrix_binexp<left_, right_, 2u, 2u, operator_> const & exp) {
+	return exp(0,0)*exp(1,1)-exp(0,1)*exp(1,0);
+}
 
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+} } }
 
-#endif // _gas_
+#endif // _gas_numerical_tiny_det_
