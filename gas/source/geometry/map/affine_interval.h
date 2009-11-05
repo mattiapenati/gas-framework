@@ -118,9 +118,9 @@ public:
 	 * @return The new coordinate \f$X=\varphi^{-1}(x)\f$
 	 */
 	inline double X (double const & x) const {
-		double const X((x-beta_)/alfa_);
-		gas_assert(unit_t::in(X)); // The point must be in the interval
-		return X;
+		double const _X((x-beta_)/alfa_);
+		gas_assert(unit_t::in(_X)); // The point must be in the interval
+		return _X;
 	}
 
 	/*!
@@ -139,8 +139,8 @@ public:
 	 * @return The value of derivative \f$\frac{dX}{dx}=(\varphi^{-1})'(x)\f$
 	 */
 	inline double dXdx (double const & x) const {
-		double const X((x-beta_)/alfa_);
-		gas_assert(unit_t::in(X)); // The point must be in the interval
+		double const _X((x-beta_)/alfa_);
+		gas_assert(unit_t::in(_X)); // The point must be in the interval
 		return 1./alfa_;
 	}
 
@@ -160,8 +160,8 @@ public:
 	 * @return The value of Jacobian \f$\det\left[\frac{dX_i}{dx_j}\right](x)\f$
 	 */
 	inline double DET (double const & x) const {
-		double const X((x-beta_)/alfa_);
-		gas_assert(unit_t::in(X)); // The point must be in the interval
+		double const _X((x-beta_)/alfa_);
+		gas_assert(unit_t::in(_X)); // The point must be in the interval
 		return 1./alfa_;
 	}
 

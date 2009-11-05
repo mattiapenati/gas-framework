@@ -74,6 +74,13 @@ inline void post(char const * exp, char const * file, unsigned int const & line)
 	std::exit(1);
 }
 
+/*! @brief The class used to check a static assertion */
+template <bool expression_> class compile_time_checker;
+
+/*! @brief The class used to check a static assertion (specialization for
+ *         success) */
+template<> class compile_time_checker<true> { };
+
 }
 
 #ifdef gas_ndebug
@@ -82,12 +89,22 @@ inline void post(char const * exp, char const * file, unsigned int const & line)
 #define gas_npost
 #endif // gas_ndebug
 
+/*!
+ * @def gas_assert(expression)
+ * @brief Checking the assertion
+ */
+
 #undef gas_assert
 #ifdef gas_nassert
 #define gas_assert(expression) pass
 #else // gas_nassert
 #define gas_assert(expression) ((expression) ? pass : gas::assert(#expression, __FILE__, __LINE__))
 #endif // gas_nassert
+
+/*!
+ * @def gas_pre(expression)
+ * @brief Checking the precondition
+ */
 
 #undef gas_pre
 #ifndef gas_npre
@@ -96,11 +113,23 @@ inline void post(char const * exp, char const * file, unsigned int const & line)
 #define gas_pre(expression) ((expression) ? pass : gas::pre(#expression, __FILE__, __LINE__))
 #endif // gas_npre
 
+/*!
+ * @def gas_post(expression)
+ * @brief Checking the postcondition
+ */
+
 #undef gas_npost
 #ifdef gas_npost
 #define gas_post(expression) pass
 #else // gas_npost
 #define gas_post(expression) ((expression) ? pass : gas::post(#expression, __FILE__, __LINE__))
 #endif // gas_npost
+
+/*!
+ * @def gas_static_assert(expression, message)
+ * @brief Checking the assertion at compile time
+ */
+
+#define gas_static_assert(expression, message) { gas::compile_time_checker<expression> ERROR_##message; (void)ERROR_##message; }
 
 #endif // _gas_assertion_

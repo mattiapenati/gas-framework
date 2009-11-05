@@ -45,6 +45,9 @@ public:
 	typedef triangle self_t;
 
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 2u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param x The first coordinate of point

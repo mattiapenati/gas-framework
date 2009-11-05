@@ -45,6 +45,9 @@ public:
 	typedef interval self_t;
 
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 1u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param x The coordinate of point

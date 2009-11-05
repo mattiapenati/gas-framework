@@ -28,62 +28,36 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file type.h
+ * @brief The class to manage the types
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_type_
+#define _gas_type_
+
+namespace gas {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::quadrature
- * @brief The quadrature formulae to integrate the function
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief Checking if two types are the same
+ * @param type1_ The first type
+ * @param type2_ The second type
  */
+template <typename type1_, typename type2_>
+struct same_type {
+	/*! @brief The result of comparison */
+	static bool const value = false;
+};
 
-#include "functional/derivative.h"
+/*!
+ * @brief Checking if two types are the same (specialization for success)
+ * @param type_ The type
+ */
+template <typename type_>
+struct same_type<type_, type_> {
+	/*! @brief The result of comparison */
+	static bool const value = true;
+};
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
-#include "gas/type.h"
+}
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
-
-#include "numerical/quadrature/formula.h"
-#include "numerical/quadrature/gauss_legendre.h"
-#include "numerical/quadrature/method.h"
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
-
-#endif // _gas_
+#endif // _gas_type_

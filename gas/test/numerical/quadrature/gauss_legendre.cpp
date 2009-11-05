@@ -27,63 +27,50 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file gas.h
- * @brief The main header, includes all other files
- */
+#include <cmath>
 
-#ifndef _gas_
-#define _gas_
+#undef gas_ndebug
+#include "gas.h"
 
-/*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::quadrature
- * @brief The quadrature formulae to integrate the function
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
- */
+template <int n>
+inline double f (double const & x) {
+	return x * f<n-1>(x);
+}
 
-#include "functional/derivative.h"
+template <>
+inline double f<0> (double const & x) {
+	return 1.;
+}
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
-#include "gas/type.h"
+#define TEST gas_numerical_quadrature_gauss_legendre_test
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/triangle.h"
+class TEST {
+	public:
+		TEST ();
+		void execute ();
+		void check ();
+	private:
+		typedef gas::geometry::unit::interval interval;
+		typedef gas::numerical::quadrature::gauss_legendre<interval, 2u> method2;
+		typedef gas::numerical::quadrature::gauss_legendre<interval, 3u> method3;
+		typedef gas::numerical::quadrature::formula<method2> formula2;
+		typedef gas::numerical::quadrature::formula<method3> formula3;
 
-#include "numerical/quadrature/formula.h"
-#include "numerical/quadrature/gauss_legendre.h"
-#include "numerical/quadrature/method.h"
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+		formula2 q2;
+		formula3 q3;
 
-#endif // _gas_
+		double r[2];
+};
+
+TEST::TEST () {
+	r[0] = q2.integrate(f<2>);
+	r[1] = q3.integrate(f<4>);
+}
+
+void TEST::execute () {
+}
+
+void TEST::check () {
+}
+
+gas_unit(TEST)
