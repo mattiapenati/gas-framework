@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Politecnico di Milano
+ * Copyright (c) 2009, Politecnico di Milano
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -41,9 +41,11 @@
 namespace gas { namespace numerical { namespace quadrature {
 
 /*!
- * @brief A general implementation, with a list of all nodes and weights
- * @param data_ The struct that contains the nodes and weights
+ * @brief A general implementation for 1d formulae, with a list of all nodes
+ *        and weights
+ * @param unit_ The unit geometry
  * @param nodes_ The number of nodes
+ * @param data_ The struct that contains the nodes and weights
  */
 template <typename unit_, unsigned int nodes_, typename data_>
 class method_1 {
@@ -71,8 +73,10 @@ public:
 	 */
 	method_1 () {
 		gas_static_assert((d == 1), This_is_a_1d_quadrature_formula);
-		rangeu(i, n) x_[i] = data_t::x_[i];
-		rangeu(i, n) w_[i] = data_t::w_[i];
+		rangeu(i, n) {
+			xw_[i][0] = data_t::x_[i];
+			xw_[i][1] = data_t::w_[i];
+		}
 	}
 
 private:
@@ -82,10 +86,10 @@ private:
 	 */
 	template <typename map_>
 	void map (map_ const & m) {
-		rangeu(i, n)
-			self_t::x_[i] = m.x(data_t::x[i]);
-		rangeu(i, n)
-			self_t::w_[i] = std::abs(m.DET(self_t::x_[i])) * data_t::w_[i];
+		rangeu(i, n) {
+			xw_[i][0] = m.x(data_t::x_[i]);
+			xw_[i][1] = std::abs(m.det(data_t::x_[i])) * data_t::w_[i];
+		}
 	}
 
 	/*!
@@ -97,21 +101,96 @@ private:
 	double apply (function_ const & f) {
 		double r(0.);
 		rangeu(i, n)
-			r += f(self_t::x_[i]) * self_t::w_[i];
+			r += f(xw_[i][0]) * xw_[i][1];
 		return r;
 	}
 
 private:
-	/*! @brief The list of nodes of quadrature formula */
-	double x_[n];
-
-	/*! @brief The list of weights of quadrature formula */
-	double w_[n];
+	/*! @brief The list of nodes and weights of quadrature formula */
+	double xw_[n][d+1];
 
 	template <typename method_, typename map_>
 	friend class formula;
 
 };
+
+
+/*!
+ * @brief A general implementation for 2d formulae, with a list of all nodes
+ *        and weights
+ * @param unit_ The unit geometry
+ * @param nodes_ The number of nodes
+ * @param data_ The struct that contains the nodes and weights
+ */
+template <typename unit_, unsigned int nodes_, typename data_>
+class method_2 {
+
+public:
+	/*! @brief The self type */
+	typedef method_2<unit_, nodes_, data_> self_t;
+
+	/*! @brief The unit geometry */
+	typedef unit_ unit_t;
+
+private:
+	/*! @brief The dimension of unit_t */
+	static unsigned int const d = unit_t::d;
+
+	/*! @brief The number of nodes */
+	static unsigned int const n = nodes_;
+
+	/*! @brief The class containing all data */
+	typedef data_ data_t;
+
+public:
+	/*!
+	 * @brief Initialize the method, copying the value of nodes and weights
+	 */
+	method_2 () {
+		gas_static_assert((d == 2), This_is_a_2d_quadrature_formula);
+		rangeu(i, n) {
+			xw_[i][0] = data_t::x_[i];
+			xw_[i][1] = data_t::y_[i];
+			xw_[i][2] = data_t::w_[i];
+		}
+	}
+
+private:
+	/*!
+	 * @brief Map the nodes and weight
+	 * @param m The map used to recalculate nodes and weights
+	 */
+	template <typename map_>
+	void map (map_ const & m) {
+		rangeu(i, n) {
+			xw_[i][0] = m.x(data_t::x_[i], data_t::y_[i]);
+			xw_[i][1] = m.y(data_t::x_[i], data_t::y_[i]);
+			xw_[i][2] = std::abs(m.det(data_t::x_[i], data_t::y_[i])) * data_t::w_[i];
+		}
+	}
+
+	/*!
+	 * @brief Apply the quadrature formula with current nodes and weights
+	 * @param f Any kind of object with the possibility to call f(...)
+	 * @return The computed numerical integral
+	 */
+	template <typename function_>
+	double apply (function_ const & f) {
+		double r(0.);
+		rangeu(i, n)
+			r += f(xw_[i][0], xw_[i][1]) * xw_[i][2];
+		return r;
+	}
+
+private:
+	/*! @brief The list of nodes and weights of quadrature formula */
+	double xw_[n][d+1];
+
+	template <typename method_, typename map_>
+	friend class formula;
+
+};
+
 
 } } }
 

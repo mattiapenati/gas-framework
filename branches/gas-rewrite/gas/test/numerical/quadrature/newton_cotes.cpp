@@ -27,39 +27,77 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file triangle.h
- * @brief The triangle with vertices \f$\{(0,0),(1,0),(0,1)\}\f$
- */
+#undef gas_ndebug
+#include "gas.h"
 
-#ifndef _gas_geometry_unit_triangle_
-#define _gas_geometry_unit_triangle_
+#define TEST gas_numerical_quadrature_newtoncotes_test
 
-namespace gas { namespace geometry { namespace unit {
-
-/*! @brief The triangle with vertices \f$\{(0,0),(1,0),(0,1)\}\f$ */
-class triangle {
-
-public:
-	/*! @brief The self type */
-	typedef triangle self_t;
-
-public:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
-
-	/*!
-	 * @brief Check the membership of a point by its coordinates
-	 * @param x The first coordinate of point
-	 * @param y The second coordinate of point
-	 * @return True if the points is locate in the triangle
-	 */
-	static inline bool in (double const & x, double const & y) {
-		return ((x >= 0.) and (y >= 0.) and (y <= 1.-x));
+struct fake_triangle {
+	inline fake_triangle () { }
+	inline double const x (unsigned int const & i) const {
+		switch (i) {
+		case 0: return 3.;
+		case 1: return 9.;
+		}
+		return 6.;
 	}
-
+	inline double const y (unsigned int const & i) const {
+		switch (i) {
+		case 0: return 3.;
+		case 1: return 1.;
+		}
+		return 8.;
+	}
 };
 
-} } }
+inline double f1(double const & x, double const & y) {
+	return x*y;
+}
 
-#endif // _gas_geometry_unit_triangle_
+inline double f2(double const & x, double const & y) {
+	return f1(x,y)*f1(x,y);
+}
+
+class TEST {
+	public:
+		TEST ();
+		void execute ();
+		void check ();
+	private:
+		typedef gas::geometry::unit::triangle triangle;
+
+		typedef gas::numerical::quadrature::newton_cotes<triangle, 3u> method3;
+		typedef gas::numerical::quadrature::newton_cotes<triangle, 6u> method6;
+
+		typedef gas::numerical::quadrature::formula<method3> formula3;
+		typedef gas::numerical::quadrature::formula<method6> formula6;
+
+		formula3 q3;
+		formula6 q6;
+
+		double r[2];
+};
+
+TEST::TEST () {
+}
+
+void TEST::execute () {
+	fake_triangle i;
+
+	r[0] = q3(i).integrate(f1);
+	r[1] = q6(i).integrate(f2);
+}
+
+void TEST::check () {
+	double e[2];
+
+	e[0] = std::abs(r[0] - 423.)/423.;
+	e[1] = std::abs(r[1] - 11394.)/11394.;
+
+	double const eps(1.e-12);
+
+	gas_assert(e[0] < eps);
+	gas_assert(e[1] < eps);
+}
+
+gas_unit(TEST)

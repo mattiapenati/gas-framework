@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Politecnico di Milano
+ * Copyright (c) 2009, Politecnico di Milano
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -79,6 +79,7 @@
 #include "numerical/quadrature/formula.h"
 #include "numerical/quadrature/gauss_legendre.h"
 #include "numerical/quadrature/method.h"
+#include "numerical/quadrature/newton_cotes.h"
 #include "numerical/tiny/det.h"
 #include "numerical/tiny/dot.h"
 #include "numerical/tiny/matrix.h"
