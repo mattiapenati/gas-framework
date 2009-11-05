@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, Politecnico di Milano
+ * Copyright (c) 2009, Politecnico di Milano
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,13 @@
 #undef gas_ndebug
 #include "gas.h"
 
+#define TEST gas_geometry_map_affine_interval
+
 struct fake_interval {
 	inline fake_interval () { }
 	inline double const a() const { return 4.; }
 	inline double const b() const { return 6.; }
 };
-
-#define TEST gas_geometry_map_affine_interval
 
 class TEST {
 	public:
