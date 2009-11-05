@@ -33,7 +33,7 @@
  */
 
 #ifndef _gas_geometry_map_affine_triangle_
-#define _gas_geometry_map_affine_trinagle_
+#define _gas_geometry_map_affine_triangle_
 
 #include "../unit/triangle.h"
 #include "../../gas/assertion.h"
@@ -145,11 +145,10 @@ public:
 	 * @return The new coordinate \f$X=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double X (double const & x, double const & y) const {
-		/* TODO Sostituire con operazioni con matrici */
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		return X;
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
+		return _X;
 	}
 
 	/*!
@@ -159,11 +158,10 @@ public:
 	 * @return The new coordinate \f$Y=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double Y (double const & x, double const & y) const {
-		/* TODO Sostituire con operazioni con matrici */
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		return Y;
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
+		return _Y;
 	}
 
 	/*!
@@ -217,9 +215,9 @@ public:
 	 * @return The value of derivative \f$\frac{dX}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdx (double const & x, double const & y) const {
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
 		return  A_(1,1)/detA_;
 	}
 
@@ -230,9 +228,9 @@ public:
 	 * @return The value of derivative \f$\frac{dX}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdy (double const & x, double const & y) const {
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
 		return -A_(0,1)/detA_;
 	}
 
@@ -243,9 +241,9 @@ public:
 	 * @return The value of derivative \f$\frac{dY}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdx (double const & x, double const & y) const {
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
 		return -A_(1,0)/detA_;
 	}
 
@@ -256,9 +254,9 @@ public:
 	 * @return The value of derivative \f$\frac{dY}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdy (double const & x, double const & y) const {
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
 		return  A_(0,0)/detA_;
 	}
 
@@ -280,9 +278,9 @@ public:
 	 * @return The value of Jacobian \f$\det\left[\frac{dX_i}{dx_j}\right](\mathbf{x})\f$
 	 */
 	inline double DET (double const & x, double const & y) const {
-		double const X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
+		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
+		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
+		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
 		return 1./detA_;
 	}
 

@@ -54,6 +54,6 @@
  * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
  */
 #undef rangeu
-#define rangeu(index, max) for(unsigned int index = 0; index < max; ++i)
+#define rangeu(index, max) for(unsigned int index = 0; index < max; ++index)
 
 #endif // _gas_macro_

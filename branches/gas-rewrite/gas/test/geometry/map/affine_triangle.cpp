@@ -36,15 +36,15 @@ struct fake_triangle {
 		switch (i) {
 		case 0: return 3.;
 		case 1: return 9.;
-		case 2: return 6.;
 		}
+		return 6.;
 	}
 	inline double const y (unsigned int const & i) const {
 		switch (i) {
 		case 0: return 3.;
 		case 1: return 1.;
-		case 2: return 8.;
 		}
+		return 8.;
 	}
 };
 
