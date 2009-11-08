@@ -28,13 +28,13 @@
  */
 
 /*!
- * @file square.h
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @file hexa.h
+ * @brief The hexahedron obtained by cartesian product of three intervals,
+ *        \f$(-1,1)\times(-1,1)\times(-1,1)\f$
  */
 
-#ifndef _gas_geometry_unit_square_
-#define _gas_geometry_unit_square_
+#ifndef _gas_geometry_unit_hexa_
+#define _gas_geometry_unit_hexa_
 
 #include "interval.h"
 
@@ -44,28 +44,29 @@ namespace gas { namespace geometry { namespace unit {
  * @brief The square obtained by cartesian product of two intervals,
  *        \f$(-1,1)\times(-1,1)\f$
  */
-class square {
+class hexa {
 
 public:
 	/*! @brief The self type */
-	typedef square self_t;
+	typedef hexa self_t;
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	static unsigned int const d = 3u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point
 	 * @param Y The second coordinate of point
-	 * @return True if the points is locate in the square
+	 * @param Z The third coordinate of point
+	 * @return True if the points is locate in the hexahedron
 	 */
-	static inline bool in (double const & X, double const & Y) {
-		return (interval::in(X) and interval::in(Y));
+	static inline bool in (double const & X, double const & Y, double const & Z) {
+		return (interval::in(X) and interval::in(Y) and interval::in(Z));
 	}
 
 };
 
 } } }
 
-#endif // _gas_geometry_unit_square_
+#endif // _gas_geometry_unit_hexa_

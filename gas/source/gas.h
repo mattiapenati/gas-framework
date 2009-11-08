@@ -42,6 +42,9 @@
  * @namespace gas::functional
  * @brief Classes and functions to manage functional elements
  *
+ * @namespace gas::functional::base
+ * @brief The base for Galerkin methods
+ *
  * @namespace gas::geometry
  * @brief Classes and functions to manage geometric elements
  *
@@ -63,6 +66,7 @@
  */
 
 #include "functional/derivative.h"
+#include "functional/base/P1.h"
 
 #include "gas/assertion.h"
 #include "gas/chrono.h"
@@ -72,8 +76,10 @@
 #include "gas/type.h"
 
 #include "geometry/map/affine.h"
+#include "geometry/unit/hexa.h"
 #include "geometry/unit/interval.h"
 #include "geometry/unit/square.h"
+#include "geometry/unit/tetra.h"
 #include "geometry/unit/triangle.h"
 
 #include "numerical/quadrature/formula.h"

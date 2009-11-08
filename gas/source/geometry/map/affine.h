@@ -46,13 +46,13 @@ namespace gas { namespace geometry { namespace map {
  * namespace <tt>gas::geometry::unit</tt>.
  */
 template <typename unit_>
-class affine {
-};
+class affine;
 
 } } }
-
-#endif // _gas_geometry_map_affine_
 
 // specialization
 #include "affine_interval.h"
 #include "affine_triangle.h"
+#include "affine_tetra.h"
+
+#endif // _gas_geometry_map_affine_

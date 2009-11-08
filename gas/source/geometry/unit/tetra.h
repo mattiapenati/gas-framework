@@ -28,44 +28,39 @@
  */
 
 /*!
- * @file square.h
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @file tetra.h
+ * @brief The tetrahedron with vertices \f$\{(0,0,0),(1,0,0),(0,1,0),(0,0,1)\}\f$
  */
 
-#ifndef _gas_geometry_unit_square_
-#define _gas_geometry_unit_square_
-
-#include "interval.h"
+#ifndef _gas_geometry_unit_tetra_
+#define _gas_geometry_unit_tetra_
 
 namespace gas { namespace geometry { namespace unit {
 
-/*!
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
- */
-class square {
+/*! @brief The tetrahedron with vertices \f$\{(0,0,0),(1,0,0),(0,1,0),(0,0,1)\}\f$ */
+class tetra {
 
 public:
 	/*! @brief The self type */
-	typedef square self_t;
+	typedef tetra self_t;
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	static unsigned int const d = 3u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point
 	 * @param Y The second coordinate of point
-	 * @return True if the points is locate in the square
+	 * @param Z The third coordinate of point
+	 * @return True if the points is locate in the tetrahedron
 	 */
-	static inline bool in (double const & X, double const & Y) {
-		return (interval::in(X) and interval::in(Y));
+	static inline bool in (double const & X, double const & Y, double const & Z) {
+		return ((X >= 0.) and (Y >= 0.) and (Z >= 0.) and (1.-X-Y));
 	}
 
 };
 
 } } }
 
-#endif // _gas_geometry_unit_square_
+#endif // _gas_geometry_unit_tetra_

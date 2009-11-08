@@ -82,10 +82,10 @@ public:
 
 	/*!
 	 * @brief The constructor from a general triangle
-	 * @param triangle An object that represent an interval
+	 * @param triangle An object that represent a triangle
 	 *
 	 * This method could be specialized for a specific type, otherwise the
-	 * <tt>interval_</tt> type have to implements the methods <tt>x(i)</tt> and
+	 * <tt>triangle_</tt> type have to implements the methods <tt>x(i)</tt> and
 	 * <tt>y(i)</tt>.
 	 */
 	template <typename triangle_>
@@ -118,8 +118,8 @@ public:
 
 	/*!
 	 * @brief The transformation \f$\varphi\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The new coordinate \f$x=\varphi(\mathbf{X})\f$
 	 */
 	inline double x (double const & X, double const & Y) const {
@@ -129,8 +129,8 @@ public:
 
 	/*!
 	 * @brief The transformation \f$\varphi\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The new coordinate \f$y=\varphi(\mathbf{X})\f$
 	 */
 	inline double y (double const & X, double const & Y) const {
@@ -140,8 +140,8 @@ public:
 
 	/*!
 	 * @brief The transformation \f$\varphi^{-1}\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The new coordinate \f$X=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double X (double const & x, double const & y) const {
@@ -153,8 +153,8 @@ public:
 
 	/*!
 	 * @brief The transformation \f$\varphi^{-1}\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The new coordinate \f$Y=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double Y (double const & x, double const & y) const {
@@ -166,8 +166,8 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$\varphi'\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The value of derivative \f$\frac{dx}{dX}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dxdX (double const & X, double const & Y) const {
@@ -177,8 +177,8 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$\varphi'\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The value of derivative \f$\frac{dx}{dY}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dxdY (double const & X, double const & Y) const {
@@ -188,8 +188,8 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$\varphi'\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The value of derivative \f$\frac{dy}{dX}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dydX (double const & X, double const & Y) const {
@@ -199,8 +199,8 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$\varphi'\f$
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The value of derivative \f$\frac{dy}{dY}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dydY (double const & X, double const & Y) const {
@@ -210,21 +210,21 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$(\varphi^{-1})'\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The value of derivative \f$\frac{dX}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdx (double const & x, double const & y) const {
 		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
 		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
 		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return  A_(1,1)/detA_;
+		return A_(1,1)/detA_;
 	}
 
 	/*!
 	 * @brief The derivative of transformation \f$(\varphi^{-1})'\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The value of derivative \f$\frac{dX}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdy (double const & x, double const & y) const {
@@ -236,8 +236,8 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$(\varphi^{-1})'\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The value of derivative \f$\frac{dY}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdx (double const & x, double const & y) const {
@@ -249,21 +249,21 @@ public:
 
 	/*!
 	 * @brief The derivative of transformation \f$(\varphi^{-1})'\f$
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The value of derivative \f$\frac{dY}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdy (double const & x, double const & y) const {
 		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
 		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
 		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return  A_(0,0)/detA_;
+		return A_(0,0)/detA_;
 	}
 
 	/*!
 	 * @brief Jacobian of transformation
-	 * @param X First coordinate
-	 * @param Y Second coordinate
+	 * @param X The first coordinate
+	 * @param Y The second coordinate
 	 * @return The value of Jacobian \f$\det\left[\frac{dx_i}{dX_j}\right](\mathbf{X})\f$
 	 */
 	inline double det (double const & X, double const & Y) const {
@@ -273,8 +273,8 @@ public:
 
 	/*!
 	 * @brief Jacobian of transformation
-	 * @param x First coordinate
-	 * @param y Second coordinate
+	 * @param x The first coordinate
+	 * @param y The second coordinate
 	 * @return The value of Jacobian \f$\det\left[\frac{dX_i}{dx_j}\right](\mathbf{x})\f$
 	 */
 	inline double DET (double const & x, double const & y) const {
@@ -287,8 +287,10 @@ public:
 private:
 	/*! @brief The matrix of affine transformation */
 	gas::numerical::tiny::matrix<2u,2u> A_;
+
 	/*! @brief The vector of affine transformation */
 	gas::numerical::tiny::vector<2u> b_;
+
 	/*! @brief Determinant of transformation */
 	double detA_;
 

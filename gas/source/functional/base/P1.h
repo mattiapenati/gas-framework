@@ -28,44 +28,27 @@
  */
 
 /*!
- * @file square.h
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @file P1.h
+ * @brief The Lagrange base of order 1
  */
 
-#ifndef _gas_geometry_unit_square_
-#define _gas_geometry_unit_square_
+#ifndef _gas_functional_base_p1_
+#define _gas_functional_base_p1_
 
-#include "interval.h"
-
-namespace gas { namespace geometry { namespace unit {
+namespace gas { namespace functional { namespace base {
 
 /*!
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @brief The Lagrange base of order 1
+ * @param unit_ The basic shape on which is defined
  */
-class square {
-
-public:
-	/*! @brief The self type */
-	typedef square self_t;
-
-public:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
-
-	/*!
-	 * @brief Check the membership of a point by its coordinates
-	 * @param X The first coordinate of point
-	 * @param Y The second coordinate of point
-	 * @return True if the points is locate in the square
-	 */
-	static inline bool in (double const & X, double const & Y) {
-		return (interval::in(X) and interval::in(Y));
-	}
-
-};
+template <typename unit_>
+class P1;
 
 } } }
 
-#endif // _gas_geometry_unit_square_
+// specialization
+#include "P1_interval.h"
+#include "P1_triangle.h"
+#include "P1_tetra.h"
+
+#endif // _gas_functional_base_p1_

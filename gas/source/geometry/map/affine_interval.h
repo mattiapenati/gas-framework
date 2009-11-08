@@ -84,11 +84,11 @@ public:
 	 */
 	template <typename interval_>
 	inline affine (interval_ const & interval) {
-		double const a(interval.a());
-		double const b(interval.b());
-		gas_pre(a < b);
-		alfa_ = (b - a) / 2.;
-		beta_ = (b + a) / 2.;
+		double const _a(interval.a());
+		double const _b(interval.b());
+		gas_pre(_a < _b);
+		alfa_ = (_b - _a) / 2.;
+		beta_ = (_b + _a) / 2.;
 	}
 
 	/*!

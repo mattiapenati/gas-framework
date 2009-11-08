@@ -28,44 +28,73 @@
  */
 
 /*!
- * @file square.h
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @file P1_interval.h
+ * @brief The Lagrange base of order 1 on the interval
  */
 
-#ifndef _gas_geometry_unit_square_
-#define _gas_geometry_unit_square_
+#ifndef _gas_functional_base_p1_interval_
+#define _gas_functional_base_p1_interval_
 
-#include "interval.h"
+#include "../../geometry/unit/interval.h"
+#include "../../gas/assertion.h"
 
-namespace gas { namespace geometry { namespace unit {
+namespace gas { namespace functional { namespace base {
 
 /*!
- * @brief The square obtained by cartesian product of two intervals,
- *        \f$(-1,1)\times(-1,1)\f$
+ * @brief The Lagrange base of order 1 on the interval
+ * @see gas::geometry::unit::interval
+ *
+ * The base is defined by \f$\varphi_i:[-1,1]\to[0,1]\f$, where
+ * \f[
+ * \varphi_0(X) = \frac{1-X}{2} \qquad
+ * \varphi_1(X) = \frac{1+X}{2}
+ * \f]
  */
-class square {
+template <>
+class P1<gas::geometry::unit::interval> {
 
 public:
 	/*! @brief The self type */
-	typedef square self_t;
+	typedef P1<gas::geometry::unit::interval> self_t;
+
+	/*! @brief The basic shape on which is defined */
+	typedef gas::geometry::unit::interval unit_t;
 
 public:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	/*!
+	 * @brief The base function
+	 * @param i The index of basis function
+	 * @param X The coordinate
+	 * @return The evaluation of i-th base function in X
+	 */
+	static inline double b (unsigned int & i, double const & X) {
+		gas_assert(unit_t::in(X)); // The point must be in the interval
+		gas_assert(i < 2);         // A valid index
+		switch (i) {
+		case 0: return (1.-X)*0.5;
+		case 1: return (1.+X)*0.5;
+		}
+		return 0.;
+	}
 
 	/*!
-	 * @brief Check the membership of a point by its coordinates
-	 * @param X The first coordinate of point
-	 * @param Y The second coordinate of point
-	 * @return True if the points is locate in the square
+	 * @brief The derivative of base function
+	 * @param i The index of basis function
+	 * @param X The coordinate
+	 * @return The evaluation of i-th base function in X
 	 */
-	static inline bool in (double const & X, double const & Y) {
-		return (interval::in(X) and interval::in(Y));
+	static inline double dbdX (unsigned int & i, double const & X) {
+		gas_assert(unit_t::in(X)); // The point must be in the interval
+		gas_assert(i < 2);         // A valid index
+		switch (i) {
+		case 0: return -0.5;
+		case 1: return +0.5;
+		}
+		return 0.;
 	}
 
 };
 
 } } }
 
-#endif // _gas_geometry_unit_square_
+#endif // _gas_functional_base_p1_interval_

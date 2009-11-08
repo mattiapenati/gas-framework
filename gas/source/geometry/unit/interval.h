@@ -50,11 +50,11 @@ public:
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
-	 * @param x The coordinate of point
+	 * @param X The coordinate of point
 	 * @return True if the points is locate in the interval
 	 */
-	static inline bool in (double const & x) {
-		return ((x >= -1.) and (x <= +1.));
+	static inline bool in (double const & X) {
+		return ((X >= -1.) and (X <= +1.));
 	}
 
 };
