@@ -75,13 +75,13 @@ public:
 	 */
 	template <typename domain_>
 	inline self_t & operator() (domain_ const & domain) {
+		// This static assertion to check that the method and the map act on the same geometry
 		typedef typename method_t::unit_t method_unit_t; // geometry of method
 		typedef typename map_t::unit_t map_unit_t;       // geometry of map
 		gas_static_assert(
 			(gas::same_type<method_unit_t, map_unit_t>::value),
 			Method_and_map_must_act_on_the_same_unit_geometry
-		); // This static assertion to check that the method and the map act on
-		   // the same geometry
+		);
 		m_.map(map_(domain));
 		return *this;
 	}

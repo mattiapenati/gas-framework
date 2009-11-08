@@ -50,12 +50,12 @@ public:
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
-	 * @param x The first coordinate of point
-	 * @param y The second coordinate of point
+	 * @param X The first coordinate of point
+	 * @param Y The second coordinate of point
 	 * @return True if the points is locate in the triangle
 	 */
-	static inline bool in (double const & x, double const & y) {
-		return ((x >= 0.) and (y >= 0.) and (y <= 1.-x));
+	static inline bool in (double const & X, double const & Y) {
+		return ((X >= 0.) and (Y >= 0.) and (Y <= 1.-X));
 	}
 
 };

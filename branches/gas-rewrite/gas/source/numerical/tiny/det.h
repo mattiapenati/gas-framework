@@ -62,6 +62,42 @@ double det (matrix_binexp<left_, right_, size_, size_, operator_> const & exp) {
 }
 
 /*!
+ * @brief The determinant of a square matrix (3x3)
+ * @param A A matrix
+ * @return The determinant
+ */
+double det (matrix<3u, 3u> const & A) {
+	double _p[3];
+	double _n[3];
+	_p[0] = A(0,0) * A(1,1) * A(2,2);
+	_p[1] = A(0,1) * A(1,2) * A(2,0);
+	_p[2] = A(0,2) * A(1,0) * A(2,1);
+	_n[0] = A(0,0) * A(1,2) * A(2,1);
+	_n[1] = A(0,1) * A(1,0) * A(2,2);
+	_n[2] = A(0,2) * A(1,1) * A(2,0);
+	return _p[0] + _p[1] + _p[2] - _n[0] - _n[1] - _n[2];
+}
+
+/*!
+ * @brief The determinant of a square expression (3x3)
+ * @param exp An expression
+ * @return The determinant
+ */
+template <typename left_, typename right_, typename operator_>
+inline double det (matrix_binexp<left_, right_, 3u, 3u, operator_> const & exp) {
+	matrix<3u, 3u> const _A(exp);
+	double _p[3];
+	double _n[3];
+	_p[0] = _A(0,0) * _A(1,1) * _A(2,2);
+	_p[1] = _A(0,1) * _A(1,2) * _A(2,0);
+	_p[2] = _A(0,2) * _A(1,0) * _A(2,1);
+	_n[0] = _A(0,0) * _A(1,2) * _A(2,1);
+	_n[1] = _A(0,1) * _A(1,0) * _A(2,2);
+	_n[2] = _A(0,2) * _A(1,1) * _A(2,0);
+	return _p[0] + _p[1] + _p[2] - _n[0] - _n[1] - _n[2];
+}
+
+/*!
  * @brief The determinant of a square matrix (2x2)
  * @param A A matrix
  * @return The determinant
