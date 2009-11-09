@@ -32,16 +32,13 @@
  * @brief The specialization of affine map for tetrahedron
  */
 
-#ifndef _gas_geometry_map_affine_triangle_
-#define _gas_geometry_map_affine_triangle_
+#ifndef _gas_geometry_map_affine_tetra_
+#define _gas_geometry_map_affine_tetra_
 
-#include "../unit/tetra.h"
+#include "map"
+#include "../unit/unit"
+#include "../../numerical/tiny/tiny"
 #include "../../gas/assertion.h"
-#include "../../numerical/tiny/det.h"
-#include "../../numerical/tiny/matrix.h"
-#include "../../numerical/tiny/mul.h"
-#include "../../numerical/tiny/utility.h"
-#include "../../numerical/tiny/vector.h"
 
 namespace gas { namespace geometry { namespace map {
 
@@ -57,14 +54,15 @@ namespace gas { namespace geometry { namespace map {
 template <>
 class affine<gas::geometry::unit::tetra> {
 
-public:
-	/*! @brief The self type */
-	typedef affine<gas::geometry::unit::tetra> self_t;
-
+private:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::tetra unit_t;
 
-public:
+	/*! @brief The self type */
+	typedef affine<gas::geometry::unit::tetra> self_t;
+
+	template <typename type__> friend class info;
+
 public:
 	/*!
 	 * @brief Default constructor, creates the identity map
@@ -78,7 +76,7 @@ public:
 	 * @brief Copy constructor
 	 * @param map An other affine map
 	 */
-	inline affine (self_t const & map): A_(map.A_), invA_(map.invA_) b_(map.b_), detA_(map.detA_) {
+	inline affine (self_t const & map): A_(map.A_), invA_(map.invA_), b_(map.b_), detA_(map.detA_) {
 	}
 
 	/*!
@@ -92,15 +90,15 @@ public:
 	template <typename tetra_>
 	inline affine (tetra_ const & tetra) {
 		/* matrice A */
-		A_(0,0) = triangle.x(1) - triangle.x(0);
-		A_(0,1) = triangle.x(2) - triangle.x(0);
-		A_(0,2) = triangle.x(3) - triangle.x(0);
-		A_(1,0) = triangle.y(1) - triangle.y(0);
-		A_(1,1) = triangle.y(2) - triangle.y(0);
-		A_(1,2) = triangle.y(3) - triangle.y(0);
-		A_(2,0) = triangle.z(1) - triangle.z(0);
-		A_(2,1) = triangle.z(2) - triangle.z(0);
-		A_(2,2) = triangle.z(3) - triangle.z(0);
+		A_(0,0) = tetra.x(1) - tetra.x(0);
+		A_(0,1) = tetra.x(2) - tetra.x(0);
+		A_(0,2) = tetra.x(3) - tetra.x(0);
+		A_(1,0) = tetra.y(1) - tetra.y(0);
+		A_(1,1) = tetra.y(2) - tetra.y(0);
+		A_(1,2) = tetra.y(3) - tetra.y(0);
+		A_(2,0) = tetra.z(1) - tetra.z(0);
+		A_(2,1) = tetra.z(2) - tetra.z(0);
+		A_(2,2) = tetra.z(3) - tetra.z(0);
 
 		/* inversa di A */
 		invA_(0,0) = A_(1,1) * A_(2,2) - A_(1,2) * A_(2,1);
@@ -114,9 +112,9 @@ public:
 		invA_(2,2) = A_(0,0) * A_(1,1) - A_(0,1) * A_(1,0);
 
 		/* vettore b */
-		b_(0) = triangle.x(0);
-		b_(1) = triangle.y(0);
-		b_(1) = triangle.z(0);
+		b_(0) = tetra.x(0);
+		b_(1) = tetra.y(0);
+		b_(2) = tetra.z(0);
 
 		/* determinante di A */
 		detA_ = gas::numerical::tiny::det(A_);
@@ -399,7 +397,7 @@ public:
 		double const _Y(invA_(1,0) * (x - b_(0)) + invA_(1,1) * (y - b_(1)) + invA_(1,2) * (z - b_(2)));
 		double const _Z(invA_(2,0) * (x - b_(0)) + invA_(2,1) * (y - b_(1)) + invA_(2,2) * (z - b_(2)));
 		gas_assert(unit_t::in(_X, _Y, _Z)); // The point must be in the tetrahedron
-		return invA_(1,1)
+		return invA_(1,1);
 	}
 
 	/*!
@@ -414,7 +412,7 @@ public:
 		double const _Y(invA_(1,0) * (x - b_(0)) + invA_(1,1) * (y - b_(1)) + invA_(1,2) * (z - b_(2)));
 		double const _Z(invA_(2,0) * (x - b_(0)) + invA_(2,1) * (y - b_(1)) + invA_(2,2) * (z - b_(2)));
 		gas_assert(unit_t::in(_X, _Y, _Z)); // The point must be in the tetrahedron
-		return invA_(1,2)
+		return invA_(1,2);
 	}
 
 	/*!
@@ -444,7 +442,7 @@ public:
 		double const _Y(invA_(1,0) * (x - b_(0)) + invA_(1,1) * (y - b_(1)) + invA_(1,2) * (z - b_(2)));
 		double const _Z(invA_(2,0) * (x - b_(0)) + invA_(2,1) * (y - b_(1)) + invA_(2,2) * (z - b_(2)));
 		gas_assert(unit_t::in(_X, _Y, _Z)); // The point must be in the tetrahedron
-		return invA_(2,1)
+		return invA_(2,1);
 	}
 
 	/*!
@@ -459,7 +457,7 @@ public:
 		double const _Y(invA_(1,0) * (x - b_(0)) + invA_(1,1) * (y - b_(1)) + invA_(1,2) * (z - b_(2)));
 		double const _Z(invA_(2,0) * (x - b_(0)) + invA_(2,1) * (y - b_(1)) + invA_(2,2) * (z - b_(2)));
 		gas_assert(unit_t::in(_X, _Y, _Z)); // The point must be in the tetrahedron
-		return invA_(2,2)
+		return invA_(2,2);
 	}
 
 	/*!
@@ -506,4 +504,4 @@ private:
 
 } } }
 
-#endif // _gas_geometry_map_affine_triangle_
+#endif // _gas_geometry_map_affine_tetra_

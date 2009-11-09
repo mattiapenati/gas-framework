@@ -35,19 +35,20 @@
 #ifndef _gas_geometry_unit_triangle_
 #define _gas_geometry_unit_triangle_
 
+#include "unit"
+
 namespace gas { namespace geometry { namespace unit {
 
 /*! @brief The triangle with vertices \f$\{(0,0),(1,0),(0,1)\}\f$ */
 class triangle {
 
-public:
-	/*! @brief The self type */
-	typedef triangle self_t;
-
-public:
+private:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	static unsigned int const d_ = 2u;
 
+	template <typename type__> friend class info;
+
+public:
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point

@@ -28,36 +28,35 @@
  */
 
 /*!
- * @file type.h
- * @brief The class to manage the types
+ * @file unit.h
+ * @brief The utility to manage the unit geometry
  */
 
-#ifndef _gas_type_
-#define _gas_type_
+#ifndef _gas_geometry_unit_
+#define _gas_geometry_unit_
 
-namespace gas {
+#include "../../gas/type.h"
 
-/*!
- * @brief Checking if two types are the same
- * @param type1_ The first type
- * @param type2_ The second type
- */
-template <typename type1_, typename type2_>
-struct same_type {
-	/*! @brief The result of comparison */
-	static bool const value = false;
-};
+namespace gas { namespace geometry { namespace unit {
 
 /*!
- * @brief Checking if two types are the same (specialization for success)
- * @param type_ The type
+ * @brief A class to retrieve class info
+ * @param type_ The unit geometry
  */
 template <typename type_>
-struct same_type<type_, type_> {
-	/*! @brief The result of comparison */
-	static bool const value = true;
+struct info: public gas::info<type_> {
+
+	/*! @brief The dimension of geometry */
+	static unsigned int const d = type_::d_;
+
 };
 
-}
+} } }
 
-#endif // _gas_type_
+#include "hexa.h"
+#include "interval.h"
+#include "square.h"
+#include "tetra.h"
+#include "triangle.h"
+
+#endif // _gas_geometry_unit_

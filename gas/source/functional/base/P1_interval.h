@@ -35,7 +35,8 @@
 #ifndef _gas_functional_base_p1_interval_
 #define _gas_functional_base_p1_interval_
 
-#include "../../geometry/unit/interval.h"
+#include "base"
+#include "../../geometry/unit/unit"
 #include "../../gas/assertion.h"
 
 namespace gas { namespace functional { namespace base {
@@ -53,12 +54,14 @@ namespace gas { namespace functional { namespace base {
 template <>
 class P1<gas::geometry::unit::interval> {
 
-public:
-	/*! @brief The self type */
-	typedef P1<gas::geometry::unit::interval> self_t;
-
+private:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::interval unit_t;
+
+	/*! @brief The number of function */
+	static unsigned int const n_ = 2u;
+
+	template <typename type__> friend class info;
 
 public:
 	/*!
@@ -67,9 +70,9 @@ public:
 	 * @param X The coordinate
 	 * @return The evaluation of i-th base function in X
 	 */
-	static inline double b (unsigned int & i, double const & X) {
+	static inline double b (unsigned int const & i, double const & X) {
 		gas_assert(unit_t::in(X)); // The point must be in the interval
-		gas_assert(i < 2);         // A valid index
+		gas_assert(i < n_); // A valid index
 		switch (i) {
 		case 0: return (1.-X)*0.5;
 		case 1: return (1.+X)*0.5;
@@ -83,9 +86,9 @@ public:
 	 * @param X The coordinate
 	 * @return The evaluation of i-th base function in X
 	 */
-	static inline double dbdX (unsigned int & i, double const & X) {
+	static inline double dbdX (unsigned int const & i, double const & X) {
 		gas_assert(unit_t::in(X)); // The point must be in the interval
-		gas_assert(i < 2);         // A valid index
+		gas_assert(i < n_); // A valid index
 		switch (i) {
 		case 0: return -0.5;
 		case 1: return +0.5;

@@ -287,8 +287,8 @@ private:
 
 	/*! @brief The subtraction of two vectors */
 	template <unsigned int size__>
-	friend vector_binexp<vector<size_>, vector<size_>, size_, gas::sub>
-	operator- (vector<size_> const &, vector<size_> const &);
+	friend vector_binexp<vector<size__>, vector<size__>, size__, gas::sub>
+	operator- (vector<size__> const &, vector<size__> const &);
 
 	/*! @brief The subtraction of a vector and an expression */
 	template <typename left__, typename right__, unsigned int size__, typename operator__>

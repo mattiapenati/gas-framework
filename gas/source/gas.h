@@ -65,8 +65,9 @@
  * @brief Linear algebra structure with fixed size at compile time
  */
 
-#include "functional/derivative.h"
-#include "functional/base/P1.h"
+//#include "functional/derivative.h"
+//#include "functional/element.h"
+#include "functional/base/base"
 
 #include "gas/assertion.h"
 #include "gas/chrono.h"
@@ -75,22 +76,13 @@
 #include "gas/test.h"
 #include "gas/type.h"
 
-#include "geometry/map/affine.h"
-#include "geometry/unit/hexa.h"
-#include "geometry/unit/interval.h"
-#include "geometry/unit/square.h"
-#include "geometry/unit/tetra.h"
-#include "geometry/unit/triangle.h"
+#include "geometry/map/map"
+#include "geometry/unit/unit"
 
-#include "numerical/quadrature/formula.h"
-#include "numerical/quadrature/gauss_legendre.h"
-#include "numerical/quadrature/method.h"
-#include "numerical/quadrature/newton_cotes.h"
-#include "numerical/tiny/det.h"
-#include "numerical/tiny/dot.h"
-#include "numerical/tiny/matrix.h"
-#include "numerical/tiny/mul.h"
-#include "numerical/tiny/utility.h"
-#include "numerical/tiny/vector.h"
+//#include "numerical/quadrature/formula.h"
+//#include "numerical/quadrature/gauss_legendre.h"
+//#include "numerical/quadrature/method.h"
+//#include "numerical/quadrature/newton_cotes.h"
+#include "numerical/tiny/tiny"
 
 #endif // _gas_

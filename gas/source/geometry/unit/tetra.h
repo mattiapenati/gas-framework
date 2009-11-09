@@ -35,19 +35,20 @@
 #ifndef _gas_geometry_unit_tetra_
 #define _gas_geometry_unit_tetra_
 
+#include "unit"
+
 namespace gas { namespace geometry { namespace unit {
 
 /*! @brief The tetrahedron with vertices \f$\{(0,0,0),(1,0,0),(0,1,0),(0,0,1)\}\f$ */
 class tetra {
 
-public:
-	/*! @brief The self type */
-	typedef tetra self_t;
-
-public:
+private:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 3u;
+	static unsigned int const d_ = 3u;
 
+	template <typename type__> friend class info;
+
+public:
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point

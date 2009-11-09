@@ -29,59 +29,50 @@
 
 #undef gas_ndebug
 #include "gas.h"
+#include <cmath>
 
-#define TEST gas_geometry_map_affine_interval
-
-struct fake_interval {
-	inline fake_interval () {
-	}
-	inline double const a () const {
-		return 4.;
-	}
-	inline double const b () const {
-		return 6.;
-	}
-};
+#define TEST gas_functional_base_P1_interval
 
 class TEST {
 public:
 	TEST ();
 	void execute ();
 	void check ();
-private:
-	typedef gas::geometry::map::affine<gas::geometry::unit::interval> map;
 
-	map i;
+	typedef gas::functional::base::P1<gas::geometry::unit::interval> base;
 
-	double x, X, det, DET, dxdX, dXdx;
+	gas::numerical::tiny::vector<2u> b;
+	gas::numerical::tiny::vector<2u> dbdX;
 };
 
-TEST::TEST () :
-	i(fake_interval()) {
+TEST::TEST() {
+	/* write the initialization code */
 }
 
 void TEST::execute () {
-	X = i.X(5.);
-	x = i.x(0.);
-	dXdx = i.dXdx(5.);
-	dxdX = i.dxdX(0.);
-	DET = i.DET(5.);
-	det = i.det(0.);
+
+	rangeu(i, 2)
+		b(i) = base::b(i, 0.);
+
+	rangeu(i, 2)
+		dbdX(i) = base::dbdX(i, 0.);
 }
 
 void TEST::check () {
-	typedef gas::geometry::map::info<map> info;
+	typedef gas::functional::base::info<base> info;
 	using gas::geometry::unit::interval;
 
 	gas_assert(info::d == 1u);
+	gas_assert(info::n == 2u);
 	gas_assert((gas::same_type<info::unit_t, interval>::value));
 
-	gas_assert(X == 0.);
-	gas_assert(x == 5.);
-	gas_assert(dXdx == 1.);
-	gas_assert(dxdX == 1.);
-	gas_assert(DET == 1.);
-	gas_assert(det == 1.);
+	double const eps(1.e-14);
+
+	gas_assert(std::abs(b(0) - 0.5) < eps);
+	gas_assert(std::abs(b(1) - 0.5) < eps);
+
+	gas_assert(std::abs(dbdX(0) + 0.5) < eps);
+	gas_assert(std::abs(dbdX(1) - 0.5) < eps);
 }
 
 gas_unit(TEST)

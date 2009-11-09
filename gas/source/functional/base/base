@@ -27,61 +27,35 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#undef gas_ndebug
-#include "gas.h"
+/*!
+ * @file base.h
+ * @brief The basis for Galerkin methods
+ */
 
-#define TEST gas_geometry_map_affine_interval
+#ifndef _gas_functional_base_
+#define _gas_functional_base_
 
-struct fake_interval {
-	inline fake_interval () {
-	}
-	inline double const a () const {
-		return 4.;
-	}
-	inline double const b () const {
-		return 6.;
-	}
+#include "../../gas/type.h"
+#include "../../geometry/unit/unit"
+
+namespace gas { namespace functional { namespace base {
+
+template <typename type_>
+struct info: public gas::info<type_> {
+
+	/*! @brief The basic shape on which is defined */
+	typedef typename type_::unit_t unit_t;
+
+	/*! @brief The dimension of geometry */
+	static unsigned int const d = gas::geometry::unit::info<unit_t>::d;
+
+	/*! @brief The dimension of basis */
+	static unsigned int const n = type_::n_;
+
 };
 
-class TEST {
-public:
-	TEST ();
-	void execute ();
-	void check ();
-private:
-	typedef gas::geometry::map::affine<gas::geometry::unit::interval> map;
+} } }
 
-	map i;
+#include "P1.h"
 
-	double x, X, det, DET, dxdX, dXdx;
-};
-
-TEST::TEST () :
-	i(fake_interval()) {
-}
-
-void TEST::execute () {
-	X = i.X(5.);
-	x = i.x(0.);
-	dXdx = i.dXdx(5.);
-	dxdX = i.dxdX(0.);
-	DET = i.DET(5.);
-	det = i.det(0.);
-}
-
-void TEST::check () {
-	typedef gas::geometry::map::info<map> info;
-	using gas::geometry::unit::interval;
-
-	gas_assert(info::d == 1u);
-	gas_assert((gas::same_type<info::unit_t, interval>::value));
-
-	gas_assert(X == 0.);
-	gas_assert(x == 5.);
-	gas_assert(dXdx == 1.);
-	gas_assert(dxdX == 1.);
-	gas_assert(DET == 1.);
-	gas_assert(det == 1.);
-}
-
-gas_unit(TEST)
+#endif // _gas_functional_base_
