@@ -35,13 +35,10 @@
 #ifndef _gas_geometry_map_affine_triangle_
 #define _gas_geometry_map_affine_triangle_
 
-#include "../unit/triangle.h"
+#include "map"
+#include "../unit/unit"
+#include "../../numerical/tiny/tiny"
 #include "../../gas/assertion.h"
-#include "../../numerical/tiny/det.h"
-#include "../../numerical/tiny/matrix.h"
-#include "../../numerical/tiny/mul.h"
-#include "../../numerical/tiny/utility.h"
-#include "../../numerical/tiny/vector.h"
 
 namespace gas { namespace geometry { namespace map {
 
@@ -57,14 +54,15 @@ namespace gas { namespace geometry { namespace map {
 template <>
 class affine<gas::geometry::unit::triangle> {
 
-public:
-	/*! @brief The self type */
-	typedef affine<gas::geometry::unit::triangle> self_t;
-
+private:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::triangle unit_t;
 
-public:
+	/*! @brief The self type */
+	typedef affine<gas::geometry::unit::triangle> self_t;
+
+	template <typename type__> friend class info;
+
 public:
 	/*!
 	 * @brief Default constructor, creates the identity map

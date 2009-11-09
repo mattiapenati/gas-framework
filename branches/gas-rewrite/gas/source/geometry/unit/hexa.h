@@ -36,6 +36,7 @@
 #ifndef _gas_geometry_unit_hexa_
 #define _gas_geometry_unit_hexa_
 
+#include "unit"
 #include "interval.h"
 
 namespace gas { namespace geometry { namespace unit {
@@ -46,14 +47,13 @@ namespace gas { namespace geometry { namespace unit {
  */
 class hexa {
 
-public:
-	/*! @brief The self type */
-	typedef hexa self_t;
-
-public:
+private:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 3u;
+	static unsigned int const d_ = 3u;
 
+	template <typename type__> friend class info;
+
+public:
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point

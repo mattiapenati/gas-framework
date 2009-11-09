@@ -30,58 +30,31 @@
 #undef gas_ndebug
 #include "gas.h"
 
-#define TEST gas_geometry_map_affine_interval
-
-struct fake_interval {
-	inline fake_interval () {
-	}
-	inline double const a () const {
-		return 4.;
-	}
-	inline double const b () const {
-		return 6.;
-	}
-};
+#define TEST gas_geometry_unit
 
 class TEST {
 public:
 	TEST ();
 	void execute ();
 	void check ();
-private:
-	typedef gas::geometry::map::affine<gas::geometry::unit::interval> map;
-
-	map i;
-
-	double x, X, det, DET, dxdX, dXdx;
 };
 
-TEST::TEST () :
-	i(fake_interval()) {
+TEST::TEST () {
 }
 
 void TEST::execute () {
-	X = i.X(5.);
-	x = i.x(0.);
-	dXdx = i.dXdx(5.);
-	dxdX = i.dxdX(0.);
-	DET = i.DET(5.);
-	det = i.det(0.);
 }
 
 void TEST::check () {
-	typedef gas::geometry::map::info<map> info;
-	using gas::geometry::unit::interval;
+	using namespace gas::geometry::unit;
 
-	gas_assert(info::d == 1u);
-	gas_assert((gas::same_type<info::unit_t, interval>::value));
+	gas_assert(info<interval>::d == 1u);
 
-	gas_assert(X == 0.);
-	gas_assert(x == 5.);
-	gas_assert(dXdx == 1.);
-	gas_assert(dxdX == 1.);
-	gas_assert(DET == 1.);
-	gas_assert(det == 1.);
+	gas_assert(info<triangle>::d == 2u);
+	gas_assert(info<square>::d == 2u);
+
+	gas_assert(info<tetra>::d == 3u);
+	gas_assert(info<hexa>::d == 3u);
 }
 
 gas_unit(TEST)

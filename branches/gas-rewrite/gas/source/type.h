@@ -27,61 +27,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#undef gas_ndebug
-#include "gas.h"
+/*!
+ * @file type.h
+ * @brief The class to manage the types
+ */
 
-#define TEST gas_geometry_map_affine_interval
+#ifndef _gas_type_
+#define _gas_type_
 
-struct fake_interval {
-	inline fake_interval () {
-	}
-	inline double const a () const {
-		return 4.;
-	}
-	inline double const b () const {
-		return 6.;
-	}
+namespace gas {
+
+/*!
+ * @brief A class to retrieve class info
+ * @param type_ The type
+ */
+template <typename type_>
+struct info {
+
+	/*! @brief The self type */
+	typedef type_ type_t;
+
 };
 
-class TEST {
-public:
-	TEST ();
-	void execute ();
-	void check ();
-private:
-	typedef gas::geometry::map::affine<gas::geometry::unit::interval> map;
-
-	map i;
-
-	double x, X, det, DET, dxdX, dXdx;
+/*!
+ * @brief Checking if two types are the same
+ * @param type1_ The first type
+ * @param type2_ The second type
+ */
+template <typename type1_, typename type2_>
+struct same_type {
+	/*! @brief The result of comparison */
+	static bool const value = false;
 };
 
-TEST::TEST () :
-	i(fake_interval()) {
+/*!
+ * @brief Checking if two types are the same (specialization for success)
+ * @param type_ The type
+ */
+template <typename type_>
+struct same_type<type_, type_> {
+	/*! @brief The result of comparison */
+	static bool const value = true;
+};
+
 }
 
-void TEST::execute () {
-	X = i.X(5.);
-	x = i.x(0.);
-	dXdx = i.dXdx(5.);
-	dxdX = i.dxdX(0.);
-	DET = i.DET(5.);
-	det = i.det(0.);
-}
-
-void TEST::check () {
-	typedef gas::geometry::map::info<map> info;
-	using gas::geometry::unit::interval;
-
-	gas_assert(info::d == 1u);
-	gas_assert((gas::same_type<info::unit_t, interval>::value));
-
-	gas_assert(X == 0.);
-	gas_assert(x == 5.);
-	gas_assert(dXdx == 1.);
-	gas_assert(dxdX == 1.);
-	gas_assert(DET == 1.);
-	gas_assert(det == 1.);
-}
-
-gas_unit(TEST)
+#endif // _gas_type_

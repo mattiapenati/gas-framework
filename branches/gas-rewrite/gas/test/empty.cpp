@@ -33,10 +33,10 @@
 #define TEST empty
 
 class TEST {
-	public:
-		TEST ();
-		void execute ();
-		void check ();
+public:
+	TEST ();
+	void execute ();
+	void check ();
 };
 
 TEST::TEST () {

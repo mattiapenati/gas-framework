@@ -35,7 +35,8 @@
 #ifndef _gas_functional_base_p1_triangle_
 #define _gas_functional_base_p1_triangle_
 
-#include "../../geometry/unit/triangle.h"
+#include "base"
+#include "../../geometry/unit/unit"
 #include "../../gas/assertion.h"
 
 namespace gas { namespace functional { namespace base {
@@ -54,12 +55,14 @@ namespace gas { namespace functional { namespace base {
 template <>
 class P1<gas::geometry::unit::triangle> {
 
-public:
-	/*! @brief The self type */
-	typedef P1<gas::geometry::unit::triangle> self_t;
-
+private:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::triangle unit_t;
+
+	/*! @brief The number of function */
+	static unsigned int const n_ = 3u;
+
+	template <typename type__> friend class info;
 
 public:
 	/*!
@@ -69,9 +72,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double b (unsigned int & i, double const & X, double const & Y) {
+	static inline double b (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < 3);            // A valid index
+		gas_assert(i < n_);    // A valid index
 		switch (i) {
 		case 0: return (1.-X-Y);
 		case 1: return X;
@@ -87,9 +90,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double dbdX (unsigned int & i, double const & X, double const & Y) {
+	static inline double dbdX (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < 3);            // A valid index
+		gas_assert(i < n_);    // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 1.;
@@ -105,9 +108,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double dbdY (unsigned int & i, double const & X, double const & Y) {
+	static inline double dbdY (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < 3);            // A valid index
+		gas_assert(i < n_);    // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;

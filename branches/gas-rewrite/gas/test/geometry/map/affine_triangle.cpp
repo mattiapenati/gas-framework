@@ -33,49 +33,58 @@
 #define TEST gas_geometry_map_affine_triangle
 
 struct fake_triangle {
-	inline fake_triangle () { }
+	inline fake_triangle () {
+	}
 	inline double const x (unsigned int const & i) const {
 		switch (i) {
-		case 0: return 3.;
-		case 1: return 9.;
+		case 0:
+			return 3.;
+		case 1:
+			return 9.;
 		}
 		return 6.;
 	}
 	inline double const y (unsigned int const & i) const {
 		switch (i) {
-		case 0: return 3.;
-		case 1: return 1.;
+		case 0:
+			return 3.;
+		case 1:
+			return 1.;
 		}
 		return 8.;
 	}
 };
 
 class TEST {
-	public:
-		TEST ();
-		void execute ();
-		void check ();
-	private:
-		gas::geometry::map::affine<gas::geometry::unit::triangle> g;
-		double x, y, X, Y, det, DET, dxdX, dxdY, dydX, dydY, dXdx, dXdy, dYdx, dYdy;
+public:
+	TEST ();
+	void execute ();
+	void check ();
+private:
+	typedef gas::geometry::map::affine<gas::geometry::unit::triangle> map;
+
+	map g;
+
+	double x, y, X, Y, det, DET, dxdX, dxdY, dydX, dydY, dXdx, dXdy, dYdx, dYdy;
 };
 
-TEST::TEST (): g(fake_triangle()) {
+TEST::TEST () :
+	g(fake_triangle()) {
 }
 
 void TEST::execute () {
-	x = g.x(1./3., 1./3.);
-	y = g.y(1./3., 1./3.);
+	x = g.x(1. / 3., 1. / 3.);
+	y = g.y(1. / 3., 1. / 3.);
 	X = g.X(6., 4.);
 	Y = g.Y(6., 4.);
 
-	det = g.det(1./3., 1./3.);
+	det = g.det(1. / 3., 1. / 3.);
 	DET = g.DET(6., 4.);
 
-	dxdX = g.dxdX(1./3., 1./3.);
-	dxdY = g.dxdY(1./3., 1./3.);
-	dydX = g.dydX(1./3., 1./3.);
-	dydY = g.dydY(1./3., 1./3.);
+	dxdX = g.dxdX(1. / 3., 1. / 3.);
+	dxdY = g.dxdY(1. / 3., 1. / 3.);
+	dydX = g.dydX(1. / 3., 1. / 3.);
+	dydY = g.dydY(1. / 3., 1. / 3.);
 
 	dXdx = g.dXdx(6., 4.);
 	dXdy = g.dXdy(6., 4.);
@@ -84,6 +93,12 @@ void TEST::execute () {
 }
 
 void TEST::check () {
+	typedef gas::geometry::map::info<map> info;
+	using gas::geometry::unit::triangle;
+
+	gas_assert(info::d == 2u);
+	gas_assert((gas::same_type<info::unit_t, triangle>::value));
+
 	gas_assert(x == 6.);
 	gas_assert(y == 4.);
 	gas_assert(X == 1./3.);
@@ -104,3 +119,4 @@ void TEST::check () {
 }
 
 gas_unit(TEST)
+

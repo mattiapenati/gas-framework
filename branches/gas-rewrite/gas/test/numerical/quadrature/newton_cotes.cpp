@@ -33,49 +33,54 @@
 #define TEST gas_numerical_quadrature_newtoncotes_test
 
 struct fake_triangle {
-	inline fake_triangle () { }
+	inline fake_triangle () {
+	}
 	inline double const x (unsigned int const & i) const {
 		switch (i) {
-		case 0: return 3.;
-		case 1: return 9.;
+		case 0:
+			return 3.;
+		case 1:
+			return 9.;
 		}
 		return 6.;
 	}
 	inline double const y (unsigned int const & i) const {
 		switch (i) {
-		case 0: return 3.;
-		case 1: return 1.;
+		case 0:
+			return 3.;
+		case 1:
+			return 1.;
 		}
 		return 8.;
 	}
 };
 
-inline double f1(double const & x, double const & y) {
-	return x*y;
+inline double f1 (double const & x, double const & y) {
+	return x * y;
 }
 
-inline double f2(double const & x, double const & y) {
-	return f1(x,y)*f1(x,y);
+inline double f2 (double const & x, double const & y) {
+	return f1(x, y) * f1(x, y);
 }
 
 class TEST {
-	public:
-		TEST ();
-		void execute ();
-		void check ();
-	private:
-		typedef gas::geometry::unit::triangle triangle;
+public:
+	TEST ();
+	void execute ();
+	void check ();
+private:
+	typedef gas::geometry::unit::triangle triangle;
 
-		typedef gas::numerical::quadrature::newton_cotes<triangle, 3u> method3;
-		typedef gas::numerical::quadrature::newton_cotes<triangle, 6u> method6;
+	typedef gas::numerical::quadrature::newton_cotes<triangle, 3u> method3;
+	typedef gas::numerical::quadrature::newton_cotes<triangle, 6u> method6;
 
-		typedef gas::numerical::quadrature::formula<method3> formula3;
-		typedef gas::numerical::quadrature::formula<method6> formula6;
+	typedef gas::numerical::quadrature::formula<method3> formula3;
+	typedef gas::numerical::quadrature::formula<method6> formula6;
 
-		formula3 q3;
-		formula6 q6;
+	formula3 q3;
+	formula6 q6;
 
-		double r[2];
+	double r[2];
 };
 
 TEST::TEST () {
@@ -91,8 +96,8 @@ void TEST::execute () {
 void TEST::check () {
 	double e[2];
 
-	e[0] = std::abs(r[0] - 423.)/423.;
-	e[1] = std::abs(r[1] - 11394.)/11394.;
+	e[0] = std::abs(r[0] - 423.) / 423.;
+	e[1] = std::abs(r[1] - 11394.) / 11394.;
 
 	double const eps(1.e-12);
 

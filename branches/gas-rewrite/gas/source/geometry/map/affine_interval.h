@@ -35,7 +35,8 @@
 #ifndef _gas_geometry_map_affine_interval_
 #define _gas_geometry_map_affine_interval_
 
-#include "../unit/interval.h"
+#include "map"
+#include "../unit/unit"
 #include "../../gas/assertion.h"
 
 namespace gas { namespace geometry { namespace map {
@@ -52,12 +53,14 @@ namespace gas { namespace geometry { namespace map {
 template <>
 class affine<gas::geometry::unit::interval> {
 
-public:
+private:
+	/*! @brief The basic shape on which is defined */
+	typedef gas::geometry::unit::interval unit_t;
+
 	/*! @brief The self type */
 	typedef affine<gas::geometry::unit::interval> self_t;
 
-	/*! @brief The basic shape on which is defined */
-	typedef gas::geometry::unit::interval unit_t;
+	template <typename type__> friend class info;
 
 public:
 	/*!
