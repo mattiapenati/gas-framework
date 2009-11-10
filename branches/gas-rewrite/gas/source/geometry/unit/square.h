@@ -36,7 +36,6 @@
 #ifndef _gas_geometry_unit_square_
 #define _gas_geometry_unit_square_
 
-#include "unit"
 #include "interval.h"
 
 namespace gas { namespace geometry { namespace unit {
@@ -47,13 +46,10 @@ namespace gas { namespace geometry { namespace unit {
  */
 class square {
 
-private:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d_ = 2u;
-
-	template <typename type__> friend class info;
-
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 2u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point
