@@ -51,7 +51,7 @@ public:
 	 * @return True if the points is locate in the triangle
 	 */
 	static inline bool in (double const & X, double const & Y) {
-		return ((X >= 0.) and (Y >= 0.) and (Y <= 1.-X));
+		return ((X >= 0.) and (Y >= 0.) and (Y <= (1. - X)));
 	}
 
 };
