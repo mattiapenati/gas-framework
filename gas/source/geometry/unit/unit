@@ -28,14 +28,14 @@
  */
 
 /*!
- * @file unit.h
+ * @file unit
  * @brief The utility to manage the unit geometry
  */
 
 #ifndef _gas_geometry_unit_
 #define _gas_geometry_unit_
 
-#include "../../gas/type.h"
+#include "../../gas"
 
 namespace gas { namespace geometry { namespace unit {
 
@@ -47,7 +47,7 @@ template <typename type_>
 struct info: public gas::info<type_> {
 
 	/*! @brief The dimension of geometry */
-	static unsigned int const d = type_::d_;
+	static unsigned int const d = type_::d;
 
 };
 

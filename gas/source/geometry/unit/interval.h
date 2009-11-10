@@ -35,20 +35,15 @@
 #ifndef _gas_geometry_unit_interval_
 #define _gas_geometry_unit_interval_
 
-#include "unit"
-
 namespace gas { namespace geometry { namespace unit {
 
 /*! @brief The interval \f$(-1,1)\f$ */
 class interval {
 
-private:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d_ = 1u;
-
-	template <typename type__> friend class info;
-
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 1u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The coordinate of point

@@ -47,13 +47,10 @@ namespace gas { namespace geometry { namespace unit {
  */
 class hexa {
 
-private:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d_ = 3u;
-
-	template <typename type__> friend class info;
-
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 3u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point

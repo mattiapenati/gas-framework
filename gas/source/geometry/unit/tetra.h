@@ -42,13 +42,10 @@ namespace gas { namespace geometry { namespace unit {
 /*! @brief The tetrahedron with vertices \f$\{(0,0,0),(1,0,0),(0,1,0),(0,0,1)\}\f$ */
 class tetra {
 
-private:
-	/*! @brief Dimension of geometry */
-	static unsigned int const d_ = 3u;
-
-	template <typename type__> friend class info;
-
 public:
+	/*! @brief Dimension of geometry */
+	static unsigned int const d = 3u;
+
 	/*!
 	 * @brief Check the membership of a point by its coordinates
 	 * @param X The first coordinate of point
