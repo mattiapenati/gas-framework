@@ -28,7 +28,7 @@
  */
 
 /*!
- * @file map.h
+ * @file map
  * @brief The utility to manage the map
  */
 
@@ -36,7 +36,7 @@
 #define _gas_geometry_map_
 
 #include "../unit/unit"
-#include "../../gas/type.h"
+#include "../../gas"
 
 namespace gas { namespace geometry { namespace map {
 
