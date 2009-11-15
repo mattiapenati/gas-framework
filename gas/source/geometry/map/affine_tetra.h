@@ -35,7 +35,6 @@
 #ifndef _gas_geometry_map_affine_tetra_
 #define _gas_geometry_map_affine_tetra_
 
-#include "map"
 #include "../unit/unit"
 #include "../../numerical/tiny/tiny"
 #include "../../gas"
