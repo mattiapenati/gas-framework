@@ -74,7 +74,7 @@ public:
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
 		gas_assert(i < n);            // A valid index
 		switch (i) {
-		case 0: return (1.-X-Y);
+		case 0: return (1. - X - Y);
 		case 1: return X;
 		case 2: return Y;
 		}

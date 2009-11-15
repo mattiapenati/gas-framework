@@ -71,8 +71,8 @@ public:
 		gas_assert(unit_t::in(X)); // The point must be in the interval
 		gas_assert(i < n);         // A valid index
 		switch (i) {
-		case 0: return (1.-X)*0.5;
-		case 1: return (1.+X)*0.5;
+		case 0: return (1. - X) * 0.5;
+		case 1: return (1. + X) * 0.5;
 		}
 		return 0.;
 	}
