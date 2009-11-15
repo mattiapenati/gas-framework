@@ -54,7 +54,7 @@ public:
 	 * @return True if the points is locate in the tetrahedron
 	 */
 	static inline bool in (double const & X, double const & Y, double const & Z) {
-		return ((X >= 0.) and (Y >= 0.) and (Z >= 0.) and (1. - X - Y));
+		return ((X >= 0.) and (Y >= 0.) and (Z >= 0.) and (Z <= 1. - X - Y));
 	}
 
 };
