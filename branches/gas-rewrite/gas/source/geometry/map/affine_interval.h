@@ -35,7 +35,6 @@
 #ifndef _gas_geometry_map_affine_interval_
 #define _gas_geometry_map_affine_interval_
 
-#include "map"
 #include "../unit/unit"
 #include "../../gas"
 
