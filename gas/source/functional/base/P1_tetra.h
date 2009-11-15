@@ -35,9 +35,8 @@
 #ifndef _gas_functional_base_p1_tetra_
 #define _gas_functional_base_p1_tetra_
 
-#include "base"
 #include "../../geometry/unit/unit"
-#include "../../gas/assertion.h"
+#include "../../gas"
 
 namespace gas { namespace functional { namespace base {
 
@@ -56,14 +55,12 @@ namespace gas { namespace functional { namespace base {
 template <>
 class P1<gas::geometry::unit::tetra> {
 
-private:
+public:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::tetra unit_t;
 
 	/*! @brief The number of function */
-	static unsigned int const n_ = 4u;
-
-	template <typename type__> friend class info;
+	static unsigned int const n = 4u;
 
 public:
 	/*!
@@ -76,7 +73,7 @@ public:
 	 */
 	static inline double b (unsigned int const & i, double const & X, double const & Y, double const & Z) {
 		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n_);       // A valid index
+		gas_assert(i < n);               // A valid index
 		switch (i) {
 		case 0: return (1.-X-Y-Z);
 		case 1: return X;
@@ -96,7 +93,7 @@ public:
 	 */
 	static inline double dbdX (unsigned int const & i, double const & X, double const & Y, double const & Z) {
 		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n_);       // A valid index
+		gas_assert(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 1.;
@@ -116,7 +113,7 @@ public:
 	 */
 	static inline double dbdY (unsigned int const & i, double const & X, double const & Y, double const & Z) {
 		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n_);       // A valid index
+		gas_assert(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;
@@ -136,7 +133,7 @@ public:
 	 */
 	static inline double dbdZ (unsigned int const & i, double const & X, double const & Y, double const & Z) {
 		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n_);       // A valid index
+		gas_assert(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;

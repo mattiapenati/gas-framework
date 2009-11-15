@@ -35,7 +35,7 @@
 #ifndef _gas_functional_base_
 #define _gas_functional_base_
 
-#include "../../gas/type.h"
+#include "../../gas"
 #include "../../geometry/unit/unit"
 
 namespace gas { namespace functional { namespace base {
@@ -50,7 +50,7 @@ struct info: public gas::info<type_> {
 	static unsigned int const d = gas::geometry::unit::info<unit_t>::d;
 
 	/*! @brief The dimension of basis */
-	static unsigned int const n = type_::n_;
+	static unsigned int const n = type_::n;
 
 };
 

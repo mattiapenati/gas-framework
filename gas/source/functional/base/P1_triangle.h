@@ -37,7 +37,7 @@
 
 #include "base"
 #include "../../geometry/unit/unit"
-#include "../../gas/assertion.h"
+#include "../../gas"
 
 namespace gas { namespace functional { namespace base {
 
@@ -55,14 +55,12 @@ namespace gas { namespace functional { namespace base {
 template <>
 class P1<gas::geometry::unit::triangle> {
 
-private:
+public:
 	/*! @brief The basic shape on which is defined */
 	typedef gas::geometry::unit::triangle unit_t;
 
 	/*! @brief The number of function */
-	static unsigned int const n_ = 3u;
-
-	template <typename type__> friend class info;
+	static unsigned int const n = 3u;
 
 public:
 	/*!
@@ -74,7 +72,7 @@ public:
 	 */
 	static inline double b (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n_);    // A valid index
+		gas_assert(i < n);            // A valid index
 		switch (i) {
 		case 0: return (1.-X-Y);
 		case 1: return X;
@@ -92,7 +90,7 @@ public:
 	 */
 	static inline double dbdX (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n_);    // A valid index
+		gas_assert(i < n);            // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 1.;
@@ -110,7 +108,7 @@ public:
 	 */
 	static inline double dbdY (unsigned int const & i, double const & X, double const & Y) {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n_);    // A valid index
+		gas_assert(i < n);            // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;
