@@ -75,7 +75,7 @@ public:
 		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		gas_assert(i < n);               // A valid index
 		switch (i) {
-		case 0: return (1.-X-Y-Z);
+		case 0: return (1. - X - Y - Z);
 		case 1: return X;
 		case 2: return Y;
 		case 3: return Z;
