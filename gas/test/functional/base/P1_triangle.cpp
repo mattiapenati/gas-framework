@@ -28,7 +28,7 @@
  */
 
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
 #include <cmath>
 
 #define TEST gas_functional_base_P1_triangle
@@ -41,7 +41,7 @@ public:
 
 	typedef gas::functional::base::P1<gas::geometry::unit::triangle> base;
 
-	gas::numerical::tiny::vector<3u> b;
+	gas::numerical::tiny::matrix<3u, 3u> b;
 	gas::numerical::tiny::vector<3u> dbdX;
 	gas::numerical::tiny::vector<3u> dbdY;
 };
@@ -51,13 +51,16 @@ TEST::TEST () {
 
 void TEST::execute () {
 
-	rangeu(i, 3)
-		b(i) = base::b(i, 1. / 3., 1. / 3.);
+	gas_rangeu(i, 3) {
+		b(i, 0) = base::b(i, 0., 0.);
+		b(i, 1) = base::b(i, 1., 0.);
+		b(i, 2) = base::b(i, 0., 1.);
+	}
 
-	rangeu(i, 3)
+	gas_rangeu(i, 3)
 		dbdX(i) = base::dbdX(i, 1. / 3., 1. / 3.);
 
-	rangeu(i, 3)
+	gas_rangeu(i, 3)
 		dbdY(i) = base::dbdY(i, 1. / 3., 1. / 3.);
 }
 
@@ -71,9 +74,17 @@ void TEST::check () {
 
 	double const eps(1.e-14);
 
-	gas_assert(std::abs(b(0) - 1./3.) < eps);
-	gas_assert(std::abs(b(1) - 1./3.) < eps);
-	gas_assert(std::abs(b(2) - 1./3.) < eps);
+	gas_assert(std::abs(b(0,0) - 1.) < eps);
+	gas_assert(std::abs(b(0,1) - 0.) < eps);
+	gas_assert(std::abs(b(0,2) - 0.) < eps);
+
+	gas_assert(std::abs(b(1,0) - 0.) < eps);
+	gas_assert(std::abs(b(1,1) - 1.) < eps);
+	gas_assert(std::abs(b(1,2) - 0.) < eps);
+
+	gas_assert(std::abs(b(2,0) - 0.) < eps);
+	gas_assert(std::abs(b(2,1) - 0.) < eps);
+	gas_assert(std::abs(b(2,2) - 1.) < eps);
 
 	gas_assert(std::abs(dbdX(0) + 1.0) < eps);
 	gas_assert(std::abs(dbdX(1) - 1.0) < eps);

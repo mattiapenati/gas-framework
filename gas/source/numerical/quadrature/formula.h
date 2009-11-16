@@ -35,9 +35,9 @@
 #ifndef _gas_numerical_quadrature_formula_
 #define _gas_numerical_quadrature_formula_
 
-#include "../../gas/assertion.h"
-#include "../../gas/type.h"
-#include "../../geometry/map/affine.h"
+#include "quadrature"
+#include "../../gas"
+#include "../../geometry/map/map"
 
 namespace gas { namespace numerical { namespace quadrature {
 
@@ -46,19 +46,20 @@ namespace gas { namespace numerical { namespace quadrature {
  * @param method_ The quadrature method to use
  * @param map_ The map to transform the coordinates of points
  */
-template <typename method_, typename map_ = gas::geometry::map::affine<typename method_::unit_t> >
+template <typename method_, typename map_ = gas::geometry::map::affine<typename gas::numerical::quadrature::info<method_>::unit_t> >
 class formula {
 
-public:
+private:
 	/*! @brief The self type */
 	typedef formula<method_, map_> self_t;
 
-private:
-	/*! @brief The quadrature method to use */
+	/*! @brief The quadrature formula to use */
 	typedef method_ method_t;
 
-	/*! @brief The map to transform the point */
-	typedef map_ map_t;
+	/*! @brief The basic shape on which is defined */
+	typedef typename gas::geometry::map::info<map_>::unit_t unit_t;
+
+	template <typename type__> friend class info;
 
 public:
 	/*!
@@ -76,10 +77,10 @@ public:
 	template <typename domain_>
 	inline self_t & operator() (domain_ const & domain) {
 		// This static assertion to check that the method and the map act on the same geometry
-		typedef typename method_t::unit_t method_unit_t; // geometry of method
-		typedef typename map_t::unit_t map_unit_t;       // geometry of map
 		gas_static_assert(
-			(gas::same_type<method_unit_t, map_unit_t>::value),
+			(gas::same_type<
+					typename gas::numerical::quadrature::info<method_>::unit_t,
+					typename gas::geometry::map::info<map_>::unit_t>::value),
 			Method_and_map_must_act_on_the_same_unit_geometry
 		);
 		m_.map(map_(domain));

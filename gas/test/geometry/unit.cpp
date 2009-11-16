@@ -28,7 +28,7 @@
  */
 
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
 
 #define TEST gas_geometry_unit
 
@@ -48,11 +48,14 @@ void TEST::execute () {
 void TEST::check () {
 	using namespace gas::geometry::unit;
 
+	/* 1d geometry */
 	gas_assert(info<interval>::d == 1u);
 
+	/* 2d geometry */
 	gas_assert(info<triangle>::d == 2u);
 	gas_assert(info<square>::d == 2u);
 
+	/* 3d geometry */
 	gas_assert(info<tetra>::d == 3u);
 	gas_assert(info<hexa>::d == 3u);
 }

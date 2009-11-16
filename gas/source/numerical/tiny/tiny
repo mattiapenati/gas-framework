@@ -28,7 +28,7 @@
  */
 
 /*!
- * @file tiny.h
+ * @file tiny
  * @brief Linear algebra structure with fixed size at compile time
  */
 

@@ -28,7 +28,7 @@
  */
 
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
 #include <cmath>
 
 #define TEST gas_functional_base_P1_interval
@@ -41,7 +41,7 @@ public:
 
 	typedef gas::functional::base::P1<gas::geometry::unit::interval> base;
 
-	gas::numerical::tiny::vector<2u> b;
+	gas::numerical::tiny::matrix<2u, 2u> b;
 	gas::numerical::tiny::vector<2u> dbdX;
 };
 
@@ -51,10 +51,12 @@ TEST::TEST() {
 
 void TEST::execute () {
 
-	rangeu(i, 2)
-		b(i) = base::b(i, 0.);
+	gas_rangeu(i, 2) {
+		b(i, 0) = base::b(i, -1.);
+		b(i, 1) = base::b(i, +1.);
+	}
 
-	rangeu(i, 2)
+	gas_rangeu(i, 2)
 		dbdX(i) = base::dbdX(i, 0.);
 }
 
@@ -68,8 +70,11 @@ void TEST::check () {
 
 	double const eps(1.e-14);
 
-	gas_assert(std::abs(b(0) - 0.5) < eps);
-	gas_assert(std::abs(b(1) - 0.5) < eps);
+	gas_assert(std::abs(b(0,0) - 1.) < eps);
+	gas_assert(std::abs(b(0,1) - 0.) < eps);
+
+	gas_assert(std::abs(b(1,0) - 0.) < eps);
+	gas_assert(std::abs(b(1,1) - 1.) < eps);
 
 	gas_assert(std::abs(dbdX(0) + 0.5) < eps);
 	gas_assert(std::abs(dbdX(1) - 0.5) < eps);

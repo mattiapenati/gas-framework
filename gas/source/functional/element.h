@@ -27,11 +27,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+/*!
+ * @file element.h
+ * @brief The element definition
+ */
+
 #ifndef _gas_functional_element_
 #define _gas_functional_element_
 
-#include "../gas/assertion.h"
-#include "../gas/type.h"
+#include "../gas"
 
 namespace gas { namespace functional {
 
@@ -92,16 +96,13 @@ private:
 template <typename element_>
 class base_function<1u, element_> {
 
-public:
-	/*! @brief The self type */
-	typedef base_function<1u, element_> self_t;
+/*
+ * TODO derivate
+ */
 
 private:
 	/*! @brief The base */
-	typedef element_ element_t;
-
-	/*! @brief The base */
-	typedef typename element_t::base_t base_t;
+	typedef typename element_::base_t base_t;
 
 private:
 	/*!

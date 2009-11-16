@@ -28,7 +28,7 @@
  */
 
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
 
 #define TEST gas_geometry_map_affine_triangle
 

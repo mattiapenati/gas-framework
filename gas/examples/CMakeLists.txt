@@ -1,1 +1,5 @@
 # ADD_EXECUTABLE(empty empty.cpp)
+
+IF(CGAL_FOUND)
+  ADD_SUBDIRECTORY(poisson)
+ENDIF(CGAL_FOUND)

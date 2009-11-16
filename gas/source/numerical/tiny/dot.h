@@ -35,7 +35,7 @@
 #ifndef _gas_numeric_tiny_dot_
 #define _gas_numeric_tiny_dot_
 
-#include "../../gas/macro.h"
+#include "../../gas"
 #include "vector.h"
 
 namespace gas { namespace numerical { namespace tiny {
@@ -49,7 +49,7 @@ namespace gas { namespace numerical { namespace tiny {
 template <unsigned int size_>
 inline double dot (vector<size_> const & a, vector<size_> const & b) {
 	double r(0.);
-	range(i, 0, size_)
+	gas_rangeu(i, size_)
 		r += (a(i) * b(i));
 	return r;
 }
@@ -63,7 +63,7 @@ inline double dot (vector<size_> const & a, vector<size_> const & b) {
 template <typename left_, typename right_, unsigned int size_, typename operator_>
 inline double dot (vector<size_> const & a, vector_binexp<left_, right_, size_, operator_> const & b) {
 	double r(0.);
-	range(i, 0, size_)
+	gas_rangeu(i, size_)
 		r += (a(i) * b(i));
 	return r;
 }
@@ -77,7 +77,7 @@ inline double dot (vector<size_> const & a, vector_binexp<left_, right_, size_, 
 template <typename left_, typename right_, unsigned int size_, typename operator_>
 inline double dot (vector_binexp<left_, right_, size_, operator_> const & a, vector<size_> const & b) {
 	double r(0.);
-	range(i, 0, size_)
+	gas_rangeu(i, size_)
 		r += (a(i) * b(i));
 	return r;
 }
@@ -91,7 +91,7 @@ inline double dot (vector_binexp<left_, right_, size_, operator_> const & a, vec
 template <typename left1_, typename left2_, typename right1_, typename right2_, unsigned int size_, typename operator1_, typename operator2_>
 inline double dot (vector_binexp<left1_, right1_, size_, operator1_> const & a, vector_binexp<left2_, right2_, size_, operator2_> const & b) {
 	double r(0.);
-	range(i, 0, size_)
+	gas_rangeu(i, size_)
 		r += (a(i) * b(i));
 	return r;
 }
@@ -104,8 +104,8 @@ inline double dot (vector_binexp<left1_, right1_, size_, operator1_> const & a, 
 template <unsigned int size_>
 inline double norm (vector<size_> const & a) {
 	double r(0.);
-	range(i, 0, size_) {
-		double t(a(i));
+	gas_rangeu(i, size_) {
+		double const t(a(i));
 		r += (t*t);
 	}
 	return r;
@@ -119,8 +119,8 @@ inline double norm (vector<size_> const & a) {
 template <typename left_, typename right_, unsigned int size_, typename operator_>
 inline double norm (vector_binexp<left_, right_, size_, operator_> const & a) {
 	double r(0.);
-	range(i, 0, size_) {
-		double t(a(i));
+	gas_rangeu(i, size_) {
+		double const t(a(i));
 		r += (t*t);
 	}
 	return r;

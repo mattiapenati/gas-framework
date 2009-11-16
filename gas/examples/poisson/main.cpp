@@ -27,33 +27,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file macro.h
- * @brief Some usefull macros
- */
+#include <gas>
 
-#ifndef _gas_macro_
-#define _gas_macro_
+#include <fstream>
+#include <iostream>
+#include <vector>
 
-/*!
- * @def pass
- * @brief An alias for <tt>static_cast<void>(0)</tt>
- */
-#undef pass
-#define pass static_cast<void>(0)
+#include "poisson.h"
 
-/*!
- * @def range(index, min, max)
- * @brief An alias for <tt>for(int index = min; index < max; ++i)</tt>
- */
-#undef gas_range
-#define gas_range(index, min, max) for(int index = min; index < max; ++index)
+int main (int argc, char * argv[]) {
 
-/*!
- * @def rangeu(index, max)
- * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
- */
-#undef gas_rangeu
-#define gas_rangeu(index, max) for(unsigned int index = 0; index < max; ++index)
+	typedef poisson::triangulation::point_t point_t;
 
-#endif // _gas_macro_
+	/* definizione del bordo */
+	std::vector<point_t> boundary;
+	boundary.push_back(point_t(+1., +1.));
+	boundary.push_back(point_t(-1., +1.));
+	boundary.push_back(point_t(-1., -1.));
+	boundary.push_back(point_t(+1., -1.));
+
+	/* costruzione della triangolazione */
+	poisson::triangulation mesh(boundary.begin(), boundary.end(), 1.);
+
+	/* costruzione del problema */
+	poisson::problem problem(mesh);
+
+	/* risoluzione del problema */
+	/* problem.solve(); */
+
+	/* raffinamento */
+
+	/* stampa della soluzione */
+	poisson::svg svg(problem);
+
+	std::ofstream out("/Users/penaz/Desktop/solution.svg");
+	out << svg;
+
+	return 0;
+}

@@ -35,8 +35,7 @@
 #ifndef _gas_numerical_tiny_vector_
 #define _gas_numerical_tiny_vector_
 
-#include "../../gas/macro.h"
-#include "../../gas/static.h"
+#include "../../gas"
 
 namespace gas { namespace numerical { namespace tiny {
 
@@ -66,7 +65,7 @@ public:
 	 *@param s The value for all components
 	 */
 	inline vector (double const & s = 0.) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = s;
 	}
 
@@ -75,7 +74,7 @@ public:
 	 * @param v An other vector
 	 */
 	inline vector (self_t const & v) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = v(i);
 	}
 
@@ -85,7 +84,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline vector (vector_binexp<left_, right_, size, operator_> const & exp) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = exp(i);
 	}
 
@@ -115,7 +114,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator= (double const & s) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = s;
 		return *this;
 	}
@@ -126,7 +125,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator= (self_t const & v) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = v(i);
 		return *this;
 	}
@@ -138,7 +137,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator= (vector_binexp<left_, right_, size, operator_> const & exp) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] = exp(i);
 		return *this;
 	}
@@ -149,7 +148,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator+= (self_t const & v) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] += v(i);
 		return *this;
 	}
@@ -161,7 +160,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator+= (vector_binexp<left_, right_, size, operator_> const & exp) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] += exp(i);
 		return *this;
 	}
@@ -172,7 +171,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator-= (self_t const & v) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] -= v(i);
 		return *this;
 	}
@@ -184,7 +183,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator-= (vector_binexp<left_, right_, size, operator_> const & exp) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] -= exp(i);
 		return *this;
 	}
@@ -195,7 +194,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator*= (double const & s) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] *= s;
 		return *this;
 	}
@@ -206,7 +205,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator/= (double const & s) {
-		rangeu(i, size)
+		gas_rangeu(i, size)
 			v_[i] /= s;
 		return *this;
 	}

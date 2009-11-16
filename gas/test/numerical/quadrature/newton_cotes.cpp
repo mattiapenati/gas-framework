@@ -28,7 +28,7 @@
  */
 
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
 
 #define TEST gas_numerical_quadrature_newtoncotes_test
 
@@ -71,11 +71,11 @@ public:
 private:
 	typedef gas::geometry::unit::triangle triangle;
 
-	typedef gas::numerical::quadrature::newton_cotes<triangle, 3u> method3;
-	typedef gas::numerical::quadrature::newton_cotes<triangle, 6u> method6;
+	template <unsigned int nodes_>
+	class method: public gas::numerical::quadrature::newton_cotes<triangle, nodes_> {};
 
-	typedef gas::numerical::quadrature::formula<method3> formula3;
-	typedef gas::numerical::quadrature::formula<method6> formula6;
+	typedef gas::numerical::quadrature::formula< method<3u> > formula3;
+	typedef gas::numerical::quadrature::formula< method<6u> > formula6;
 
 	formula3 q3;
 	formula6 q6;
@@ -94,6 +94,25 @@ void TEST::execute () {
 }
 
 void TEST::check () {
+	using namespace gas::numerical::quadrature;
+
+	typedef gas::geometry::unit::triangle triangle;
+
+	gas_assert((gas::same_type<info<formula3>::unit_t, triangle>::value));
+	gas_assert((gas::same_type<info<formula6>::unit_t, triangle>::value));
+
+	gas_assert(info<formula3>::d == 2u);
+	gas_assert(info<formula6>::d == 2u);
+
+	gas_assert((gas::same_type<info<formula3>::method_t, method<3u> >::value));
+	gas_assert((gas::same_type<info<formula6>::method_t, method<6u> >::value));
+
+	gas_assert(info<formula3>::n == 3u);
+	gas_assert(info<formula6>::n == 6u);
+
+	gas_assert(info<formula3>::degree == 2u);
+	gas_assert(info<formula6>::degree == 4u);
+
 	double e[2];
 
 	e[0] = std::abs(r[0] - 423.) / 423.;
