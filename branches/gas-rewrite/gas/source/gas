@@ -28,32 +28,60 @@
  */
 
 /*!
- * @file macro.h
- * @brief Some usefull macros
+ * @file gas
+ * @brief The main header, includes all other files
  */
 
-#ifndef _gas_macro_
-#define _gas_macro_
+#ifndef _gas_
+#define _gas_
 
 /*!
- * @def pass
- * @brief An alias for <tt>static_cast<void>(0)</tt>
+ * @namespace gas
+ * @brief The main namespace
+ *
+ * @namespace gas::functional
+ * @brief Classes and functions to manage functional elements
+ *
+ * @namespace gas::functional::base
+ * @brief The base for Galerkin methods
+ *
+ * @namespace gas::geometry
+ * @brief Classes and functions to manage geometric elements
+ *
+ * @namespace gas::geometry::map
+ * @brief The maps to change the coordinates
+ *
+ * @namespace gas::geometry::unit
+ * @brief The basic shapes on which you can define base function and quadrature
+ *        formulae
+ *
+ * @namespace gas::numerical
+ * @brief Classes and function for numerical methods
+ *
+ * @namespace gas::numerical::quadrature
+ * @brief The quadrature formulae to integrate the function
+ *
+ * @namespace gas::numerical::tiny
+ * @brief Linear algebra structure with fixed size at compile time
  */
-#undef pass
-#define pass static_cast<void>(0)
 
-/*!
- * @def range(index, min, max)
- * @brief An alias for <tt>for(int index = min; index < max; ++i)</tt>
- */
-#undef gas_range
-#define gas_range(index, min, max) for(int index = min; index < max; ++index)
+#include "assertion.h"
+#include "chrono.h"
+#include "css.h"
+#include "macro.h"
+#include "static.h"
+#include "svg.h"
+#include "test.h"
+#include "type.h"
 
-/*!
- * @def rangeu(index, max)
- * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
- */
-#undef gas_rangeu
-#define gas_rangeu(index, max) for(unsigned int index = 0; index < max; ++index)
+//#include "functional/derivative.h"
+//#include "functional/element.h"
+#include "functional/base/base"
 
-#endif // _gas_macro_
+#include "geometry/map/map"
+#include "geometry/unit/unit"
+
+#include "numerical/quadrature/quadrature"
+#include "numerical/tiny/tiny"
+
+#endif // _gas_

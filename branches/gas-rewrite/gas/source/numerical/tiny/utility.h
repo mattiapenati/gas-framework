@@ -36,7 +36,7 @@
 #define _gas_numerical_tiny_utility_
 
 #include "vector.h"
-#include "../../gas/macro.h"
+#include "../../gas"
 
 #include <cstdarg>
 
@@ -54,7 +54,7 @@ vector<size_> make_vector (double s, ...) {
 	v(0) = s;
 	va_list vl;                    // List of arguments
 	va_start(vl, s);               // Start the list
-	range(i, 1, size_)
+	gas_range(i, 1, size_)
 		v(i) = va_arg(vl, double); // Read the next element
 	va_end(vl);                    // End the list
 	return v;

@@ -32,11 +32,12 @@
  * @brief Some generical implementation of quadrature formulae
  */
 
-#ifndef _gas_numerical_quadrature_method_method_
-#define _gas_numerical_quadrature_method_method_
+#ifndef _gas_numerical_quadrature_method_
+#define _gas_numerical_quadrature_method_
 
 #include <cmath>
-#include "../../gas/macro.h"
+#include "../../gas"
+#include "../../geometry/unit/unit"
 
 namespace gas { namespace numerical { namespace quadrature {
 
@@ -50,32 +51,19 @@ namespace gas { namespace numerical { namespace quadrature {
 template <typename unit_, unsigned int nodes_, typename data_>
 class method_1 {
 
-public:
-	/*! @brief The self type */
-	typedef method_1<unit_, nodes_, data_> self_t;
-
-	/*! @brief The unit geometry */
-	typedef unit_ unit_t;
-
 private:
 	/*! @brief The dimension of unit_t */
-	static unsigned int const d = unit_t::d;
-
-	/*! @brief The number of nodes */
-	static unsigned int const n = nodes_;
-
-	/*! @brief The class containing all data */
-	typedef data_ data_t;
+	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
 
 public:
 	/*!
 	 * @brief Initialize the method, copying the value of nodes and weights
 	 */
 	method_1 () {
-		gas_static_assert((d == 1), This_is_a_1d_quadrature_formula);
-		rangeu(i, n) {
-			xw_[i][0] = data_t::x_[i];
-			xw_[i][1] = data_t::w_[i];
+		gas_static_assert((d_ == 1), This_is_a_1d_quadrature_formula);
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = data_::x_[i];
+			xw_[i][1] = data_::w_[i];
 		}
 	}
 
@@ -86,9 +74,9 @@ private:
 	 */
 	template <typename map_>
 	void map (map_ const & m) {
-		rangeu(i, n) {
-			xw_[i][0] = m.x(data_t::x_[i]);
-			xw_[i][1] = std::abs(m.det(data_t::x_[i])) * data_t::w_[i];
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = m.x(data_::x_[i]);
+			xw_[i][1] = std::abs(m.det(data_::x_[i])) * data_::w_[i];
 		}
 	}
 
@@ -100,17 +88,16 @@ private:
 	template <typename function_>
 	double apply (function_ const & f) {
 		double r(0.);
-		rangeu(i, n)
+		gas_rangeu(i, nodes_)
 			r += f(xw_[i][0]) * xw_[i][1];
 		return r;
 	}
 
 private:
 	/*! @brief The list of nodes and weights of quadrature formula */
-	double xw_[n][d+1];
+	double xw_[nodes_][d_+1];
 
-	template <typename method_, typename map_>
-	friend class formula;
+	template <typename method__, typename map__> friend class formula;
 
 };
 
@@ -125,33 +112,20 @@ private:
 template <typename unit_, unsigned int nodes_, typename data_>
 class method_2 {
 
-public:
-	/*! @brief The self type */
-	typedef method_2<unit_, nodes_, data_> self_t;
-
-	/*! @brief The unit geometry */
-	typedef unit_ unit_t;
-
 private:
 	/*! @brief The dimension of unit_t */
-	static unsigned int const d = unit_t::d;
-
-	/*! @brief The number of nodes */
-	static unsigned int const n = nodes_;
-
-	/*! @brief The class containing all data */
-	typedef data_ data_t;
+	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
 
 public:
 	/*!
 	 * @brief Initialize the method, copying the value of nodes and weights
 	 */
 	method_2 () {
-		gas_static_assert((d == 2), This_is_a_2d_quadrature_formula);
-		rangeu(i, n) {
-			xw_[i][0] = data_t::x_[i];
-			xw_[i][1] = data_t::y_[i];
-			xw_[i][2] = data_t::w_[i];
+		gas_static_assert((d_ == 2), This_is_a_2d_quadrature_formula);
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = data_::x_[i];
+			xw_[i][1] = data_::y_[i];
+			xw_[i][2] = data_::w_[i];
 		}
 	}
 
@@ -162,10 +136,10 @@ private:
 	 */
 	template <typename map_>
 	void map (map_ const & m) {
-		rangeu(i, n) {
-			xw_[i][0] = m.x(data_t::x_[i], data_t::y_[i]);
-			xw_[i][1] = m.y(data_t::x_[i], data_t::y_[i]);
-			xw_[i][2] = std::abs(m.det(data_t::x_[i], data_t::y_[i])) * data_t::w_[i];
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = m.x(data_::x_[i], data_::y_[i]);
+			xw_[i][1] = m.y(data_::x_[i], data_::y_[i]);
+			xw_[i][2] = std::abs(m.det(data_::x_[i], data_::y_[i])) * data_::w_[i];
 		}
 	}
 
@@ -177,21 +151,84 @@ private:
 	template <typename function_>
 	double apply (function_ const & f) {
 		double r(0.);
-		rangeu(i, n)
+		gas_rangeu(i, nodes_)
 			r += f(xw_[i][0], xw_[i][1]) * xw_[i][2];
 		return r;
 	}
 
 private:
 	/*! @brief The list of nodes and weights of quadrature formula */
-	double xw_[n][d+1];
+	double xw_[nodes_][d_+1];
 
-	template <typename method_, typename map_>
-	friend class formula;
+	template <typename method__, typename map__> friend class formula;
 
 };
 
 
+/*!
+ * @brief A general implementation for 3d formulae, with a list of all nodes
+ *        and weights
+ * @param unit_ The unit geometry
+ * @param nodes_ The number of nodes
+ * @param data_ The struct that contains the nodes and weights
+ */
+template <typename unit_, unsigned int nodes_, typename data_>
+class method_3 {
+
+private:
+	/*! @brief The dimension of unit_t */
+	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
+
+public:
+	/*!
+	 * @brief Initialize the method, copying the value of nodes and weights
+	 */
+	method_3 () {
+		gas_static_assert((d_ == 3), This_is_a_3d_quadrature_formula);
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = data_::x_[i];
+			xw_[i][1] = data_::y_[i];
+			xw_[i][2] = data_::z_[i];
+			xw_[i][3] = data_::w_[i];
+		}
+	}
+
+private:
+	/*!
+	 * @brief Map the nodes and weight
+	 * @param m The map used to recalculate nodes and weights
+	 */
+	template <typename map_>
+	void map (map_ const & m) {
+		gas_rangeu(i, nodes_) {
+			xw_[i][0] = m.x(data_::x_[i], data_::y_[i], data_::z_[i]);
+			xw_[i][1] = m.y(data_::x_[i], data_::y_[i], data_::z_[i]);
+			xw_[i][2] = m.z(data_::x_[i], data_::y_[i], data_::z_[i]);
+			xw_[i][3] = std::abs(m.det(data_::x_[i], data_::y_[i], data_::z_[i])) * data_::w_[i];
+		}
+	}
+
+	/*!
+	 * @brief Apply the quadrature formula with current nodes and weights
+	 * @param f Any kind of object with the possibility to call f(...)
+	 * @return The computed numerical integral
+	 */
+	template <typename function_>
+	double apply (function_ const & f) {
+		double r(0.);
+		gas_rangeu(i, nodes_)
+			r += f(xw_[i][0], xw_[i][1], xw_[i][2]) * xw_[i][3];
+		return r;
+	}
+
+private:
+	/*! @brief The list of nodes and weights of quadrature formula */
+	double xw_[nodes_][d_+1];
+
+	template <typename method__, typename map__> friend class formula;
+
+};
+
 } } }
 
-#endif // _gas_numerical_quadrature_method_method_
+#endif // _gas_numerical_quadrature_method_

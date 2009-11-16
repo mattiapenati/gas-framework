@@ -35,9 +35,8 @@
 #ifndef _gas_numerical_quadrature_gauss_legendre_
 #define _gas_numerical_quadrature_gauss_legendre_
 
-#include "../../geometry/unit/interval.h"
-#include "formula.h"
-#include "method.h"
+#include "../../geometry/unit/unit"
+#include "quadrature"
 
 namespace gas { namespace numerical { namespace quadrature {
 
@@ -64,10 +63,22 @@ private:
 	/*! @brief The weights of nodes */
 	static double const w_[nodes_];
 
-	template <typename method_, typename map_>
-	friend class formula;
+	/*! @brief The basic shape on which is defined */
+	typedef gas::geometry::unit::interval unit_t;
 
-	friend class method_1<gas::geometry::unit::interval, nodes_, gauss_legendre<gas::geometry::unit::interval, nodes_> >;
+	/*! @brief The method */
+	typedef gauss_legendre<gas::geometry::unit::interval, nodes_> method_t;
+
+	/*! @brief The number of nodes */
+	static unsigned int const n_ = nodes_;
+
+	/*! @brief Degree of exactness */
+	static unsigned int const degree_ = 2u * nodes_ - 1u;
+
+	template <typename type__> friend class info;
+
+	friend class method_1<gas::geometry::unit::interval, nodes_,
+		gauss_legendre<gas::geometry::unit::interval, nodes_> >;
 
 };
 

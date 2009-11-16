@@ -27,7 +27,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "gas.h"
+#include <gas>
 
 int main (int argc , char * argv[]) {
 	return 0;

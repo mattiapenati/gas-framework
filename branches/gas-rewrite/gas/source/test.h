@@ -41,7 +41,7 @@
  */
 
 #define gas_unit(TEST) \
-int main (int argc, char * argv) { \
+int main (int argc, char * argv[]) { \
 	gas::test<TEST>::run(); \
 	return 0; \
 }

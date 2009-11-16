@@ -27,10 +27,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cmath>
-
 #undef gas_ndebug
-#include "gas.h"
+#include <gas>
+#include <cmath>
 
 #define TEST gas_numerical_quadrature_gauss_legendre_test
 
@@ -66,19 +65,15 @@ public:
 private:
 	typedef gas::geometry::unit::interval interval;
 
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 2u> method2;
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 3u> method3;
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 4u> method4;
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 5u> method5;
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 6u> method6;
-	typedef gas::numerical::quadrature::gauss_legendre<interval, 7u> method7;
+	template <unsigned int nodes_>
+	class method: public gas::numerical::quadrature::gauss_legendre<interval, nodes_> {};
 
-	typedef gas::numerical::quadrature::formula<method2> formula2;
-	typedef gas::numerical::quadrature::formula<method3> formula3;
-	typedef gas::numerical::quadrature::formula<method4> formula4;
-	typedef gas::numerical::quadrature::formula<method5> formula5;
-	typedef gas::numerical::quadrature::formula<method6> formula6;
-	typedef gas::numerical::quadrature::formula<method7> formula7;
+	typedef gas::numerical::quadrature::formula< method<2u> > formula2;
+	typedef gas::numerical::quadrature::formula< method<3u> > formula3;
+	typedef gas::numerical::quadrature::formula< method<4u> > formula4;
+	typedef gas::numerical::quadrature::formula< method<5u> > formula5;
+	typedef gas::numerical::quadrature::formula< method<6u> > formula6;
+	typedef gas::numerical::quadrature::formula< method<7u> > formula7;
 
 	formula2 q2;
 	formula3 q3;
@@ -105,6 +100,43 @@ void TEST::execute () {
 }
 
 void TEST::check () {
+	using namespace gas::numerical::quadrature;
+
+	gas_assert((gas::same_type<info<formula2>::unit_t, interval>::value));
+	gas_assert((gas::same_type<info<formula3>::unit_t, interval>::value));
+	gas_assert((gas::same_type<info<formula4>::unit_t, interval>::value));
+	gas_assert((gas::same_type<info<formula5>::unit_t, interval>::value));
+	gas_assert((gas::same_type<info<formula6>::unit_t, interval>::value));
+	gas_assert((gas::same_type<info<formula7>::unit_t, interval>::value));
+
+	gas_assert(info<formula2>::d == 1u);
+	gas_assert(info<formula3>::d == 1u);
+	gas_assert(info<formula4>::d == 1u);
+	gas_assert(info<formula5>::d == 1u);
+	gas_assert(info<formula6>::d == 1u);
+	gas_assert(info<formula7>::d == 1u);
+
+	gas_assert((gas::same_type<info<formula2>::method_t, method<2u> >::value));
+	gas_assert((gas::same_type<info<formula3>::method_t, method<3u> >::value));
+	gas_assert((gas::same_type<info<formula4>::method_t, method<4u> >::value));
+	gas_assert((gas::same_type<info<formula5>::method_t, method<5u> >::value));
+	gas_assert((gas::same_type<info<formula6>::method_t, method<6u> >::value));
+	gas_assert((gas::same_type<info<formula7>::method_t, method<7u> >::value));
+
+	gas_assert(info<formula2>::n == 2u);
+	gas_assert(info<formula3>::n == 3u);
+	gas_assert(info<formula4>::n == 4u);
+	gas_assert(info<formula5>::n == 5u);
+	gas_assert(info<formula6>::n == 6u);
+	gas_assert(info<formula7>::n == 7u);
+
+	gas_assert(info<formula2>::degree == 3u);
+	gas_assert(info<formula3>::degree == 5u);
+	gas_assert(info<formula4>::degree == 7u);
+	gas_assert(info<formula5>::degree == 9u);
+	gas_assert(info<formula6>::degree == 11u);
+	gas_assert(info<formula7>::degree == 13u);
+
 	double e[6];
 
 	e[0] = std::abs((r[0] - exact<3>()) / (exact<3>()));

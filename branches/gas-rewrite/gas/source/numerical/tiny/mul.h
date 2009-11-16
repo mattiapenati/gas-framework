@@ -75,7 +75,7 @@ private:
 	inline double operator() (unsigned int const & i) const {
 		gas_assert(i < size);
 		double r(0.);
-		range(j, 0, left_::col)
+		gas_rangeu(j, left_::col)
 			r += (l_(i,j) * r_(j));
 		return r;
 	}

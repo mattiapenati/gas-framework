@@ -47,7 +47,7 @@ namespace gas {
  * @param file The file where the assertion failed
  * @param line The line of file where the assertion failed
  */
-inline void assert(char const * exp, char const * file, unsigned int const & line) {
+inline void assert_(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": assertion "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -58,7 +58,7 @@ inline void assert(char const * exp, char const * file, unsigned int const & lin
  * @param file The file where the precondition failed
  * @param line The line of file where the precondition failed
  */
-inline void pre(char const * exp, char const * file, unsigned int const & line) {
+inline void pre_(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": precondition "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -69,7 +69,7 @@ inline void pre(char const * exp, char const * file, unsigned int const & line) 
  * @param file The file where the postcondition failed
  * @param line The line of file where the postcondition failed
  */
-inline void post(char const * exp, char const * file, unsigned int const & line) {
+inline void post_(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": precondition "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -98,7 +98,7 @@ template<> class compile_time_checker<true> { };
 #ifdef gas_nassert
 #define gas_assert(expression) pass
 #else // gas_nassert
-#define gas_assert(expression) ((expression) ? pass : gas::assert(#expression, __FILE__, __LINE__))
+#define gas_assert(expression) ((expression) ? pass : gas::assert_(#expression, __FILE__, __LINE__))
 #endif // gas_nassert
 
 /*!
@@ -110,7 +110,7 @@ template<> class compile_time_checker<true> { };
 #ifndef gas_npre
 #define gas_pre(expression) pass
 #else // gas_npre
-#define gas_pre(expression) ((expression) ? pass : gas::pre(#expression, __FILE__, __LINE__))
+#define gas_pre(expression) ((expression) ? pass : gas::pre_(#expression, __FILE__, __LINE__))
 #endif // gas_npre
 
 /*!
@@ -122,7 +122,7 @@ template<> class compile_time_checker<true> { };
 #ifdef gas_npost
 #define gas_post(expression) pass
 #else // gas_npost
-#define gas_post(expression) ((expression) ? pass : gas::post(#expression, __FILE__, __LINE__))
+#define gas_post(expression) ((expression) ? pass : gas::post_(#expression, __FILE__, __LINE__))
 #endif // gas_npost
 
 /*!

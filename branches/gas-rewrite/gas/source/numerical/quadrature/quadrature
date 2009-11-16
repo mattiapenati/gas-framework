@@ -28,61 +28,48 @@
  */
 
 /*!
- * @file gas.h
- * @brief The main header, includes all other files
+ * @file quadrature
+ * @brief The quadrature formulae to integrate functions
  */
 
-#ifndef _gas_
-#define _gas_
+#ifndef _gas_numerical_quadrature_
+#define _gas_numerical_quadrature_
+
+#include "../../gas"
+#include "../../geometry/unit/unit"
+
+namespace gas { namespace numerical { namespace quadrature {
 
 /*!
- * @namespace gas
- * @brief The main namespace
- *
- * @namespace gas::functional
- * @brief Classes and functions to manage functional elements
- *
- * @namespace gas::functional::base
- * @brief The base for Galerkin methods
- *
- * @namespace gas::geometry
- * @brief Classes and functions to manage geometric elements
- *
- * @namespace gas::geometry::map
- * @brief The maps to change the coordinates
- *
- * @namespace gas::geometry::unit
- * @brief The basic shapes on which you can define base function and quadrature
- *        formulae
- *
- * @namespace gas::numerical
- * @brief Classes and function for numerical methods
- *
- * @namespace gas::numerical::quadrature
- * @brief The quadrature formulae to integrate the function
- *
- * @namespace gas::numerical::tiny
- * @brief Linear algebra structure with fixed size at compile time
+ * @brief A class to retrieve map info
+ * @param type_ The formula or the method
  */
+template <typename type_>
+struct info: public gas::info<type_> {
 
-//#include "functional/derivative.h"
-//#include "functional/element.h"
-#include "functional/base/base"
+	/*! @brief The basic shape on which is defined */
+	typedef typename type_::unit_t unit_t;
 
-#include "gas/assertion.h"
-#include "gas/chrono.h"
-#include "gas/macro.h"
-#include "gas/static.h"
-#include "gas/test.h"
-#include "gas/type.h"
+	/*! @brief The dimension of geometry */
+	static unsigned int const d = gas::geometry::unit::info<unit_t>::d;
+	
+	/*! @brief The quadrature formula to use */
+	typedef typename type_::method_t method_t;
+	
+	/*! @brief The number of nodes */
+	static unsigned int const n = method_t::n_;
+	
+	/*! @brief The degree of exactness */
+	static unsigned int const degree = method_t::degree_;
+	
+};
 
-#include "geometry/map/map"
-#include "geometry/unit/unit"
+} } }
 
-//#include "numerical/quadrature/formula.h"
-//#include "numerical/quadrature/gauss_legendre.h"
-//#include "numerical/quadrature/method.h"
-//#include "numerical/quadrature/newton_cotes.h"
-#include "numerical/tiny/tiny"
+#include "formula.h"
+#include "method.h"
 
-#endif // _gas_
+#include "gauss_legendre.h"
+#include "newton_cotes.h"
+
+#endif // _gas_numerical_quadrature_

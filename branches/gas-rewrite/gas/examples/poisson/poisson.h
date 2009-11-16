@@ -27,33 +27,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*!
- * @file macro.h
- * @brief Some usefull macros
- */
+#ifndef _poisson_
+#define _poisson_
 
-#ifndef _gas_macro_
-#define _gas_macro_
+namespace poisson {
 
-/*!
- * @def pass
- * @brief An alias for <tt>static_cast<void>(0)</tt>
- */
-#undef pass
-#define pass static_cast<void>(0)
+class printer;
+class problem;
+class triangulation;
 
-/*!
- * @def range(index, min, max)
- * @brief An alias for <tt>for(int index = min; index < max; ++i)</tt>
- */
-#undef gas_range
-#define gas_range(index, min, max) for(int index = min; index < max; ++index)
+}
 
-/*!
- * @def rangeu(index, max)
- * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
- */
-#undef gas_rangeu
-#define gas_rangeu(index, max) for(unsigned int index = 0; index < max; ++index)
+#include "printer.h"
+#include "problem.h"
+#include "triangulation.h"
 
-#endif // _gas_macro_
+#endif _poisson_

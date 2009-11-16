@@ -35,9 +35,8 @@
 #ifndef _gas_numerical_quadrature_newton_cotes_
 #define _gas_numerical_quadrature_newton_cotes_
 
-#include "../../geometry/unit/triangle.h"
-#include "formula.h"
-#include "method.h"
+#include "../../geometry/unit/unit"
+#include "quadrature"
 
 namespace gas { namespace numerical { namespace quadrature {
 
@@ -67,6 +66,20 @@ private:
 	/*! @brief The weights of nodes */
 	static double const w_[nodes_];
 
+	/*! @brief The basic shape on which is defined */
+	typedef gas::geometry::unit::triangle unit_t;
+
+	/*! @brief The method */
+	typedef newton_cotes<gas::geometry::unit::triangle, nodes_> method_t;
+
+	/*! @brief The number of nodes */
+	static unsigned int const n_ = nodes_;
+
+	/*! @brief Degree of exactness */
+	static unsigned int const degree_;
+
+	template <typename type__> friend class info;
+
 	template<typename method_, typename map_>
 	friend class formula;
 
@@ -94,6 +107,10 @@ double const newton_cotes<gas::geometry::unit::triangle, 3u>::w_[3] = {
 	0.1666666666667, 0.1666666666667, 0.1666666666667
 };
 
+/*! @brief Degree of exactness */
+template <>
+unsigned int const newton_cotes<gas::geometry::unit::triangle, 3u>::degree_ = 2u;
+
 
 /*! @brief Coordinates for 6 nodes formula */
 template <>
@@ -115,6 +132,10 @@ double const newton_cotes<gas::geometry::unit::triangle, 6u>::w_[6] = {
 	0.0549758718277, 0.0549758718277, 0.0549758718277,
 	0.1116907948390, 0.1116907948390, 0.1116907948390
 };
+
+/*! @brief Degree of exactness */
+template <>
+unsigned int const newton_cotes<gas::geometry::unit::triangle, 6u>::degree_ = 4u;
 
 } } }
 

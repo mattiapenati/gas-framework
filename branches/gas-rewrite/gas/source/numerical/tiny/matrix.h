@@ -35,7 +35,7 @@
 #ifndef _gas_numerical_tiny_matrix_
 #define _gas_numerical_tiny_matrix_
 
-#include "../../gas/static.h"
+#include "../../gas"
 
 namespace gas { namespace numerical { namespace tiny {
 
@@ -69,7 +69,7 @@ public:
 	 *@param s The value for all components
 	 */
 	inline matrix (double const & s = 0.) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] = s;
 	}
 
@@ -78,7 +78,7 @@ public:
 	 * @param m An other matrix
 	 */
 	inline matrix (self_t const & m) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] = m(i,j);
 	}
 
@@ -88,7 +88,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline matrix (matrix_binexp<left_, right_, row_, col_, operator_> const & exp) {
-		rangeu(i, row) range(j, 0, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 				a_[i][j] = exp(i,j);
 	}
 
@@ -120,7 +120,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator= (double const & s) {
-		rangeu(i, row) range(j, 0, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] = s;
 		return *this;
 	}
@@ -131,7 +131,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator= (self_t const & m) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] = m(i,j);
 		return *this;
 	}
@@ -143,7 +143,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator= (matrix_binexp<left_, right_, row_, col_, operator_> const & exp) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 				a_[i][j] = exp(i,j);
 		return *this;
 	}
@@ -154,7 +154,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator+= (self_t const & m) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] += m(i,j);
 		return *this;
 	}
@@ -166,7 +166,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator+= (matrix_binexp<left_, right_, row_, col_, operator_> const & exp) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] += exp(i,j);
 		return *this;
 	}
@@ -177,7 +177,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator-= (self_t const & m) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] -= m(i,j);
 		return *this;
 	}
@@ -189,7 +189,7 @@ public:
 	 */
 	template <typename left_, typename right_, typename operator_>
 	inline self_t & operator-= (matrix_binexp<left_, right_, row_, col_, operator_> const & exp) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 			a_[i][j] += exp(i,j);
 		return *this;
 	}
@@ -200,7 +200,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator*= (double const & s) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 				a_[i][j] *= s;
 		return *this;
 	}
@@ -211,7 +211,7 @@ public:
 	 * @return A reference to the current object
 	 */
 	inline self_t & operator/= (double const & s) {
-		rangeu(i, row) rangeu(j, col)
+		gas_rangeu(i, row) gas_rangeu(j, col)
 				a_[i][j] /= s;
 		return *this;
 	}
