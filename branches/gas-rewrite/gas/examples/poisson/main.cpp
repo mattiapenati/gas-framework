@@ -27,17 +27,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gas>
-
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <cmath>
+#include <gas>
+
+inline double u1 (double const & x, double const & y) { return std::sin(M_PI * x) * std::sin(M_PI * y); }
+inline double u2 (double const & x, double const & y) { return std::cos(M_PI * x) * std::sin(M_PI * y); }
+
+inline double v (double const & x, double const & y) { return std::exp(10 * x); }
+
+class forzante: public gas::functional::function<2u, forzante> {
+
+public:
+	inline double operator() (double const & x, double const & y) const {
+		return ((M_PI * M_PI - 100) * u1(x, y) - 20 * M_PI * u2(x, y)) * v(x, y);
+	}
+
+};
+
+class costante: public gas::functional::function<2u, costante> {
+
+public:
+	inline double operator() (double const & x, double const & y) const {
+		return 1.;
+	}
+
+};
+
+typedef costante forzante_t;
 
 #include "poisson.h"
 
 int main (int argc, char * argv[]) {
 
 	typedef poisson::triangulation::point_t point_t;
+
+	gas::chrono timer;
+	gas::chrono local;
+
+	timer.start();
 
 	/* definizione del bordo */
 	std::vector<point_t> boundary;
@@ -47,21 +77,56 @@ int main (int argc, char * argv[]) {
 	boundary.push_back(point_t(+1., -1.));
 
 	/* costruzione della triangolazione */
-	poisson::triangulation mesh(boundary.begin(), boundary.end(), 1.);
+	std::cerr << "-- Triangolazione (";
+	local.start();
+	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.1);
+	local.stop();
+	std::cerr << ") " << local.elapsed() << std::endl;
 
 	/* costruzione del problema */
+	std::cerr << "-- Problema (";
+	local.start();
 	poisson::problem problem(mesh);
+	local.stop();
+	std::cerr << ") " << local.elapsed() << std::endl;
 
 	/* risoluzione del problema */
-	/* problem.solve(); */
+	std::cerr << "-- Risoluzione (";
+	local.start();
+	problem.solve();
+	local.stop();
+	std::cerr << ") " << local.elapsed() << std::endl;
+
+	timer.stop();
 
 	/* raffinamento */
 
 	/* stampa della soluzione */
-	poisson::svg svg(problem);
+	std::cerr << "-- File di output";
+	local.start();
 
-	std::ofstream out("/Users/penaz/Desktop/solution.svg");
-	out << svg;
+	poisson::svg svg(problem);
+	poisson::ps ps(problem);
+	poisson::vtk vtk(problem);
+
+	std::ofstream out_svg("solution.svg");
+	out_svg << svg;
+
+	std::ofstream out_ps("solution.eps");
+	out_ps << ps;
+
+	std::ofstream out_vtk("solution.vtk");
+	out_vtk << vtk;
+
+	local.stop();
+	std::cerr << " " << local.elapsed() << std::endl;
+
+	/* stampo informazioni */
+	std::cerr << std::endl;
+	std::cerr << "-- Tempo impiegato: " << timer.elapsed() << std::endl;
+	std::cerr << "-- Numero di nodi: " << mesh.nodes() << std::endl;
+	std::cerr << "-- Numero delle facce: " << mesh.faces() << std::endl;
+	std::cerr << "-- Elementi non nulli: " << problem.no_zeros() << std::endl;
 
 	return 0;
 }

@@ -50,7 +50,19 @@ class affine;
 
 } } }
 
-// specialization
+/* vectorization */
+#ifndef gas_dont_vectorize
+
+#define gas_vectorize
+
+#ifdef __SSE2__
+#include <xmmintrin.h>
+#include "arch/SSE/affine_triangle.h"
+#endif // __SSE2__
+
+#endif // gas_dont_vectorize
+
+/* specialization */
 #include "affine_interval.h"
 #include "affine_triangle.h"
 #include "affine_tetra.h"
