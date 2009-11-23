@@ -95,6 +95,9 @@ private:
 	class face;
 	class face_iterator;
 
+	class boundary;
+	class boundary_circulator;
+
 private:
 	/*! @brief A wrapper to CGAL triangulation's face */
 	class face {
@@ -122,7 +125,7 @@ private:
 			return it_->vertex(i)->point().y();
 		}
 
-		inline unsigned int index (unsigned int const & i) const {
+		inline unsigned int i (unsigned int const & i) const {
 			gas_assert(i < 3);
 			return it_->vertex(i)->info().index;
 		}
@@ -131,8 +134,29 @@ private:
 
 	};
 
+	class boundary {
+
+	private:
+		typedef cdt_t::Vertex_circulator cgal_vertex_circulator_t;
+
+		/*! @brief The internal circulator */
+		cgal_vertex_circulator_t circ_;
+
+		inline boundary (): circ_() {}
+		inline boundary (cgal_vertex_circulator_t const & circ): circ_(circ) {}
+
+	public:
+		inline unsigned int i () const {
+			return circ_->info().index;
+		}
+
+		friend class boundary_circulator;
+
+	};
+
 public:
 	typedef face face_t;
+	typedef boundary boundary_t;
 
 private:
 	class face_iterator {
@@ -182,6 +206,53 @@ private:
 
 	};
 
+	class boundary_circulator {
+
+	private:
+		typedef boundary_circulator self_t;
+
+	public:
+		typedef boundary_t const * pointer_t;
+		typedef boundary_t const & reference_t;
+
+	public:
+		inline boundary_circulator (): b_() {}
+		inline boundary_circulator (self_t const & i): b_(i.b_.circ_) {}
+
+		inline self_t & operator= (self_t const & i) {
+			b_.circ_ = i.b_.circ_;
+			return *this;
+		}
+
+		inline bool operator== (self_t const & i) const { return (b_.circ_ == i.b_.circ_); }
+		inline bool operator!= (self_t const & i) const { return (b_.circ_ != i.b_.circ_); }
+
+		inline self_t & operator++ () {
+			++(b_.circ_);
+			return *this;
+		}
+		inline self_t operator++ (int) {
+			self_t _it(*this);
+			++(b_.circ_);
+			return _it;
+		}
+
+		inline reference_t operator* () const { return b_; }
+		inline pointer_t operator-> () const { return &b_; }
+
+	private:
+		/*! @brief The internal iterator */
+		boundary b_;
+
+	private:
+		typedef cdt_t::Vertex_circulator cgal_vertex_circulator_t;
+
+		inline boundary_circulator (cgal_vertex_circulator_t const & it): b_(it) {}
+
+		friend class triangulation;
+
+	};
+
 
 public:
 	/*! @brief The point's type */
@@ -189,6 +260,7 @@ public:
 
 	/*! @brief The iterator on faces */
 	typedef face_iterator face_iterator_t;
+	typedef boundary_circulator boundary_circulator_t;
 
 public:
 	/*!
@@ -199,6 +271,22 @@ public:
 	 */
 	template <typename iterator_>
 	triangulation (iterator_ begin, iterator_ end, double criteria = 0.);
+
+	/*!
+	 * @brief Number of nodes
+	 * @return
+	 */
+	inline unsigned int nodes () const {
+		return nnodes_;
+	}
+
+	/*!
+	 * @brief Number of faces
+	 * @return
+	 */
+	inline unsigned int faces () const {
+		return cdt_.number_of_faces();
+	}
 
 	/*!
 	 * @brief The begin of const iterator on face
@@ -216,16 +304,27 @@ public:
 		return face_iterator_t(cdt_.finite_faces_end());
 	}
 
+	boundary_circulator_t boundary() const {
+		return boundary_circulator_t(cdt_.incident_vertices(cdt_.infinite_vertex()));
+	}
+
 private:
 	/*! @brief The internal structure for the triangulation */
 	cdt_t cdt_;
+	/*! @brief Number of nodes */
+	unsigned int nnodes_;
 
 	friend class svg;
+	friend class ps;
+	friend class vtk;
 
 };
 
 template <typename iterator_>
 triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
+
+	/* inserimento dei nodi e dei lati */
+	std::cerr << "inserimento ";
 	{
 		typedef std::vector<cdt_t::Vertex_handle> vertex_list_t;
 		typedef vertex_list_t::const_iterator iterator_t;
@@ -243,6 +342,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* calcolo lunghezza minima */
+	std::cerr << "parametro ";
 	{
 		double _minimo(0.);
 
@@ -262,6 +362,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* selezione i nodi non eliminabili */
+	std::cerr << "informazioni ";
 	{
 		typedef cdt_t::Vertex_circulator circulator_t;
 
@@ -275,6 +376,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* raffinamento */
+	std::cerr << "raffinamento ";
 	{
 		typedef CGAL::Delaunay_mesh_size_criteria_2<cdt_t> Criteria;
 
@@ -282,6 +384,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* numerazione dei nodi */
+	std::cerr << "informazioni";
 	{
 		typedef cdt_t::Finite_vertices_iterator iterator_t;
 
@@ -289,7 +392,10 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 
 		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
 			_i->info().index = _n++;
+
+		nnodes_ = _n;
 	}
+
 }
 
 }

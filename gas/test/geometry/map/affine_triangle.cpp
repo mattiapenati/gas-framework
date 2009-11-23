@@ -96,12 +96,14 @@ void TEST::check () {
 	typedef gas::geometry::map::info<map> info;
 	using gas::geometry::unit::triangle;
 
+	double const eps(1.e-15);
+
 	gas_assert(info::d == 2u);
 	gas_assert((gas::same_type<info::unit_t, triangle>::value));
 
 	gas_assert(x == 6.);
 	gas_assert(y == 4.);
-	gas_assert(X == 1./3.);
+	gas_assert(std::abs(X - 1./3.) < eps);
 	gas_assert(Y == 1./3.);
 
 	gas_assert(det == 36.);

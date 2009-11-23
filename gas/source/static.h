@@ -37,6 +37,15 @@
 
 namespace gas {
 
+class id {
+
+public:
+	inline static double eval (double const & a) {
+		return a;
+	}
+
+};
+
 /*!
  * @brief The sum operation
  */

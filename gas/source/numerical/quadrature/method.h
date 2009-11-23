@@ -61,7 +61,7 @@ public:
 	 */
 	method_1 () {
 		gas_static_assert((d_ == 1), This_is_a_1d_quadrature_formula);
-		gas_rangeu(i, nodes_) {
+		gas_range(i, 0, nodes_) {
 			xw_[i][0] = data_::x_[i];
 			xw_[i][1] = data_::w_[i];
 		}
@@ -74,7 +74,7 @@ private:
 	 */
 	template <typename map_>
 	void map (map_ const & m) {
-		gas_rangeu(i, nodes_) {
+		gas_range(i, 0, nodes_) {
 			xw_[i][0] = m.x(data_::x_[i]);
 			xw_[i][1] = std::abs(m.det(data_::x_[i])) * data_::w_[i];
 		}
@@ -88,7 +88,7 @@ private:
 	template <typename function_>
 	double apply (function_ const & f) {
 		double r(0.);
-		gas_rangeu(i, nodes_)
+		gas_range(i, 0, nodes_)
 			r += f(xw_[i][0]) * xw_[i][1];
 		return r;
 	}

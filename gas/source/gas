@@ -74,9 +74,10 @@
 #include "test.h"
 #include "type.h"
 
-//#include "functional/derivative.h"
-//#include "functional/element.h"
 #include "functional/base/base"
+#include "functional/derivative.h"
+#include "functional/element.h"
+#include "functional/function.h"
 
 #include "geometry/map/map"
 #include "geometry/unit/unit"

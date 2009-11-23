@@ -32,7 +32,9 @@
 
 namespace poisson {
 
-class printer;
+class svg;
+class ps;
+class vtk;
 class problem;
 class triangulation;
 
@@ -42,4 +44,4 @@ class triangulation;
 #include "problem.h"
 #include "triangulation.h"
 
-#endif _poisson_
+#endif // _poisson_

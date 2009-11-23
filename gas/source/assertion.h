@@ -83,6 +83,10 @@ template<> class compile_time_checker<true> { };
 
 }
 
+#ifdef NDEBUG
+#define gas_ndebug
+#endif
+
 #ifdef gas_ndebug
 #define gas_nassert
 #define gas_npre
