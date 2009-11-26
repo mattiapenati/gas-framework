@@ -41,10 +41,10 @@ public:
 
 	typedef gas::functional::base::P1<gas::geometry::unit::tetra> base;
 
-	gas::numerical::tiny::matrix<4u,4u> b;
-	gas::numerical::tiny::vector<4u> dbdX;
-	gas::numerical::tiny::vector<4u> dbdY;
-	gas::numerical::tiny::vector<4u> dbdZ;
+	Eigen::Matrix4d b;
+	Eigen::Vector4d dbdX;
+	Eigen::Vector4d dbdY;
+	Eigen::Vector4d dbdZ;
 };
 
 TEST::TEST () {

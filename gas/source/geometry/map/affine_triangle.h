@@ -36,8 +36,10 @@
 #define _gas_geometry_map_affine_triangle_
 
 #include "../unit/unit"
-#include "../../numerical/tiny/tiny"
 #include "../../gas"
+
+#include <Eigen/Core>
+#include <Eigen/LU>
 
 namespace gas { namespace geometry { namespace map {
 
@@ -65,15 +67,16 @@ public:
 	/*!
 	 * @brief Default constructor, creates the identity map
 	 */
-	inline affine (): A_(0.), b_(0.), detA_(1.) {
-		A_(0,0) = A_(1,1) = 1.;
+	inline affine (): A_(), invA_(), b_(0., 0.), detA_(1.) {
+		A_ = Eigen::Matrix2d::Identity();
+		invA_ = Eigen::Matrix2d::Identity();
 	}
 
 	/*!
 	 * @brief Copy constructor
 	 * @param map An other affine map
 	 */
-	inline affine (self_t const & map): A_(map.A_), b_(map.b_), detA_(map.detA_) {
+	inline affine (self_t const & map): A_(map.A_), invA_(map.invA_), b_(map.b_), detA_(map.detA_) {
 	}
 
 	/*!
@@ -92,12 +95,15 @@ public:
 		A_(1,0) = triangle.y(1) - triangle.y(0);
 		A_(1,1) = triangle.y(2) - triangle.y(0);
 
+		/* matrice inversa di A */
+		invA_ = A_.inverse();
+
 		/* vettore b */
 		b_(0) = triangle.x(0);
 		b_(1) = triangle.y(0);
 
 		/* determinante di A */
-		detA_ = gas::numerical::tiny::det(A_);
+		detA_ = A_.determinant();
 	}
 
 	/*!
@@ -107,6 +113,7 @@ public:
 	 */
 	inline self_t & operator= (self_t const & map) {
 		A_ = map.A_;
+		invA_ = map.invA_;
 		b_ = map.b_;
 		detA_ = map.detA_;
 		return *this;
@@ -120,7 +127,9 @@ public:
 	 */
 	inline double x (double const & X, double const & Y) const {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		return A_(0,0) * X + A_(0,1) * Y + b_(0);
+		Eigen::Vector2d const t(X, Y);
+		Eigen::Vector2d const x(A_ * t + b_);
+		return x(0);
 	}
 
 	/*!
@@ -131,7 +140,9 @@ public:
 	 */
 	inline double y (double const & X, double const & Y) const {
 		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		return A_(1,0) * X + A_(1,1) * Y + b_(1);
+		Eigen::Vector2d const t(X, Y);
+		Eigen::Vector2d const x(A_ * t + b_);
+		return x(1);
 	}
 
 	/*!
@@ -141,10 +152,10 @@ public:
 	 * @return The new coordinate \f$X=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double X (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return _X;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return X(0);
 	}
 
 	/*!
@@ -154,10 +165,10 @@ public:
 	 * @return The new coordinate \f$Y=\varphi^{-1}(\mathbf{x})\f$
 	 */
 	inline double Y (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return _Y;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return X(1);
 	}
 
 	/*!
@@ -211,10 +222,10 @@ public:
 	 * @return The value of derivative \f$\frac{dX}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdx (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return A_(1,1)/detA_;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return invA_(0,0);
 	}
 
 	/*!
@@ -224,10 +235,10 @@ public:
 	 * @return The value of derivative \f$\frac{dX}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dXdy (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return -A_(0,1)/detA_;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return invA_(0,1);
 	}
 
 	/*!
@@ -237,10 +248,10 @@ public:
 	 * @return The value of derivative \f$\frac{dY}{dx}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdx (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return -A_(1,0)/detA_;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return invA_(1,0);
 	}
 
 	/*!
@@ -250,10 +261,10 @@ public:
 	 * @return The value of derivative \f$\frac{dY}{dy}=(\varphi^{-1})'(\mathbf{x})\f$
 	 */
 	inline double dYdy (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
-		return A_(0,0)/detA_;
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
+		return invA_(1,1);
 	}
 
 	/*!
@@ -274,18 +285,19 @@ public:
 	 * @return The value of Jacobian \f$\det\left[\frac{dX_i}{dx_j}\right](\mathbf{x})\f$
 	 */
 	inline double DET (double const & x, double const & y) const {
-		double const _X((A_(1,1) * (x - b_(0)) - A_(0,1) * (y - b_(1))) / detA_);
-		double const _Y((A_(0,0) * (y - b_(1)) - A_(1,0) * (x - b_(0))) / detA_);
-		gas_assert(unit_t::in(_X, _Y)); // The point must be in the triangle
+		Eigen::Vector2d const t(x, y);
+		Eigen::Vector2d const X(invA_ * (t - b_));
+		gas_assert(unit_t::in(X(0), X(1))); // The point must be in the triangle
 		return 1./detA_;
 	}
 
 private:
 	/*! @brief The matrix of affine transformation */
-	gas::numerical::tiny::matrix<2u,2u> A_;
+	Eigen::Matrix2d A_;
+	Eigen::Matrix2d invA_;
 
 	/*! @brief The vector of affine transformation */
-	gas::numerical::tiny::vector<2u> b_;
+	Eigen::Vector2d b_;
 
 	/*! @brief Determinant of transformation */
 	double detA_;

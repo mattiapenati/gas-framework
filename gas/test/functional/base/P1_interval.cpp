@@ -41,8 +41,8 @@ public:
 
 	typedef gas::functional::base::P1<gas::geometry::unit::interval> base;
 
-	gas::numerical::tiny::matrix<2u, 2u> b;
-	gas::numerical::tiny::vector<2u> dbdX;
+	Eigen::Matrix2d b;
+	Eigen::Vector2d dbdX;
 };
 
 TEST::TEST() {
