@@ -80,8 +80,8 @@ private:
 
 	map g;
 
-	gas::numerical::tiny::matrix<3u, 3u> A;
-	gas::numerical::tiny::matrix<3u, 3u> invA;
+	Eigen::Matrix3d A;
+	Eigen::Matrix3d invA;
 	double x, y, z, X, Y, Z, det, DET;
 };
 

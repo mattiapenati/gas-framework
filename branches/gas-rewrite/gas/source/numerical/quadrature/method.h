@@ -35,6 +35,8 @@
 #ifndef _gas_numerical_quadrature_method_
 #define _gas_numerical_quadrature_method_
 
+#include <Eigen/Core>
+
 #include <cmath>
 #include "../../gas"
 #include "../../geometry/unit/unit"
@@ -61,10 +63,10 @@ public:
 	 */
 	method_1 () {
 		gas_static_assert((d_ == 1), This_is_a_1d_quadrature_formula);
-		gas_range(i, 0, nodes_) {
-			xw_[i][0] = data_::x_[i];
-			xw_[i][1] = data_::w_[i];
-		}
+		gas_rangeu(i, nodes_)
+			m_x(i, 0) = data_::x_[i];
+		gas_rangeu(i, nodes_)
+			m_w(i) = data_::w_[i];
 	}
 
 private:
@@ -74,9 +76,9 @@ private:
 	 */
 	template <typename map_>
 	void map (map_ const & m) {
-		gas_range(i, 0, nodes_) {
-			xw_[i][0] = m.x(data_::x_[i]);
-			xw_[i][1] = std::abs(m.det(data_::x_[i])) * data_::w_[i];
+		gas_rangeu(i, nodes_) {
+			m_x(i, 0) = m.x(data_::x_[i]);
+			m_w(i) = std::abs(m.det(data_::x_[i])) * data_::w_[i];
 		}
 	}
 
@@ -87,15 +89,18 @@ private:
 	 */
 	template <typename function_>
 	double apply (function_ const & f) {
-		double r(0.);
-		gas_range(i, 0, nodes_)
-			r += f(xw_[i][0]) * xw_[i][1];
-		return r;
+		Eigen::Matrix<double, nodes_, 1> m_f;
+		gas_rangeu(i, nodes_)
+			m_f(i) = f(m_x(i, 0));
+		return m_f.dot(m_w);
 	}
 
 private:
-	/*! @brief The list of nodes and weights of quadrature formula */
-	double xw_[nodes_][d_+1];
+	/*! @brief The list of nodes of quadrature formula */
+	Eigen::Matrix<double, nodes_, d_> m_x;
+
+	/*! @brief The list of weights of quadrature formula */
+	Eigen::Matrix<double, nodes_, 1> m_w;
 
 	template <typename method__, typename map__> friend class formula;
 
@@ -123,10 +128,11 @@ public:
 	method_2 () {
 		gas_static_assert((d_ == 2), This_is_a_2d_quadrature_formula);
 		gas_rangeu(i, nodes_) {
-			xw_[i][0] = data_::x_[i];
-			xw_[i][1] = data_::y_[i];
-			xw_[i][2] = data_::w_[i];
+			m_x(i, 0) = data_::x_[i];
+			m_x(i, 1) = data_::y_[i];
 		}
+		gas_rangeu(i, nodes_)
+			m_w(i) = data_::w_[i];
 	}
 
 private:
@@ -137,9 +143,9 @@ private:
 	template <typename map_>
 	void map (map_ const & m) {
 		gas_rangeu(i, nodes_) {
-			xw_[i][0] = m.x(data_::x_[i], data_::y_[i]);
-			xw_[i][1] = m.y(data_::x_[i], data_::y_[i]);
-			xw_[i][2] = std::abs(m.det(data_::x_[i], data_::y_[i])) * data_::w_[i];
+			m_x(i, 0) = m.x(data_::x_[i], data_::y_[i]);
+			m_x(i, 1) = m.y(data_::x_[i], data_::y_[i]);
+			m_w(i) = std::abs(m.det(data_::x_[i], data_::y_[i])) * data_::w_[i];
 		}
 	}
 
@@ -150,15 +156,18 @@ private:
 	 */
 	template <typename function_>
 	double apply (function_ const & f) {
-		double r(0.);
+		Eigen::Matrix<double, nodes_, 1> m_f;
 		gas_rangeu(i, nodes_)
-			r += f(xw_[i][0], xw_[i][1]) * xw_[i][2];
-		return r;
+			m_f(i) = f(m_x(i, 0), m_x(i, 1));
+		return m_f.dot(m_w);
 	}
 
 private:
-	/*! @brief The list of nodes and weights of quadrature formula */
-	double xw_[nodes_][d_+1];
+	/*! @brief The list of nodes of quadrature formula */
+	Eigen::Matrix<double, nodes_, d_> m_x;
+
+	/*! @brief The list of weights of quadrature formula */
+	Eigen::Matrix<double, nodes_, 1> m_w;
 
 	template <typename method__, typename map__> friend class formula;
 
@@ -186,11 +195,12 @@ public:
 	method_3 () {
 		gas_static_assert((d_ == 3), This_is_a_3d_quadrature_formula);
 		gas_rangeu(i, nodes_) {
-			xw_[i][0] = data_::x_[i];
-			xw_[i][1] = data_::y_[i];
-			xw_[i][2] = data_::z_[i];
-			xw_[i][3] = data_::w_[i];
+			m_x(i, 0) = data_::x_[i];
+			m_x(i, 1) = data_::y_[i];
+			m_x(i, 2) = data_::z_[i];
 		}
+		gas_rangeu(i, nodes_)
+			m_w(i) = data_::w_[i];
 	}
 
 private:
@@ -201,10 +211,10 @@ private:
 	template <typename map_>
 	void map (map_ const & m) {
 		gas_rangeu(i, nodes_) {
-			xw_[i][0] = m.x(data_::x_[i], data_::y_[i], data_::z_[i]);
-			xw_[i][1] = m.y(data_::x_[i], data_::y_[i], data_::z_[i]);
-			xw_[i][2] = m.z(data_::x_[i], data_::y_[i], data_::z_[i]);
-			xw_[i][3] = std::abs(m.det(data_::x_[i], data_::y_[i], data_::z_[i])) * data_::w_[i];
+			m_x(i, 0) = m.x(data_::x_[i], data_::y_[i], data_::z_[i]);
+			m_x(i, 1) = m.y(data_::x_[i], data_::y_[i], data_::z_[i]);
+			m_x(i, 2) = m.z(data_::x_[i], data_::y_[i], data_::z_[i]);
+			m_w(i) = std::abs(m.det(data_::x_[i], data_::y_[i], data_::z_[i])) * data_::w_[i];
 		}
 	}
 
@@ -215,15 +225,18 @@ private:
 	 */
 	template <typename function_>
 	double apply (function_ const & f) {
-		double r(0.);
+		Eigen::Matrix<double, nodes_ ,1> m_f;
 		gas_rangeu(i, nodes_)
-			r += f(xw_[i][0], xw_[i][1], xw_[i][2]) * xw_[i][3];
-		return r;
+			m_f(i) = f(m_x(i, 0), m_x(i, 1), m_x(i, 2));
+		return m_f.dot(m_w);
 	}
 
 private:
-	/*! @brief The list of nodes and weights of quadrature formula */
-	double xw_[nodes_][d_+1];
+	/*! @brief The list of nodes of quadrature formula */
+	Eigen::Matrix<double, nodes_, d_> m_x;
+
+	/*! @brief The list of weights of quadrature formula */
+	Eigen::Matrix<double, nodes_, 1> m_w;
 
 	template <typename method__, typename map__> friend class formula;
 

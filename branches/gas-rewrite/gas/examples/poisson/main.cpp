@@ -79,7 +79,7 @@ int main (int argc, char * argv[]) {
 	/* costruzione della triangolazione */
 	std::cerr << "-- Triangolazione (";
 	local.start();
-	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.1);
+	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.02);
 	local.stop();
 	std::cerr << ") " << local.elapsed() << std::endl;
 

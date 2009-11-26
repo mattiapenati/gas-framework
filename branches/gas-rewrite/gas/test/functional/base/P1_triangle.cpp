@@ -41,9 +41,9 @@ public:
 
 	typedef gas::functional::base::P1<gas::geometry::unit::triangle> base;
 
-	gas::numerical::tiny::matrix<3u, 3u> b;
-	gas::numerical::tiny::vector<3u> dbdX;
-	gas::numerical::tiny::vector<3u> dbdY;
+	Eigen::Matrix3d b;
+	Eigen::Vector3d dbdX;
+	Eigen::Vector3d dbdY;
 };
 
 TEST::TEST () {
