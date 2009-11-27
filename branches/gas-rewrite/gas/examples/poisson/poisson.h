@@ -30,18 +30,39 @@
 #ifndef _poisson_
 #define _poisson_
 
+#include <gas>
+
+#include <algorithm>
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <vector>
+
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Constrained_Delaunay_triangulation_2.h>
+#include <CGAL/Constrained_triangulation_face_base_2.h>
+
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
+#include <CGAL/Triangulation_face_base_with_info_2.h>
+
+#include <CGAL/Delaunay_mesher_2.h>
+#include <CGAL/Delaunay_mesh_face_base_2.h>
+#include <CGAL/Delaunay_mesh_size_criteria_2.h>
+
 namespace poisson {
 
-class svg;
-class ps;
-class vtk;
+class posterior;
 class problem;
 class triangulation;
 
 }
 
-#include "printer.h"
-#include "problem.h"
 #include "triangulation.h"
+#include "problem.h"
+#include "posterior.h"
+
+#include "printer.h"
 
 #endif // _poisson_

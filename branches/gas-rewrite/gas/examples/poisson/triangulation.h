@@ -30,23 +30,6 @@
 #ifndef _poisson_triangulation_
 #define _poisson_triangulation_
 
-#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
-#include <CGAL/Constrained_Delaunay_triangulation_2.h>
-#include <CGAL/Constrained_triangulation_face_base_2.h>
-
-#include <CGAL/Triangulation_vertex_base_with_info_2.h>
-#include <CGAL/Triangulation_face_base_with_info_2.h>
-
-#include <CGAL/Delaunay_mesher_2.h>
-#include <CGAL/Delaunay_mesh_face_base_2.h>
-#include <CGAL/Delaunay_mesh_size_criteria_2.h>
-
-#include <iterator>
-#include <algorithm>
-#include <vector>
-
-#include "printer.h"
-
 namespace poisson {
 
 class triangulation {
@@ -68,7 +51,16 @@ private:
 	};
 
 private:
+	/*! @brief The information to save onto the face of triangulation */
 	class face_info {
+
+	public:
+		/*! @brief The constructor */
+		inline face_info (): index(0u) {}
+
+		/*! @brief The index of face */
+		unsigned int index;
+
 	};
 
 private:
@@ -128,6 +120,10 @@ private:
 		inline unsigned int i (unsigned int const & i) const {
 			gas_assert(i < 3);
 			return it_->vertex(i)->info().index;
+		}
+
+		inline unsigned int i () const {
+			return it_->info().index;
 		}
 
 		friend class face_iterator;
@@ -267,17 +263,20 @@ public:
 	 * @brief The constructor from the boundary nodes of domains
 	 * @param begin The iterator the point to the begin of list of nodes
 	 * @param end The iterator the point to the end of list of nodes
-	 * @param criteria
+	 * @param h
 	 */
 	template <typename iterator_>
-	triangulation (iterator_ begin, iterator_ end, double criteria = 0.);
+	triangulation (iterator_ begin, iterator_ end, double h = 0.);
+
+	template <typename stimator_>
+	unsigned int refine (stimator_ const & stimator);
 
 	/*!
 	 * @brief Number of nodes
 	 * @return
 	 */
 	inline unsigned int nodes () const {
-		return nnodes_;
+		return cdt_.number_of_vertices();
 	}
 
 	/*!
@@ -311,12 +310,6 @@ public:
 private:
 	/*! @brief The internal structure for the triangulation */
 	cdt_t cdt_;
-	/*! @brief Number of nodes */
-	unsigned int nnodes_;
-
-	friend class svg;
-	friend class ps;
-	friend class vtk;
 
 };
 
@@ -324,7 +317,6 @@ template <typename iterator_>
 triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 
 	/* inserimento dei nodi e dei lati */
-	std::cerr << "inserimento ";
 	{
 		typedef std::vector<cdt_t::Vertex_handle> vertex_list_t;
 		typedef vertex_list_t::const_iterator iterator_t;
@@ -342,7 +334,6 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* calcolo lunghezza minima */
-	std::cerr << "parametro ";
 	{
 		double _minimo(0.);
 
@@ -362,7 +353,6 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* selezione i nodi non eliminabili */
-	std::cerr << "informazioni ";
 	{
 		typedef cdt_t::Vertex_circulator circulator_t;
 
@@ -376,7 +366,6 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* raffinamento */
-	std::cerr << "raffinamento ";
 	{
 		typedef CGAL::Delaunay_mesh_size_criteria_2<cdt_t> Criteria;
 
@@ -384,17 +373,117 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	}
 
 	/* numerazione dei nodi */
-	std::cerr << "informazioni";
 	{
 		typedef cdt_t::Finite_vertices_iterator iterator_t;
 
-		unsigned int _n(0);
+		unsigned int n(0);
 
 		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
-			_i->info().index = _n++;
-
-		nnodes_ = _n;
+			_i->info().index = n++;
 	}
+
+	/* numerazione delle facce */
+	{
+		typedef cdt_t::Finite_faces_iterator iterator_t;
+
+		unsigned int n(0);
+
+		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
+			i->info().index = n++;
+	}
+
+}
+
+template <typename stimator_>
+unsigned int triangulation::refine (stimator_ const & stimator) {
+
+	/* calcolo dei residui */
+	Eigen::VectorXd res(faces());
+
+	for (face_iterator_t i(face_begin()); i != face_end(); ++i)
+		res(i->i()) = stimator.residue(*i);
+
+	/* elenco dei nodi da inserire e rimuovere */
+	typedef cdt_t::Vertex_handle vertex_t;
+
+	std::list<point_t> da_inserire;
+	std::list<vertex_t> da_rimuovere;
+
+	/* da inserire */
+	for (face_iterator_t i(face_begin()); i != face_end(); ++i) {
+		double const r(res(i->i()));
+
+		if (stimator.insert(r)) {
+			Eigen::Vector3d x(i->x(0), i->x(1), i->x(2));
+			Eigen::Vector3d y(i->y(0), i->y(1), i->y(2));
+
+			double const px(x.sum() / 3.);
+			double const py(y.sum() / 3.);
+
+			da_inserire.push_back(point_t(px, py));
+		}
+	}
+
+	/* da rimuovere */
+	for (cdt_t::Finite_vertices_iterator i(cdt_.finite_vertices_begin()); i != cdt_.finite_vertices_end(); ++i) {
+		if (i->info().removable) {
+			/* calcolo residuo medio sulla patch */
+			double r(0.);
+			unsigned int n(0);
+
+			cdt_t::Face_circulator face_c = cdt_.incident_faces(i);
+			cdt_t::Face_circulator end_c = face_c;
+
+			do {
+				if (!cdt_.is_infinite(face_c)) {
+					r += res(face_c->info().index);
+					++n;
+				}
+				++face_c;
+			} while(face_c != end_c);
+
+			r /= n;
+
+			if (stimator.remove(r))
+				da_rimuovere.push_back(i);
+		}
+	}
+
+	/* rimozione */
+	unsigned int const rimossi(da_rimuovere.size());
+	if (rimossi) {
+		for (std::list<vertex_t>::iterator it(da_rimuovere.begin()); it != da_rimuovere.end(); ++it)
+			cdt_.remove(*it);
+	}
+
+	/* inserimento */
+	unsigned int inseriti(da_inserire.size());
+	if (inseriti) {
+		cdt_.insert(da_inserire.begin(), da_inserire.end());
+	}
+
+	/* numerazione dei nodi */
+	{
+		typedef cdt_t::Finite_vertices_iterator iterator_t;
+
+		unsigned int n(0);
+
+		for (iterator_t i(cdt_.finite_vertices_begin()); i != cdt_.finite_vertices_end(); ++i)
+			i->info().index = n++;
+	}
+
+	/* numerazione delle facce */
+	{
+		typedef cdt_t::Finite_faces_iterator iterator_t;
+
+		unsigned int n(0);
+
+		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
+			i->info().index = n++;
+	}
+
+	/* ritorno */
+	return rimossi + inseriti;
 
 }
 
