@@ -30,14 +30,6 @@
 #ifndef _poisson_printer_
 #define _poisson_printer_
 
-#include <gas>
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-
-#include "problem.h"
-#include "triangulation.h"
-
 namespace poisson {
 
 class svg {
@@ -89,30 +81,40 @@ std::string svg::to_string () {
 	/* dimensioni quadro */
 	double _xmin, _xmax, _ymin, _ymax, _rmin, _rmax;
 	{
-		typedef triangulation::cdt_t cdt_t;
-		typedef triangulation::cdt_t::Finite_vertices_iterator iterator_t;
-		typedef problem::vector_t vector_t;
+		typedef triangulation::face_iterator_t iterator_t;
 
-		cdt_t const & _cdt(p_.cdt_.cdt_);
-		vector_t const & x(p_.x);
+		triangulation const & cdt(p_.mesh());
 
-		iterator_t _i(_cdt.finite_vertices_begin());
-		_xmin = _xmax = _i->point().x();
-		_ymin = _ymax = _i->point().y();
-		_rmin = _rmax = x.coeff(_i->info().index);
+		iterator_t i(cdt.face_begin());
 
-		for (; _i != _cdt.finite_vertices_end(); ++_i) {
-			double const _x(_i->point().x());
-			_xmin = std::min(_xmin, _x);
-			_xmax = std::max(_xmax, _x);
+		Eigen::Vector3d const x(i->x(0), i->x(1), i->x(2));
+		Eigen::Vector3d const y(i->y(0), i->y(1), i->y(2));
+		Eigen::Vector3d const r(p_(i->i(0)), p_(i->i(1)), p_(i->i(2)));
 
-			double const _y(_i->point().y());
-			_ymin = std::min(_ymin, _y);
-			_ymax = std::max(_ymax, _y);
+		_xmin = x.minCoeff();
+		_xmax = x.maxCoeff();
 
-			double const _r(x.coeff(_i->info().index));
-			_rmin = std::min(_rmin, _r);
-			_rmax = std::max(_rmax, _r);
+		_ymin = y.minCoeff();
+		_ymax = y.maxCoeff();
+
+		_rmin = r.minCoeff();
+		_rmax = r.maxCoeff();
+
+		++i;
+
+		for (; i != cdt.face_end(); ++i) {
+			Eigen::Vector3d const x(i->x(0), i->x(1), i->x(2));
+			Eigen::Vector3d const y(i->y(0), i->y(1), i->y(2));
+			Eigen::Vector3d const r(p_(i->i(0)), p_(i->i(1)), p_(i->i(2)));
+
+			_xmin = std::min(_xmin, x.minCoeff());
+			_xmax = std::max(_xmax, x.maxCoeff());
+
+			_ymin = std::min(_ymin, y.minCoeff());
+			_ymax = std::max(_ymax, y.maxCoeff());
+
+			_rmin = std::min(_rmin, r.minCoeff());
+			_rmax = std::max(_rmax, r.maxCoeff());
 		}
 	}
 
@@ -148,39 +150,34 @@ std::string svg::to_string () {
 	/* soluzione */
 	{
 		typedef triangulation::face_iterator_t iterator_t;
-		typedef problem::vector_t vector_t;
+
+		triangulation const & cdt(p_.mesh());
 
 		double const _dx(_xmax - _xmin);
 		double const _dy(_ymax - _ymin);
 		double const _dr(_rmax - _rmin);
 
-		vector_t const & x(p_.x);
-
 		svg.open_group("solution");
 
-		for (iterator_t _i(p_.cdt_.face_begin()); _i != p_.cdt_.face_end(); ++_i) {
+		for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
+			unsigned int x[3];
+			unsigned int y[3];
 
-			unsigned int const x0(_bx + _x * (_i->x(0) - _xmin) / _dx);
-			unsigned int const y0(_by + _y * (_xmax - _i->y(0)) / _dy);
+			x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
+			x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
+			x[2] = _bx + _x * (i->x(2) - _xmin) / _dx;
 
-			unsigned int const x1(_bx + _x * (_i->x(1) - _xmin) / _dx);
-			unsigned int const y1(_by + _y * (_xmax - _i->y(1)) / _dy);
+			y[0] = _by + _y * (_ymax - i->y(0)) / _dy;
+			y[1] = _by + _y * (_ymax - i->y(1)) / _dy;
+			y[2] = _by + _y * (_ymax - i->y(2)) / _dy;
 
-			unsigned int const x2(_bx + _x * (_i->x(2) - _xmin) / _dx);
-			unsigned int const y2(_by + _y * (_xmax - _i->y(2)) / _dy);
-
-			double const r0(x(_i->i(0)));
-			double const r1(x(_i->i(0)));
-			double const r2(x(_i->i(0)));
-
-			double const r((r0 + r1 + r2) / 3.);
-
-			unsigned int c(255 * ((r-_rmin)/_dr));
+			double const r((p_(i->i(0)) + p_(i->i(1)) + p_(i->i(2))) / 3.);
+			unsigned int c(255 * (r - _rmin) / _dr);
 
 			std::ostringstream color;
 			color << "gray" << c;
 
-			svg.triangle(x0, y0, x1 ,y1, x2, y2, color.str().c_str());
+			svg.triangle(x[0], y[0], x[1] ,y[1], x[2], y[2], color.str().c_str());
 		}
 
 		svg.close_group();
@@ -190,23 +187,26 @@ std::string svg::to_string () {
 	{
 		typedef triangulation::face_iterator_t iterator_t;
 
+		triangulation const & cdt(p_.mesh());
+
 		double const _dx(_xmax - _xmin);
 		double const _dy(_ymax - _ymin);
 
 		svg.open_group("grid");
 
-		for (iterator_t _i(p_.cdt_.face_begin()); _i != p_.cdt_.face_end(); ++_i) {
+		for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
+			unsigned int x[3];
+			unsigned int y[3];
 
-			unsigned int const x0(_bx + _x * (_i->x(0) - _xmin) / _dx);
-			unsigned int const y0(_by + _y * (_ymax - _i->y(0)) / _dy);
+			x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
+			x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
+			x[2] = _bx + _x * (i->x(2) - _xmin) / _dx;
 
-			unsigned int const x1(_bx + _x * (_i->x(1) - _xmin) / _dx);
-			unsigned int const y1(_by + _y * (_ymax - _i->y(1)) / _dy);
+			y[0] = _by + _y * (_ymax - i->y(0)) / _dy;
+			y[1] = _by + _y * (_ymax - i->y(1)) / _dy;
+			y[2] = _by + _y * (_ymax - i->y(2)) / _dy;
 
-			unsigned int const x2(_bx + _x * (_i->x(2) - _xmin) / _dx);
-			unsigned int const y2(_by + _y * (_ymax - _i->y(2)) / _dy);
-
-			svg.triangle(x0, y0, x1 ,y1, x2, y2);
+			svg.triangle(x[0], y[0], x[1] ,y[1], x[2], y[2]);
 		}
 
 		svg.close_group();
@@ -245,33 +245,42 @@ std::string ps::to_string () {
 
 	out << "%!PS-Adobe-3.0 EPSF-3.0" << std::endl;
 
-	/* dimensioni quadro */
 	double _xmin, _xmax, _ymin, _ymax, _rmin, _rmax;
 	{
-		typedef triangulation::cdt_t cdt_t;
-		typedef triangulation::cdt_t::Finite_vertices_iterator iterator_t;
-		typedef problem::vector_t vector_t;
+		typedef triangulation::face_iterator_t iterator_t;
 
-		cdt_t const & _cdt(p_.cdt_.cdt_);
-		vector_t const & x(p_.x);
+		triangulation const & cdt(p_.mesh());
 
-		iterator_t _i(_cdt.finite_vertices_begin());
-		_xmin = _xmax = _i->point().x();
-		_ymin = _ymax = _i->point().y();
-		_rmin = _rmax = x.coeff(_i->info().index);
+		iterator_t i(cdt.face_begin());
 
-		for (; _i != _cdt.finite_vertices_end(); ++_i) {
-			double const _x(_i->point().x());
-			_xmin = std::min(_xmin, _x);
-			_xmax = std::max(_xmax, _x);
+		Eigen::Vector3d const x(i->x(0), i->x(1), i->x(2));
+		Eigen::Vector3d const y(i->y(0), i->y(1), i->y(2));
+		Eigen::Vector3d const r(p_(i->i(0)), p_(i->i(1)), p_(i->i(2)));
 
-			double const _y(_i->point().y());
-			_ymin = std::min(_ymin, _y);
-			_ymax = std::max(_ymax, _y);
+		_xmin = x.minCoeff();
+		_xmax = x.maxCoeff();
 
-			double const _r(x.coeff(_i->info().index));
-			_rmin = std::min(_rmin, _r);
-			_rmax = std::max(_rmax, _r);
+		_ymin = y.minCoeff();
+		_ymax = y.maxCoeff();
+
+		_rmin = r.minCoeff();
+		_rmax = r.maxCoeff();
+
+		++i;
+
+		for (; i != cdt.face_end(); ++i) {
+			Eigen::Vector3d const x(i->x(0), i->x(1), i->x(2));
+			Eigen::Vector3d const y(i->y(0), i->y(1), i->y(2));
+			Eigen::Vector3d const r(p_(i->i(0)), p_(i->i(1)), p_(i->i(2)));
+
+			_xmin = std::min(_xmin, x.minCoeff());
+			_xmax = std::max(_xmax, x.maxCoeff());
+
+			_ymin = std::min(_ymin, y.minCoeff());
+			_ymax = std::max(_ymax, y.maxCoeff());
+
+			_rmin = std::min(_rmin, r.minCoeff());
+			_rmax = std::max(_rmax, r.maxCoeff());
 		}
 	}
 
@@ -301,37 +310,32 @@ std::string ps::to_string () {
 	/* soluzione */
 	{
 		typedef triangulation::face_iterator_t iterator_t;
-		typedef problem::vector_t vector_t;
+
+		triangulation const & cdt(p_.mesh());
 
 		double const _dx(_xmax - _xmin);
 		double const _dy(_ymax - _ymin);
 		double const _dr(_rmax - _rmin);
 
-		vector_t const & x(p_.x);
+		for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
+			unsigned int x[3];
+			unsigned int y[3];
 
-		for (iterator_t _i(p_.cdt_.face_begin()); _i != p_.cdt_.face_end(); ++_i) {
+			x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
+			x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
+			x[2] = _bx + _x * (i->x(2) - _xmin) / _dx;
 
-			unsigned int const x0(_bx + _x * (_i->x(0) - _xmin) / _dx);
-			unsigned int const y0(_by + _y * (_i->y(0) - _ymin) / _dy);
+			y[0] = _by + _y * (i->y(0) - _ymin) / _dy;
+			y[1] = _by + _y * (i->y(1) - _ymin) / _dy;
+			y[2] = _by + _y * (i->y(2) - _ymin) / _dy;
 
-			unsigned int const x1(_bx + _x * (_i->x(1) - _xmin) / _dx);
-			unsigned int const y1(_by + _y * (_i->y(1) - _ymin) / _dy);
-
-			unsigned int const x2(_bx + _x * (_i->x(2) - _xmin) / _dx);
-			unsigned int const y2(_by + _y * (_i->y(2) - _ymin) / _dy);
-
-			double const r0(x(_i->i(0)));
-			double const r1(x(_i->i(0)));
-			double const r2(x(_i->i(0)));
-
-			double const r((r0 + r1 + r2) / 3.);
-
+			double const r((p_(i->i(0)) + p_(i->i(1)) + p_(i->i(2))) / 3.);
 			float const c(((r - _rmin) / _dr));
 
 			out << "newpath" << std::endl;
-			out << x0 << " " << y0 << " moveto" << std::endl;
-			out << x1 << " " << y1 << " lineto" << std::endl;
-			out << x2 << " " << y2 << " lineto" << std::endl;
+			out << x[0] << " " << y[0] << " moveto" << std::endl;
+			out << x[1] << " " << y[1] << " lineto" << std::endl;
+			out << x[2] << " " << y[2] << " lineto" << std::endl;
 			out << "closepath" << std::endl;
 			out << "gsave" << std::endl;
 			out << c << " " << c << " " << c << " " << "setrgbcolor" << std::endl;
@@ -374,27 +378,36 @@ std::string vtk::to_string () {
 
 	/* soluzione */
 	{
-		typedef triangulation::cdt_t cdt_t;
-		typedef cdt_t::Finite_vertices_iterator iterator_t;
-
-		cdt_t const & cdt(p_.cdt_.cdt_);
-
-		out << "POINTS " << p_.cdt_.nodes() << " float" << std::endl;
-		for (iterator_t it(cdt.finite_vertices_begin()); it != cdt.finite_vertices_end(); ++it)
-			out << it->point().x() << " " << it->point().y() << " " << p_.x.coeff(it->info().index) << std::endl;
-	}
-	{
 		typedef triangulation::face_iterator_t iterator_t;
 
-		triangulation const & cdt(p_.cdt_);
-		unsigned int const N(p_.cdt_.faces());
+		triangulation const & cdt(p_.mesh());
 
-		out << std::endl  << "CELLS " << N << " " << 4 * N << std::endl;
+		unsigned int const M(cdt.nodes());
+		unsigned int const N(cdt.faces());
 
+		Eigen::VectorXd x(M);
+		Eigen::VectorXd y(M);
+
+		for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
+			gas_rangeu(j, 3) {
+				x(i->i(j)) = i->x(j);
+				y(i->i(j)) = i->y(j);
+			}
+		}
+
+		out << "POINTS " << M << " float" << std::endl;
+		gas_rangeu(i, M)
+			out << x(i) << " " << y(i) << " " <<  p_(i) << std::endl;
+
+		out << std::endl;
+
+		out << "CELLS " << N << " " << 4 * N << std::endl;
 		for (iterator_t it(cdt.face_begin()); it != cdt.face_end(); ++it)
 			out << "3 " << it->i(0) << " " << it->i(1) << " " << it->i(2) << std::endl;
 
-		out << std::endl << "CELL_TYPES " << N << std::endl;
+		out << std::endl;
+
+		out << "CELL_TYPES " << N << std::endl;
 		gas_rangeu(i, N)
 			out << "5" << std::endl;
 	}

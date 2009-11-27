@@ -27,37 +27,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <gas>
-
-inline double u1 (double const & x, double const & y) { return std::sin(M_PI * x) * std::sin(M_PI * y); }
-inline double u2 (double const & x, double const & y) { return std::cos(M_PI * x) * std::sin(M_PI * y); }
-
-inline double v (double const & x, double const & y) { return std::exp(10 * x); }
-
-class forzante: public gas::functional::function<2u, forzante> {
-
-public:
-	inline double operator() (double const & x, double const & y) const {
-		return ((M_PI * M_PI - 100) * u1(x, y) - 20 * M_PI * u2(x, y)) * v(x, y);
-	}
-
-};
-
-class costante: public gas::functional::function<2u, costante> {
-
-public:
-	inline double operator() (double const & x, double const & y) const {
-		return 1.;
-	}
-
-};
-
-typedef costante forzante_t;
-
 #include "poisson.h"
 
 int main (int argc, char * argv[]) {
@@ -65,7 +34,6 @@ int main (int argc, char * argv[]) {
 	typedef poisson::triangulation::point_t point_t;
 
 	gas::chrono timer;
-	gas::chrono local;
 
 	timer.start();
 
@@ -77,34 +45,32 @@ int main (int argc, char * argv[]) {
 	boundary.push_back(point_t(+1., -1.));
 
 	/* costruzione della triangolazione */
-	std::cerr << "-- Triangolazione (";
-	local.start();
-	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.02);
-	local.stop();
-	std::cerr << ") " << local.elapsed() << std::endl;
+	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.05);
 
 	/* costruzione del problema */
-	std::cerr << "-- Problema (";
-	local.start();
 	poisson::problem problem(mesh);
-	local.stop();
-	std::cerr << ") " << local.elapsed() << std::endl;
 
 	/* risoluzione del problema */
-	std::cerr << "-- Risoluzione (";
-	local.start();
 	problem.solve();
-	local.stop();
-	std::cerr << ") " << local.elapsed() << std::endl;
+
+	/* raffinamento */
+	unsigned int n(0);
+	unsigned int i(0);
+
+	unsigned int const max(200);
+	double const eps(1.e-2);
+
+	poisson::posteriorH1 criteria(problem, eps);
+
+	do {
+		n = mesh.refine(criteria);
+		problem.solve();
+		++i;
+	} while((n > 0) && (i < max));
 
 	timer.stop();
 
-	/* raffinamento */
-
 	/* stampa della soluzione */
-	std::cerr << "-- File di output";
-	local.start();
-
 	poisson::svg svg(problem);
 	poisson::ps ps(problem);
 	poisson::vtk vtk(problem);
@@ -118,15 +84,14 @@ int main (int argc, char * argv[]) {
 	std::ofstream out_vtk("solution.vtk");
 	out_vtk << vtk;
 
-	local.stop();
-	std::cerr << " " << local.elapsed() << std::endl;
-
 	/* stampo informazioni */
-	std::cerr << std::endl;
-	std::cerr << "-- Tempo impiegato: " << timer.elapsed() << std::endl;
-	std::cerr << "-- Numero di nodi: " << mesh.nodes() << std::endl;
-	std::cerr << "-- Numero delle facce: " << mesh.faces() << std::endl;
-	std::cerr << "-- Elementi non nulli: " << problem.no_zeros() << std::endl;
+	std::cout << "-- Tempo impiegato: " << timer.elapsed() << std::endl;
+	std::cout << "-- Numero di nodi: " << mesh.nodes() << std::endl;
+	std::cout << "-- Numero delle facce: " << mesh.faces() << std::endl;
+	std::cout << "-- Elementi non nulli: " << problem.no_zeros() << std::endl;
+	std::cout << "-- Norma L2: " << problem.normL2() << std::endl;
+	std::cout << "-- Norma H1: " << problem.normH1() << std::endl;
+	std::cout << "-- Errore L2: " << problem.errL2(poisson::soluzione()) << std::endl;
 
 	return 0;
 }
