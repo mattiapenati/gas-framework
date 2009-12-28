@@ -294,6 +294,8 @@ public:
 private:
 	/*! @brief The matrix of affine transformation */
 	Eigen::Matrix2d A_;
+
+	/*! @brief The matrix of inverse affine transformation */
 	Eigen::Matrix2d invA_;
 
 	/*! @brief The vector of affine transformation */

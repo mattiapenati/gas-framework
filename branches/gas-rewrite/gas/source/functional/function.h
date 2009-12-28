@@ -72,7 +72,7 @@ public:
 
 };
 
-template <typename operand_> class base_function_expression;
+
 template <unsigned int d_, typename operand_, typename operator_> class function_expression;
 template <unsigned int d_, typename left_, typename right_, typename operator_> class function_binary;
 
@@ -182,6 +182,67 @@ private:
 
 };
 
+
+template <typename left_, typename right_, typename operator_>
+class function_expression<1u, function_binary<1u, left_, right_, operator_>, gas::id>:
+		public function<1u, function_expression<1u, function_binary<1u, left_, right_, operator_>, gas::id> >{
+
+public:
+	inline function_expression (left_ const & l, right_ const & r): l_(l), r_(r) {
+	}
+
+public:
+	inline double operator() (double const & x) const {
+		return operator_::eval(l_(x), r_(x));
+	}
+
+private:
+	left_ const & l_;
+	right_ const & r_;
+
+};
+
+
+template <typename left_, typename right_, typename operator_>
+class function_expression<2u, function_binary<2u, left_, right_, operator_>, gas::id>:
+		public function<2u, function_expression<2u, function_binary<2u, left_, right_, operator_>, gas::id> >{
+
+public:
+	inline function_expression (left_ const & l, right_ const & r): l_(l), r_(r) {
+	}
+
+public:
+	inline double operator() (double const & x, double const & y) const {
+		return operator_::eval(l_(x, y), r_(x, y));
+	}
+
+private:
+	left_ const & l_;
+	right_ const & r_;
+
+};
+
+
+template <typename left_, typename right_, typename operator_>
+class function_expression<3u, function_binary<3u, left_, right_, operator_>, gas::id>:
+		public function<3u, function_expression<3u, function_binary<3u, left_, right_, operator_>, gas::id> >{
+
+public:
+	inline function_expression (left_ const & l, right_ const & r): l_(l), r_(r) {
+	}
+
+public:
+	inline double operator() (double const & x, double const & y, double const & z) const {
+		return operator_::eval(l_(x, y, z), r_(x, y, z));
+	}
+
+private:
+	left_ const & l_;
+	right_ const & r_;
+
+};
+
+/*
 template <unsigned int d_, typename derived_left_, typename derived_right_>
 inline function_expression<d_, function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::add>, gas::id>
 operator+ (function<d_, derived_left_> const & l, function<d_, derived_right_> const & r) {
@@ -216,6 +277,43 @@ operator/ (function<d_, derived_left_> const & l, function<d_, derived_right_> c
 	typedef function_expression<d_, binary_t, gas::id> expression_t;
 
 	return expression_t(binary_t(l, r));
+}
+*/
+
+template <unsigned int d_, typename derived_left_, typename derived_right_>
+inline function_expression<d_, function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::add>, gas::id>
+operator+ (function<d_, derived_left_> const & l, function<d_, derived_right_> const & r) {
+	typedef function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::add> binary_t;
+	typedef function_expression<d_, binary_t, gas::id> expression_t;
+
+	return expression_t(l, r);
+}
+
+template <unsigned int d_, typename derived_left_, typename derived_right_>
+inline function_expression<d_, function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::sub>, gas::id>
+operator- (function<d_, derived_left_> const & l, function<d_, derived_right_> const & r) {
+	typedef function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::sub> binary_t;
+	typedef function_expression<d_, binary_t, gas::id> expression_t;
+
+	return expression_t(l, r);
+}
+
+template <unsigned int d_, typename derived_left_, typename derived_right_>
+inline function_expression<d_, function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::mul>, gas::id>
+operator* (function<d_, derived_left_> const & l, function<d_, derived_right_> const & r) {
+	typedef function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::mul> binary_t;
+	typedef function_expression<d_, binary_t, gas::id> expression_t;
+
+	return expression_t(l, r);
+}
+
+template <unsigned int d_, typename derived_left_, typename derived_right_>
+inline function_expression<d_, function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::div>, gas::id>
+operator/ (function<d_, derived_left_> const & l, function<d_, derived_right_> const & r) {
+	typedef function_binary<d_, function<d_, derived_left_>, function<d_, derived_right_>, gas::div> binary_t;
+	typedef function_expression<d_, binary_t, gas::id> expression_t;
+
+	return expression_t(l, r);
 }
 
 // TODO moltiplicazione per una costante
