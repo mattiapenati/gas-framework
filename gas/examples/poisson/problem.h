@@ -32,23 +32,16 @@
 
 namespace poisson {
 
-inline double u1 (double const & x, double const & y) {
-	return std::sin(M_PI * x) * std::sin(M_PI * y);
-}
-inline double u2 (double const & x, double const & y) {
-	return std::cos(M_PI * x) * std::sin(M_PI * y);
-}
-
-inline double v (double const & x, double const & y) {
-	return std::exp(10 * x);
-}
-
 class soluzione: public gas::functional::function<2u, soluzione> {
 
 public:
 	inline double operator() (double const & x, double const & y) const {
-		return u1(x, y);
-		//return u1(x, y) * v(x, y);
+		double const k(3.);
+		double const n(10.);
+
+		double const r(std::sqrt(x * x + y * y));
+
+		return std::exp(k * r) * std::pow(r, n) * (1 - r);
 	}
 
 };
@@ -60,8 +53,16 @@ private:
 
 	public:
 		inline double operator() (double const & x, double const & y) const {
-			return M_PI * M_PI * u1(x, y);
-			//return ((M_PI * M_PI - 100) * u1(x, y) - 20 * M_PI * u2(x, y)) * v(x, y);
+			double const k(3.);
+			double const n(10.);
+
+			double const r(std::sqrt(x * x + y * y));
+
+			double const a(n * n);
+			double const b(2 * k * n + k - n * n - 2 * n - 1);
+			double const c(k * k - 2 * k * n - 3 * k);
+			double const d(-k * k);
+			return -std::exp(k * r) * std::pow(r, n - 2) * (a + r * (b + r * (c + d * r)));
 		}
 
 	};
@@ -109,7 +110,7 @@ public:
 	}
 
 	inline double operator() (unsigned int const & i) const {
-		return x(i);
+		return x_(i);
 	}
 
 	inline triangulation const & mesh() const {
@@ -117,20 +118,21 @@ public:
 	}
 
 private:
-	/*! @brief Triangolazione */
-	triangulation const & cdt_;
-
 	/*! @brief Soluzione */
-	vector_t x;
+	vector_t x_;
 
 	/*! @brief Elementi non nulli */
 	unsigned int no_zeros_;
 
+	/*! @brief Pointer to the mesh */
+	triangulation const & cdt_;
+
 };
 
-void problem::solve() {
+void problem::solve () {
 
 	/* tipi */
+
 	typedef triangulation::face_iterator_t iterator_t;
 	typedef triangulation::boundary_circulator_t circulator_t;
 
@@ -138,40 +140,48 @@ void problem::solve() {
 	using gas::functional::dy;
 
 	/* dimensione del problema */
-	unsigned int const n(cdt_.nodes());
 
-	/* strutture algebriche */
-	matrix_t A(n,n);
-	vector_t b(n);
+	unsigned int const n(cdt_.nodes());
+	unsigned int const N(element_t::base_t::n);
 
 	/* riempimento delle strutture */
 
-	/* A(u,v) = F(v) \forall v */
-	#define bilinear_form(u,v) dx(u) * dx(v) + dy(u) * dy(v)
+	#define bilinear_form(u,v) (dx(u) * dx(v)) + (dy(u) * dy(v))
+	//#define bilinear_form(u,v) u * v
 	#define functional(v) f * v
 
 	Eigen::DynamicSparseMatrix<double> Atmp(n,n);
+	vector_t b;
+	b.setZero(n);
+
 	integrator_t s;
 	forzante_t f;
 
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		s(*it);
 		element_t e(*it);
-		gas_rangeu(i, 3u) {
-			gas_rangeu(j, 3u) {
-				/* forma bilineare */
+
+		/* forma bilineare */
+		gas_rangeu(i, N) {
+			gas_rangeu(j, N) {
+				unsigned int const ii(it->i(i));
+				unsigned int const jj(it->i(j));
+
 				double const r(s.integrate(bilinear_form(e.b(j), e.b(i))));
-				Atmp.coeffRef(it->i(i), it->i(j)) += r;
+
+				Atmp.coeffRef(ii, jj) += r;
 			}
-			/* termine noto */
+		}
+
+		/* termine noto */
+		gas_rangeu(i, N) {
+			unsigned int const ii(it->i(i));
+
 			double const r(s.integrate(functional(e.b(i))));
-			b(it->i(i)) += r;
+
+			b.coeffRef(ii) += r;
 		}
 	}
-
-	A = Atmp;
-
-	no_zeros_ = A.nonZeros();
 
 	/* condizioni al bordo */
 
@@ -179,17 +189,22 @@ void problem::solve() {
 	circulator_t begin = circ;
 	do {
 		unsigned int const i(circ->i());
-		A.coeffRef(i, i) = 1.e20;
-		b.coeffRef(i) = 0.;
+		Atmp.coeffRef(i, i) = 1.e30;
+		b(i) = 0.;
 		++circ;
 	} while (circ != begin);
 
-	/* risoluzione del sistema */
 
-	x.resize(n);
-	Eigen::SparseLU<matrix_t,Eigen::UmfPack> lu(A);
+	/* strutture algebriche */
+
+	matrix_t A(Atmp);
+	no_zeros_ = A.nonZeros();
+	x_.resize(n);
+
+	/* risoluzione del sistema con LU */
+	Eigen::SparseLU<matrix_t, Eigen::UmfPack> lu(A);
 	gas_assert(lu.succeeded());
-	lu.solve(b, &x);
+	lu.solve(b, &x_);
 
 }
 
@@ -200,12 +215,14 @@ double problem::normL2() const {
 
 		integrator_t s;
 
+		unsigned int const N(element_t::base_t::n);
+
 		for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 			/* soluzione */
 			Eigen::Vector3d const u(
-					x(it->i(0)),
-					x(it->i(1)),
-					x(it->i(2))
+					x_(it->i(0)),
+					x_(it->i(1)),
+					x_(it->i(2))
 					);
 
 			/* matrice locale */
@@ -213,7 +230,7 @@ double problem::normL2() const {
 			element_t e(*it);
 
 			Eigen::Matrix3d S;
-			gas_rangeu(i, 3) { gas_rangeu(j, 3) {
+			gas_rangeu(i, N) { gas_rangeu(j, N) {
 				S(i,j) = s.integrate(e.b(i) * e.b(j));
 			} }
 
@@ -231,12 +248,14 @@ double problem::normH1() const {
 
 	integrator_t s;
 
+	unsigned int const N(element_t::base_t::n);
+
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		/* soluzione */
 		Eigen::Vector3d const u(
-				x(it->i(0)),
-				x(it->i(1)),
-				x(it->i(2))
+				x_(it->i(0)),
+				x_(it->i(1)),
+				x_(it->i(2))
 				);
 
 		/* matrice locale */
@@ -244,7 +263,7 @@ double problem::normH1() const {
 		element_t e(*it);
 
 		Eigen::Matrix3d S;
-		gas_rangeu(i, 3) { gas_rangeu(j, 3) {
+		gas_rangeu(i, N) { gas_rangeu(j, N) {
 			using gas::functional::dx;
 			using gas::functional::dy;
 
@@ -270,12 +289,14 @@ double problem::errL2 (function_ const & f) const {
 
 	integrator_t s;
 
+	unsigned int const N(element_t::base_t::n);
+
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		/* soluzione */
 		Eigen::Vector3d const u(
-				x(it->i(0)),
-				x(it->i(1)),
-				x(it->i(2))
+				x_(it->i(0)),
+				x_(it->i(1)),
+				x_(it->i(2))
 				);
 
 		s(*it);
@@ -284,20 +305,13 @@ double problem::errL2 (function_ const & f) const {
 		/* matrice locale */
 
 		Eigen::Matrix3d S;
-		gas_rangeu(i, 3) { gas_rangeu(j, 3) {
-			using gas::functional::dx;
-			using gas::functional::dy;
-
-			S(i,j) = s.integrate(
-					dx(e.b(i)) * dx(e.b(j)) +
-					dy(e.b(i)) * dy(e.b(j)) +
-					e.b(i) * e.b(j)
-					);
+		gas_rangeu(i, N) { gas_rangeu(j, N) {
+			S(i,j) = s.integrate(e.b(i) * e.b(j));
 		} }
 
 		/* vettore locale */
 		Eigen::Vector3d b;
-		gas_rangeu(i, 3) {
+		gas_rangeu(i, N) {
 			b(i) = s.integrate(f * e.b(i));
 		}
 

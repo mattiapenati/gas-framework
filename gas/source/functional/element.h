@@ -71,12 +71,13 @@ public:
 	static unsigned int const d = gas::geometry::map::info<map_t>::d;
 
 public:
+	inline element (): m_() {}
 	/*!
 	 * @brief The constructor
 	 * @param domain A suitable object from which construct a new map
 	 */
 	template <typename domain_>
-	element (domain_ const & domain): m_(domain) {
+	inline element (domain_ const & domain): m_(domain) {
 		typedef typename gas::functional::base::info<base_t>::unit_t base_unit_t;
 		typedef typename gas::geometry::map::info<map_t>::unit_t map_unit_t;
 		gas_static_assert(

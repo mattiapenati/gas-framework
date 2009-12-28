@@ -127,6 +127,7 @@ private:
 		}
 
 		friend class face_iterator;
+		friend class posteriorH1;
 
 	};
 
@@ -199,6 +200,7 @@ private:
 		inline face_iterator (cgal_face_iterator_t const & it): f_(it) {}
 
 		friend class triangulation;
+		friend class posteriorH1;
 
 	};
 
@@ -269,14 +271,14 @@ public:
 	triangulation (iterator_ begin, iterator_ end, double h = 0.);
 
 	template <typename stimator_>
-	unsigned int refine (stimator_ const & stimator);
+	std::pair<unsigned, unsigned> refine (stimator_ const & stimator);
 
 	/*!
 	 * @brief Number of nodes
 	 * @return
 	 */
 	inline unsigned int nodes () const {
-		return cdt_.number_of_vertices();
+		return n_nodes_;
 	}
 
 	/*!
@@ -284,7 +286,7 @@ public:
 	 * @return
 	 */
 	inline unsigned int faces () const {
-		return cdt_.number_of_faces();
+		return n_faces_;
 	}
 
 	/*!
@@ -299,7 +301,7 @@ public:
 	 * @brief The end of const iterator on face
 	 * @return
 	 */
-	face_iterator_t face_end() const {
+	inline face_iterator_t face_end() const {
 		return face_iterator_t(cdt_.finite_faces_end());
 	}
 
@@ -311,6 +313,13 @@ private:
 	/*! @brief The internal structure for the triangulation */
 	cdt_t cdt_;
 
+	/*! @brief The number of nodes */
+	unsigned int n_nodes_;
+
+	/*! @brief The number of faces */
+	unsigned int n_faces_;
+
+	friend class posteriorH1;
 };
 
 template <typename iterator_>
@@ -380,6 +389,8 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 
 		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
 			_i->info().index = n++;
+
+		n_nodes_ = n;
 	}
 
 	/* numerazione delle facce */
@@ -390,18 +401,24 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 
 		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
 			i->info().index = n++;
+
+		n_faces_ = n;
 	}
 
 }
 
 template <typename stimator_>
-unsigned int triangulation::refine (stimator_ const & stimator) {
+std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator) {
 
 	/* calcolo dei residui */
 	Eigen::VectorXd res(faces());
 
 	for (face_iterator_t i(face_begin()); i != face_end(); ++i)
 		res(i->i()) = stimator.residue(*i);
+
+	std::ofstream resFile("residui.dat", std::ios_base::app);
+	resFile << res << std::endl << "=============================" << std::endl;
+	resFile.close();
 
 	/* elenco dei nodi da inserire e rimuovere */
 	typedef cdt_t::Vertex_handle vertex_t;
@@ -468,8 +485,10 @@ unsigned int triangulation::refine (stimator_ const & stimator) {
 
 		unsigned int n(0);
 
-		for (iterator_t i(cdt_.finite_vertices_begin()); i != cdt_.finite_vertices_end(); ++i)
-			i->info().index = n++;
+		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
+			_i->info().index = n++;
+
+		n_nodes_ = n;
 	}
 
 	/* numerazione delle facce */
@@ -480,10 +499,12 @@ unsigned int triangulation::refine (stimator_ const & stimator) {
 
 		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
 			i->info().index = n++;
+
+		n_faces_ = n;
 	}
 
 	/* ritorno */
-	return rimossi + inseriti;
+	return std::make_pair(rimossi, inseriti);
 
 }
 

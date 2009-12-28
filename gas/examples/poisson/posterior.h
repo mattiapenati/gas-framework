@@ -38,46 +38,199 @@ public:
 	inline posteriorH1 (problem const & p, double const & eps)
 			: p_(p),
 			  eps_(eps),
-			  max_res((3. * eps) / (2. * std::sqrt(p_.faces()))),
-			  min_res(max_res / 3.) {
-		/* calcolo norma H1 */
-		// TODO
+			  max_res_((3. * eps) / (2. * std::sqrt(p_.faces()))),
+			  min_res_(max_res_ / 3.),
+			  h1_norm_(p.normH1()) {
 	}
 
 	template <typename face_>
 	double residue (face_ const & face) const;
 
 	inline bool insert (double const & res) const {
-		return (res > max_res);
+		return (res > max_res_);
 	}
 
 	inline bool remove (double const & res) const {
-		return (res < min_res);
+		return (res < min_res_);
 	}
+
+private:
+	Eigen::Vector2d grad(
+			Eigen::Vector2d const & p0, double const & u0,
+			Eigen::Vector2d const & p1, double const & u1,
+			Eigen::Vector2d const & p2, double const & u2) const;
+
+	template < typename VertexPointer >
+	Eigen::Vector2d gradClement(VertexPointer const & v) const;
 
 private:
 	problem const & p_;
 
 	double const & eps_;
 
-	double const max_res;
-	double const min_res;
+	double const max_res_;
+	double const min_res_;
+
+	double const h1_norm_;
+
+private:
+	class faceCirculatorWrapper {
+	private:
+		typedef triangulation::cdt_t::Face_circulator circulator;
+	public:
+		inline faceCirculatorWrapper(circulator const & c): c_(c) {}
+		inline double x (unsigned int const & i) const {
+			return c_->vertex(i)->point().x();
+		}
+		inline double y (unsigned int const & i) const {
+			return c_->vertex(i)->point().y();
+		}
+		inline unsigned int i (unsigned int const & i) const {
+			return c_->vertex(i)->info().index;
+		}
+	private:
+		circulator const & c_;
+	};
+
+private:
+	struct baseClement: public gas::functional::function<2u, baseClement> {
+		inline baseClement (unsigned const & i): i(i) { }
+		inline double operator() (double const & x, double const & y) const {
+			switch(i) {
+			case 0: return 1.;
+			case 1: return x;
+			case 2: return y;
+			}
+			return 0.;
+		}
+	private:
+		unsigned const i;
+	};
 
 };
 
+
+/* calcolo del gradiente */
+Eigen::Vector2d posteriorH1::grad(
+		Eigen::Vector2d const & p0, double const & u0,
+		Eigen::Vector2d const & p1, double const & u1,
+		Eigen::Vector2d const & p2, double const & u2) const {
+
+	/* matrice */
+	Eigen::Matrix2d A;
+	A.row(0) = (p0 - p2);
+	A.row(1) = (p1 - p2);
+
+	/* vettore */
+	Eigen::Vector2d b(
+			(u0 - u2),
+			(u1 - u2));
+
+	/* coefficienti del gradiente */
+	Eigen::Vector2d x;
+
+	Eigen::LU<Eigen::Matrix2d> luA(A);
+	luA.solve(b, &x);
+
+	return x;
+}
+
+
+/* calcolo del gradiente di clement */
+template < typename VertexPointer >
+Eigen::Vector2d posteriorH1::gradClement(VertexPointer const & v) const {
+
+	/* coordinate del punto */
+	double const x(v->point().x());
+	double const y(v->point().y());
+
+	/* matrice di stiffness */
+	Eigen::Matrix3d M;
+
+	/* termine noto */
+	Eigen::Vector3d bx;
+	Eigen::Vector3d by;
+
+	/* soluzione */
+	Eigen::Vector3d ax, ay;
+
+	/* integratore */
+	problem::integrator_t s;
+
+	/* circolatore */
+	typedef triangulation::cdt_t::Face_circulator circulator_t;
+
+	circulator_t circ(p_.mesh().cdt_.incident_faces(v));
+	circulator_t end(circ);
+
+	/* inizializzazione delle strutture */
+	M.setZero();
+	bx.setZero();
+	by.setZero();
+
+	do {
+		if (!p_.mesh().cdt_.is_infinite(circ)) {
+			/* wrapper */
+			faceCirculatorWrapper w(circ);
+
+			/* integratore */
+			s(w);
+
+			/* matrice M */
+			gas_rangeu(i, 3) {
+				gas_rangeu(j, 3) {
+					M(i,j) += s.integrate(baseClement(j) * baseClement(i));
+				}
+			}
+
+			/* coordinate dei nodi */
+			Eigen::Vector2d const p0(w.x(0), w.y(0));
+			Eigen::Vector2d const p1(w.x(1), w.y(1));
+			Eigen::Vector2d const p2(w.x(2), w.y(2));
+
+			/* soluzione */
+			Eigen::Vector3d const u(p_(w.i(0)), p_(w.i(1)), p_(w.i(2)));
+
+			/* gradiente locale */
+			Eigen::Vector2d const g(grad(p0, u(0), p1, u(1), p2, u(2)));
+
+			/* termini noti */
+			gas_rangeu(i, 3) {
+				double const tmp(s.integrate(baseClement(i)));
+				bx(i) += g(0) * tmp;
+				by(i) += g(1) * tmp;
+			}
+		}
+		++circ;
+	} while(circ != end);
+
+	/* soluzione del sistema */
+	Eigen::LU<Eigen::Matrix3d> luM(M);
+	luM.solve(bx, &ax);
+	luM.solve(by, &ay);
+
+	/* gradiente */
+	Eigen::Vector2d gC(0., 0.);
+	gas_rangeu(i, 3) {
+		gC(0) += ax(i) * baseClement(i)(x, y);
+		gC(1) += ay(i) * baseClement(i)(x, y);
+	}
+
+	return gC;
+}
+
+/* calcolo del residuo */
 template <typename face_>
 double posteriorH1::residue (face_ const & face) const {
+
+	/* iteratore CGAL */
+	typedef triangulation::face::cgal_face_iterator_t cgal_face_iterator_t;
+	cgal_face_iterator_t const cgal_it(face.it_);
 
 	/* coordinate dei nodi */
 	Eigen::Vector2d const p0(face.x(0), face.y(0));
 	Eigen::Vector2d const p1(face.x(1), face.y(1));
 	Eigen::Vector2d const p2(face.x(2), face.y(2));
-
-	/* punto medio */
-	Eigen::Vector2d const m(
-			(p0(0) + p1(0) + p2(0)) / 3.,
-			(p0(1) + p1(1) + p2(1)) / 3.
-			);
 
 	/* area */
 	Eigen::Matrix3d tri;
@@ -94,28 +247,19 @@ double posteriorH1::residue (face_ const & face) const {
 	Eigen::Vector3d const u(
 			p_(face.i(0)),
 			p_(face.i(1)),
-			p_(face.i(2))
-			);
-
-	/* matrice del gradiente */
-	problem::element_t e(face);
-	Eigen::Matrix<double, 2, 3> GG;
-	gas_rangeu(i, 3)
-		GG.col(i) << dx(e.b(i))(m(0), m(1)), dy(e.b(i))(m(0), m(1));
+			p_(face.i(2)));
 
 	/* gradiente locale */
-	Eigen::Vector2d const g(GG * u);
+	Eigen::Vector2d const g(grad(p0, u(0), p1, u(1), p2, u(2)));
 
 	/* gradiente Clement */
-	Eigen::Vector2d const gC0(0., 0.); // TODO
-	Eigen::Vector2d const gC1(0., 0.); // TODO
-	Eigen::Vector2d const gC2(0., 0.); // TODO
+	Eigen::Vector2d const gC0(gradClement(cgal_it->vertex(0)));
+	Eigen::Vector2d const gC1(gradClement(cgal_it->vertex(1)));
+	Eigen::Vector2d const gC2(gradClement(cgal_it->vertex(2)));
 
 	/* laplaciano */
-	Eigen::Vector3d const g0(gC0(0), gC1(0), gC2(0));
-	Eigen::Vector3d const g1(gC0(1), gC1(1), gC2(1));
-	Eigen::Vector2d const l0(GG * g0);
-	Eigen::Vector2d const l1(GG * g1);
+	Eigen::Vector2d const l0(grad(p0, gC0(0), p1, gC1(0), p2, gC2(0)));
+	Eigen::Vector2d const l1(grad(p0, gC0(1), p1, gC1(1), p2, gC2(1)));
 
 	double const lap(l0(0) + l1(1));
 
@@ -131,15 +275,97 @@ double posteriorH1::residue (face_ const & face) const {
 			);
 
 	/* residuo sui lati */
-	// TODO
 	double res_lato(0.);
+
+	/* giro sui lati */
+	gas_rangeu(i, 3) {
+		if (!p_.mesh().cdt_.is_infinite(cgal_it->neighbor(i))) {
+			/* coordinate del vicino */
+			Eigen::Vector2d const pn0(
+					cgal_it->neighbor(i)->vertex(0)->point().x(),
+					cgal_it->neighbor(i)->vertex(0)->point().y());
+			Eigen::Vector2d const pn1(
+					cgal_it->neighbor(i)->vertex(1)->point().x(),
+					cgal_it->neighbor(i)->vertex(1)->point().y());
+			Eigen::Vector2d const pn2(
+					cgal_it->neighbor(i)->vertex(2)->point().x(),
+					cgal_it->neighbor(i)->vertex(2)->point().y());
+
+			/* soluzione del vicino */
+			Eigen::Vector3d const un(
+					p_(cgal_it->neighbor(i)->vertex(0)->info().index),
+					p_(cgal_it->neighbor(i)->vertex(1)->info().index),
+					p_(cgal_it->neighbor(i)->vertex(2)->info().index)
+					);
+
+			/* gradiente del vicino */
+			Eigen::Vector2d const gn(grad(pn0, un(0), pn1, un(1), pn2, un(2)));
+
+			/* normale */
+			switch(i) {
+			case 0:
+			{
+				Eigen::Vector2d const n(
+						p1(1) - p2(1),
+						p2(0) - p1(0));
+				double const t(n.dot(g - gn));
+				res_lato += (t * t) / d12;
+			}
+				break;
+			case 1:
+			{
+				Eigen::Vector2d const n(
+						p2(1) - p0(1),
+						p0(0) - p2(0));
+				double const t(n.dot(g - gn));
+				res_lato += (t * t) / d02;
+			}
+				break;
+			case 2:
+			{
+				Eigen::Vector2d const n(
+						p0(1) - p1(1),
+						p1(0) - p0(0));
+				double const t(n.dot(g - gn));
+				res_lato += (t * t) / d01;
+			}
+				break;
+			}
+		}
+	}
 	res_lato = std::sqrt(h * res_lato) / 2.;
 
 	/* residuo totale */
 	double const res_totale(res_faccia + res_lato);
 
-	// TODO
-	return (max_res+min_res)*0.5;
+	/*
+	std::cerr << "Faccia" << std::endl;
+	std::cerr << "  " << p0(0) << " " << p0(1) << std::endl;
+	std::cerr << "  " << p1(0) << " " << p1(1) << std::endl;
+	std::cerr << "  " << p2(0) << " " << p2(1) << std::endl;
+	std::cerr << "Soluzione" << std::endl;
+	std::cerr << "  " << u(0) << " " << u(1) << " " << u(2) <<  std::endl;
+	std::cerr << "Gradiente" << std::endl;
+	std::cerr << "  " << g(0) << " " << g(1) << std::endl;
+	std::cerr << "Area" << std::endl;
+	std::cerr << "  " << area << std::endl;
+	std::cerr << "Clement" << std::endl;
+	std::cerr << "  " << gC0(0) << " " << gC0(1) << std::endl;
+	std::cerr << "  " << gC1(0) << " " << gC1(1) << std::endl;
+	std::cerr << "  " << gC2(0) << " " << gC2(1) << std::endl;
+	std::cerr << "Laplaciano" << std::endl;
+	std::cerr << "  " << l0(0) << " " << l0(1) << std::endl;
+	std::cerr << "  " << l1(0) << " " << l1(1) << std::endl;
+	std::cerr << "Residuo faccia" << std::endl;
+	std::cerr << "  " << res_faccia << std::endl;
+	std::cerr << "Residuo lato" << std::endl;
+	std::cerr << "  " << res_lato << std::endl;
+	std::cerr << "Norma H1" << std::endl;
+	std::cerr << "  " << h1_norm_ << std::endl;
+	std::cerr << std::endl;
+	*/
+
+	return res_totale / h1_norm_;
 
 }
 

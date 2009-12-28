@@ -39,6 +39,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
+#include <utility>
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Constrained_Delaunay_triangulation_2.h>
@@ -53,7 +54,7 @@
 
 namespace poisson {
 
-class posterior;
+class posteriorH1;
 class problem;
 class triangulation;
 
