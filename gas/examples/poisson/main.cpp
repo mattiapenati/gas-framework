@@ -40,15 +40,16 @@ int main (int argc, char * argv[]) {
 	/* definizione del bordo */
 	std::vector<point_t> boundary;
 
-	unsigned const N(400);
-	for (unsigned i(0); i < N; ++i)
+	int const N(400);
+	boundary.reserve(N);
+	for (int i(0); i < N; ++i)
 		boundary.push_back(point_t(
 				std::cos(2 * M_PI * i / N),
 				std::sin(2 * M_PI * i / N)
 				));
 
 	/* costruzione della triangolazione */
-	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.025);
+	poisson::triangulation mesh(boundary.begin(), boundary.end(), 0.25);
 
 	/* costruzione del problema */
 	poisson::problem problem(mesh);
@@ -56,18 +57,18 @@ int main (int argc, char * argv[]) {
 	/* risoluzione del problema */
 	problem.solve();
 
-	{
-		poisson::ps ps(problem);
-		std::ofstream out_ps("iniziale.ps");
-		out_ps << ps;
+	{	/* stampa della soluzione */
+		poisson::svg out(problem);
+		std::ofstream out_file("iniziale.svg");
+		out_file << out;
 	}
 
 	/* raffinamento */
-	std::pair<unsigned, unsigned> n = std::make_pair(0u, 0u);
-	std::pair<unsigned, unsigned> nold;
-	unsigned int i(0);
+	std::pair<int, int> n = std::make_pair(0, 0);
+	std::pair<int, int> nold;
+	int i(0);
 
-	unsigned int const max(100);
+	int const max(100);
 	double const eps(0.5);
 
 	do {
@@ -80,11 +81,11 @@ int main (int argc, char * argv[]) {
 		problem.solve();
 
 		std::stringstream ss;
-		ss << "soluzione" << i << ".eps";
+		ss << "soluzione" << i << ".svg";
 
-		poisson::ps ps(problem);
-		std::ofstream out_ps(ss.str().c_str());
-		out_ps << ps;
+		poisson::svg out(problem);
+		std::ofstream out_file(ss.str().c_str());
+		out_file << out;
 
 		std::cout << i << ", " << n.first << ", " << n.second << std::endl;
 
@@ -97,24 +98,14 @@ int main (int argc, char * argv[]) {
 
 	timer.stop();
 
-	/* stampa della soluzione */
-	{
-		poisson::svg svg(problem);
-		poisson::ps ps(problem);
-		poisson::vtk vtk(problem);
-
-		std::ofstream out_svg("solution.svg");
-		out_svg << svg;
-
-		std::ofstream out_ps("solution.eps");
-		out_ps << ps;
-
-		std::ofstream out_vtk("solution.vtk");
-		out_vtk << vtk;
+	{	/* stampa della soluzione */
+		poisson::svg out(problem);
+		std::ofstream out_file("solution.svg");
+		out_file << out;
 	}
 
 	/* stampo informazioni */
-	std::cerr << "-- Tempo impiegato: " << timer.elapsed() << std::endl;
+	std::cerr << "-- Tempo impiegato: " << timer << std::endl;
 	std::cerr << "-- Numero di nodi: " << mesh.nodes() << std::endl;
 	std::cerr << "-- Numero delle facce: " << mesh.faces() << std::endl;
 	std::cerr << "-- Elementi non nulli: " << problem.no_zeros() << std::endl;

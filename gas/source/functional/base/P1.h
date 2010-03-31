@@ -32,8 +32,8 @@
  * @brief The Lagrange base of order 1
  */
 
-#ifndef _gas_functional_base_p1_
-#define _gas_functional_base_p1_
+#ifndef GAS_FUNCTIONAL_BASE_P1_H
+#define GAS_FUNCTIONAL_BASE_P1_H
 
 namespace gas { namespace functional { namespace base {
 
@@ -51,4 +51,4 @@ class P1;
 #include "P1_triangle.h"
 #include "P1_tetra.h"
 
-#endif // _gas_functional_base_p1_
+#endif // GAS_FUNCTIONAL_BASE_P1_H

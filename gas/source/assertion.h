@@ -32,8 +32,8 @@
  * @brief Assertion, precondition and postcondition for gas framework
  */
 
-#ifndef _gas_assertion_
-#define _gas_assertion_
+#ifndef GAS_ASSERTION_H
+#define GAS_ASSERTION_H
 
 #include "macro.h"
 #include <iostream>
@@ -47,7 +47,7 @@ namespace gas {
  * @param file The file where the assertion failed
  * @param line The line of file where the assertion failed
  */
-inline void assert_(char const * exp, char const * file, unsigned int const & line) {
+inline void m_assert(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": assertion "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -58,7 +58,7 @@ inline void assert_(char const * exp, char const * file, unsigned int const & li
  * @param file The file where the precondition failed
  * @param line The line of file where the precondition failed
  */
-inline void pre_(char const * exp, char const * file, unsigned int const & line) {
+inline void m_pre(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": precondition "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -69,7 +69,7 @@ inline void pre_(char const * exp, char const * file, unsigned int const & line)
  * @param file The file where the postcondition failed
  * @param line The line of file where the postcondition failed
  */
-inline void post_(char const * exp, char const * file, unsigned int const & line) {
+inline void m_post(char const * exp, char const * file, unsigned int const & line) {
 	std::cerr<<file<<"@"<<line<<": precondition "<<exp<<" failed"<<std::endl;
 	std::exit(1);
 }
@@ -84,56 +84,77 @@ template<> class compile_time_checker<true> { };
 }
 
 #ifdef NDEBUG
-#define gas_ndebug
+#define GAS_NDEBUG
 #endif
 
-#ifdef gas_ndebug
-#define gas_nassert
-#define gas_npre
-#define gas_npost
-#endif // gas_ndebug
+#ifdef GAS_NDEBUG
+#define GAS_NASSERT
+#define GAS_NPRE
+#define GAS_NPOST
+#endif // GAS_NDEBUG
 
 /*!
- * @def gas_assert(expression)
+ * @def GAS_ASSERT(expression)
  * @brief Checking the assertion
  */
 
-#undef gas_assert
-#ifdef gas_nassert
-#define gas_assert(expression) pass
-#else // gas_nassert
-#define gas_assert(expression) ((expression) ? pass : gas::assert_(#expression, __FILE__, __LINE__))
-#endif // gas_nassert
+#ifdef GAS_ASSERT
+#undef GAS_ASSERT
+#endif // GAS_ASSERT
+
+#ifdef GAS_NASSERT
+#define GAS_ASSERT(expression) GAS_PASS
+#else // GAS_NASSERT
+#define GAS_ASSERT(expression) ((expression) ? GAS_PASS : gas::m_assert(#expression, __FILE__, __LINE__))
+#endif // GAS_NASSERT
+
+#define gas_assert GAS_ASSERT
 
 /*!
- * @def gas_pre(expression)
+ * @def GAS_PRE(expression)
  * @brief Checking the precondition
  */
 
-#undef gas_pre
-#ifndef gas_npre
-#define gas_pre(expression) pass
-#else // gas_npre
-#define gas_pre(expression) ((expression) ? pass : gas::pre_(#expression, __FILE__, __LINE__))
-#endif // gas_npre
+#ifdef GAS_PRE
+#undef GAS_PRE
+#endif // GAS_PRE
+
+#ifndef GAS_NPRE
+#define GAS_PRE(expression) GAS_PASS
+#else // GAS_NPRE
+#define GAS_PRE(expression) ((expression) ? GAS_PASS : gas::m_pre(#expression, __FILE__, __LINE__))
+#endif // GAS_NPRE
+
+#define gas_pre GAS_PRE
 
 /*!
- * @def gas_post(expression)
+ * @def GAS_POST(expression)
  * @brief Checking the postcondition
  */
 
-#undef gas_npost
-#ifdef gas_npost
-#define gas_post(expression) pass
-#else // gas_npost
-#define gas_post(expression) ((expression) ? pass : gas::post_(#expression, __FILE__, __LINE__))
-#endif // gas_npost
+#ifdef GAS_POST
+#undef GAS_POST
+#endif // GAS_POST
+
+#ifdef GAS_NPOST
+#define GAS_POST(expression) pass
+#else // GAS_NPOST
+#define GAS_POST(expression) ((expression) ? pass : gas::m_post(#expression, __FILE__, __LINE__))
+#endif // GAS_NPOST
+
+#define gas_post GAS_POST
 
 /*!
- * @def gas_static_assert(expression, message)
+ * @def GAS_STATIC_ASSERT(expression, message)
  * @brief Checking the assertion at compile time
  */
 
-#define gas_static_assert(expression, message) { gas::compile_time_checker<expression> ERROR_##message; (void)ERROR_##message; }
+#ifdef GAS_STATIC_ASSERT
+#undef GAS_STATIC_ASSERT
+#endif // GAS_STATIC_ASSERT
 
-#endif // _gas_assertion_
+#define GAS_STATIC_ASSERT(expression, message) { gas::compile_time_checker<expression> ERROR_##message; (void)ERROR_##message; }
+
+#define gas_static_assert GAS_STATIC_ASSERT
+
+#endif // GAS_ASSERTION_H

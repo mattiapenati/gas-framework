@@ -32,8 +32,8 @@
  * @brief The container for quadrature formula
  */
 
-#ifndef _gas_numerical_quadrature_formula_
-#define _gas_numerical_quadrature_formula_
+#ifndef GAS_NUMERICAL_QUADRATURE_FORMULA_H
+#define GAS_NUMERICAL_QUADRATURE_FORMULA_H
 
 #include "quadrature"
 #include "../../gas"
@@ -65,7 +65,7 @@ public:
 	/*!
 	 * @brief The constructor
 	 */
-	inline formula(): m_() {
+	inline formula(): m_method() {
 	}
 
 	/*!
@@ -83,7 +83,7 @@ public:
 					typename gas::geometry::map::info<map_>::unit_t>::value),
 			Method_and_map_must_act_on_the_same_unit_geometry
 		);
-		m_.map(map_(domain));
+		m_method.map(map_(domain));
 		return *this;
 	}
 
@@ -93,15 +93,15 @@ public:
 	 */
 	template <typename function_>
 	inline double integrate (function_ const & f) {
-		return m_.apply(f);
+		return m_method.apply(f);
 	}
 
 private:
 	/*! @brief The instance of method */
-	method_ m_;
+	method_ m_method;
 
 };
 
 } } }
 
-#endif // _gas_numerical_quadrature_formula_
+#endif // GAS_NUMERICAL_QUADRATURE_FORMULA_H

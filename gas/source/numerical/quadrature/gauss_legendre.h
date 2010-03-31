@@ -32,8 +32,8 @@
  * @brief The Guass-Legendre quadrature formulae
  */
 
-#ifndef _gas_numerical_quadrature_gauss_legendre_
-#define _gas_numerical_quadrature_gauss_legendre_
+#ifndef GAS_NUMERICAL_QUADRATURE_GAUSS_LEGENDRE_H
+#define GAS_NUMERICAL_QUADRATURE_GAUSS_LEGENDRE_H
 
 #include "../../geometry/unit/unit"
 #include "quadrature"
@@ -70,10 +70,10 @@ private:
 	typedef gauss_legendre<gas::geometry::unit::interval, nodes_> method_t;
 
 	/*! @brief The number of nodes */
-	static unsigned int const n_ = nodes_;
+	static int const n_ = nodes_;
 
 	/*! @brief Degree of exactness */
-	static unsigned int const degree_ = 2u * nodes_ - 1u;
+	static int const degree_ = 2u * nodes_ - 1u;
 
 	template <typename type__> friend class info;
 
@@ -172,4 +172,4 @@ double const gauss_legendre<gas::geometry::unit::interval, 7u>::w_[7] = {
 
 } } }
 
-#endif // _gas_numerical_quadrature_gauss_legendre_
+#endif // GAS_NUMERICAL_QUADRATURE_GAUSS_LEGENDRE_H

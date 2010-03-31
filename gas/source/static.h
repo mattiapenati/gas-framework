@@ -32,8 +32,8 @@
  * @brief Classes with static method to evaluate some functions
  */
 
-#ifndef _gas_static_
-#define _gas_static_
+#ifndef GAS_STATIC_H
+#define GAS_STATIC_H
 
 namespace gas {
 
@@ -120,4 +120,4 @@ public:
 
 }
 
-#endif // _gas_static_
+#endif // GAS_STATIC_H

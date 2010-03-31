@@ -32,8 +32,8 @@
  * @brief The basis for Galerkin methods
  */
 
-#ifndef _gas_functional_base_
-#define _gas_functional_base_
+#ifndef GAS_FUNCTIONAL_BASE
+#define GAS_FUNCTIONAL_BASE
 
 #include "../../gas"
 #include "../../geometry/unit/unit"
@@ -58,4 +58,4 @@ struct info: public gas::info<type_> {
 
 #include "P1.h"
 
-#endif // _gas_functional_base_
+#endif // GAS_FUNCTIONAL_BASE

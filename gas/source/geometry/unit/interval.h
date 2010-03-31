@@ -32,8 +32,8 @@
  * @brief The interval \f$(-1,1)\f$
  */
 
-#ifndef _gas_geometry_unit_interval_
-#define _gas_geometry_unit_interval_
+#ifndef GAS_GEOMETRY_UNIT_INTERVAL_H
+#define GAS_GEOMETRY_UNIT_INTERVAL_H
 
 namespace gas { namespace geometry { namespace unit {
 
@@ -42,7 +42,7 @@ class interval {
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 1u;
+	static int const d = 1u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
@@ -57,4 +57,4 @@ public:
 
 } } }
 
-#endif // _gas_geometry_unit_interval_
+#endif // GAS_GEOMETRY_UNIT_INTERVAL_H

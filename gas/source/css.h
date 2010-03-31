@@ -27,40 +27,79 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _gas_css_
-#define _gas_css_
+#ifndef GAS_CSS_H
+#define GAS_CSS_H
 
 #include <iostream>
 #include <sstream>
 
 namespace gas {
 
+/*! @brief A class that help the creation of CSS file */
 class css {
 
 public:
+	/*! @brief The constructor */
 	css ();
+	/*! @brief The destructor */
 	~css ();
 
+	/*!
+	 * @brief Define a new class
+	 * @param c The class name
+	 * @return The reference to the current object
+	 */
 	css & new_class (char const * c);
+	/*!
+	 * @brief Define a new id
+	 * @param i The id name
+	 * @return The reference to the current object
+	 */
 	css & new_id (char const * i);
+	/*!
+	 * @brief Define a new tag
+	 * @param i The tag name
+	 * @return The reference to the current object
+	 */
 	css & newTag (char const * t);
 
+	/*!
+	 * @brief Define a new property in the current selector
+	 * @param name The property name
+	 * @param value The property value
+	 * @return The reference to the current object
+	 */
 	css & property (char const * name, char const * value);
-	css & property (char const * name, int const & value);
+	/*!
+	 * @brief Define a new property in the current selector
+	 * @param name The property name
+	 * @param value The property value
+	 * @return The reference to the current object
+	 */
+	css & property (char const * name, int const value);
 
+	/*!
+	 * @brief Create a one line comment in the CSS
+	 * @param c The comment
+	 * @return The reference to the current object
+	 */
 	css & comment (char const * c);
 
 private:
-	bool first_;
-	std::ostringstream buff_;
+	/* check if this is the first selector */
+	bool m_first;
+	/* the stile content */
+	std::ostringstream m_buff;
 
+	/* close the current selector */
 	void end();
 
+	/* print out the style to an output stream */
 	friend std::ostream & operator<< (std::ostream & out, css & style);
 
 };
 
-css::css (): first_(true), buff_() {
+css::css (): m_first(true), m_buff() {
 }
 
 css::~css () {
@@ -68,60 +107,60 @@ css::~css () {
 }
 
 css & css::new_class (char const * c) {
-	if (first_)
-		first_ = false;
+	if (m_first)
+		m_first = false;
 	else
-		buff_ << "}" << std::endl;
-	buff_ << "." << c << " {" << std::endl;
+		m_buff << "}" << std::endl;
+	m_buff << "." << c << " {" << std::endl;
 	return *this;
 }
 
 css & css::new_id (char const * i) {
-	if (first_)
-		first_ = false;
+	if (m_first)
+		m_first = false;
 	else
-		buff_ << "}" << std::endl;
-	buff_ << "#" << i << " {" << std::endl;
+		m_buff << "}" << std::endl;
+	m_buff << "#" << i << " {" << std::endl;
 	return *this;
 }
 
 css & css::newTag (char const * t) {
-	if (first_)
-		first_ = false;
+	if (m_first)
+		m_first = false;
 	else
-		buff_ << "}" << std::endl;
-	buff_ << t << " {" << std::endl;
+		m_buff << "}" << std::endl;
+	m_buff << t << " {" << std::endl;
 	return *this;
 }
 
 css & css::property (char const * name, char const * value) {
-	buff_ << "\t" << name << ": " << value << ";" << std::endl;
+	m_buff << "\t" << name << ": " << value << ";" << std::endl;
 	return *this;
 }
 
-css & css::property (char const * name, int const & value) {
-	buff_ << "\t" << name << ": " << value << ";" << std::endl;
+css & css::property (char const * name, int const value) {
+	m_buff << "\t" << name << ": " << value << ";" << std::endl;
 	return *this;
 }
 
 css & css::comment (char const * c) {
-	buff_ << "// " << c << std::endl;
+	m_buff << "// " << c << std::endl;
 	return *this;
 }
 
 void css::end () {
-	if (!first_) {
-		buff_ << "}" << std::endl;
-		first_ = true;
+	if (!m_first) {
+		m_buff << "}" << std::endl;
+		m_first = true;
 	}
 }
 
 std::ostream & operator<< (std::ostream & out, css & style) {
 	style.end();
-	out << style.buff_.str();
+	out << style.m_buff.str();
 	return out;
 }
 
 }
 
-#endif // _gas_css_
+#endif // GAS_CSS_H

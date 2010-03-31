@@ -32,8 +32,8 @@
  * @brief The Lagrange base of order 1 on the tetrahedron
  */
 
-#ifndef _gas_functional_base_p1_tetra_
-#define _gas_functional_base_p1_tetra_
+#ifndef GAS_FUNCTIONAL_BASE_P1_TETRA_H
+#define GAS_FUNCTIONAL_BASE_P1_TETRA_H
 
 #include "../../geometry/unit/unit"
 #include "../../gas"
@@ -71,9 +71,9 @@ public:
 	 * @param Z The third coordinate
 	 * @return The evaluation of i-th base function in (X,Y,Z)
 	 */
-	static inline double b (unsigned int const & i, double const & X, double const & Y, double const & Z) {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n);               // A valid index
+	static inline double b (int const i, double const X, double const Y, double const Z) {
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(i < n);               // A valid index
 		switch (i) {
 		case 0: return (1. - X - Y - Z);
 		case 1: return X;
@@ -91,9 +91,9 @@ public:
 	 * @param Z The third coordinate
 	 * @return The evaluation of i-th base function in (X,Y,Z)
 	 */
-	static inline double dbdX (unsigned int const & i, double const & X, double const & Y, double const & Z) {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n);               // A valid index
+	static inline double dbdX (int const i, double const X, double const Y, double const Z) {
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 1.;
@@ -111,9 +111,9 @@ public:
 	 * @param Z The third coordinate
 	 * @return The evaluation of i-th base function in (X,Y,Z)
 	 */
-	static inline double dbdY (unsigned int const & i, double const & X, double const & Y, double const & Z) {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n);               // A valid index
+	static inline double dbdY (int const i, double const X, double const Y, double const Z) {
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;
@@ -131,9 +131,9 @@ public:
 	 * @param Z The third coordinate
 	 * @return The evaluation of i-th base function in (X,Y,Z)
 	 */
-	static inline double dbdZ (unsigned int const & i, double const & X, double const & Y, double const & Z) {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
-		gas_assert(i < n);               // A valid index
+	static inline double dbdZ (int const i, double const X, double const Y, double const Z) {
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(i < n);               // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;
@@ -147,4 +147,4 @@ public:
 
 } } }
 
-#endif // _gas_functional_base_p1_tetra_
+#endif // GAS_FUNCTIONAL_BASE_P1_TETRA_H

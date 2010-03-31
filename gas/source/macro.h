@@ -32,15 +32,15 @@
  * @brief Some usefull macros
  */
 
-#ifndef _gas_macro_
-#define _gas_macro_
+#ifndef GAS_MACRO_H
+#define GAS_MACRO_H
 
 /*!
- * @def pass
+ * @def GAS_PASS
  * @brief An alias for <tt>static_cast<void>(0)</tt>
  */
-#undef pass
-#define pass static_cast<void>(0)
+#define GAS_PASS static_cast<void>(0)
+#define pass GAS_PASS
 
 /*!
  * @def range(index, min, max)
@@ -51,9 +51,9 @@
 
 /*!
  * @def rangeu(index, max)
- * @brief An alias for <tt>for(unsigned int index = 0; index < max; ++i)</tt>
+ * @brief An alias for <tt>for(int index = 0; index < max; ++i)</tt>
  */
 #undef gas_rangeu
-#define gas_rangeu(index, max) for(unsigned int index = 0; index < max; ++index)
+#define gas_rangeu(index, max) for(int index = 0; index < max; ++index)
 
-#endif // _gas_macro_
+#endif // GAS_MACRO_H

@@ -32,8 +32,8 @@
  * @brief The Newton-Cotes quadrature formulae
  */
 
-#ifndef _gas_numerical_quadrature_newton_cotes_
-#define _gas_numerical_quadrature_newton_cotes_
+#ifndef GAS_NUMERICAL_QUADRATURE_NEWTON_COTES_H
+#define GAS_NUMERICAL_QUADRATURE_NEWTON_COTES_H
 
 #include "../../geometry/unit/unit"
 #include "quadrature"
@@ -45,14 +45,14 @@ namespace gas { namespace numerical { namespace quadrature {
  * @param unit_ The unit geometry on which is defined
  * @param nodes_ The number of nodes
  */
-template <typename unit_, unsigned int nodes_>
+template <typename unit_, int nodes_>
 class newton_cotes;
 
 /*!
  * @brief The Gauss-Legendre formula for triangle
  * @param nodes_ The number of nodes
  */
-template <unsigned int nodes_>
+template <int nodes_>
 class newton_cotes<gas::geometry::unit::triangle, nodes_>:
 	public method_2<gas::geometry::unit::triangle, nodes_, newton_cotes<gas::geometry::unit::triangle, nodes_> > {
 
@@ -73,10 +73,10 @@ private:
 	typedef newton_cotes<gas::geometry::unit::triangle, nodes_> method_t;
 
 	/*! @brief The number of nodes */
-	static unsigned int const n_ = nodes_;
+	static int const n_ = nodes_;
 
 	/*! @brief Degree of exactness */
-	static unsigned int const degree_;
+	static int const degree_;
 
 	template <typename type__> friend class info;
 
@@ -109,7 +109,7 @@ double const newton_cotes<gas::geometry::unit::triangle, 3u>::w_[3] = {
 
 /*! @brief Degree of exactness */
 template <>
-unsigned int const newton_cotes<gas::geometry::unit::triangle, 3u>::degree_ = 2u;
+int const newton_cotes<gas::geometry::unit::triangle, 3u>::degree_ = 2u;
 
 
 /*! @brief Coordinates for 6 nodes formula */
@@ -135,8 +135,8 @@ double const newton_cotes<gas::geometry::unit::triangle, 6u>::w_[6] = {
 
 /*! @brief Degree of exactness */
 template <>
-unsigned int const newton_cotes<gas::geometry::unit::triangle, 6u>::degree_ = 4u;
+int const newton_cotes<gas::geometry::unit::triangle, 6u>::degree_ = 4u;
 
 } } }
 
-#endif // _gas_numerical_quadrature_newton_cotes_
+#endif // GAS_NUMERICAL_QUADRATURE_NEWTON_COTES_H

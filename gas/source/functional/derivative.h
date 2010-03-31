@@ -32,8 +32,8 @@
  * @brief Functions for build the derivatives of function
  */
 
-#ifndef _gas_functional_derivative_
-#define _gas_functional_derivative_
+#ifndef GAS_FUNCTIONAL_DERIVATIVE_H
+#define GAS_FUNCTIONAL_DERIVATIVE_H
 
 namespace gas { namespace functional {
 
@@ -72,4 +72,4 @@ typename function_::dy_t dy (function_ const & f) {
 
 } }
 
-#endif // _gas_functional_derivative_
+#endif // GAS_FUNCTIONAL_DERIVATIVE_H

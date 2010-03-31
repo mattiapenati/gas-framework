@@ -41,7 +41,7 @@ public:
 private:
 	problem const & p_;
 
-	unsigned int x_, y_;
+	int x_, y_;
 
 	std::string to_string ();
 
@@ -119,8 +119,8 @@ std::string svg::to_string () {
 	}
 
 	/* rapporto e risoluzione */
-	unsigned int _x, _bx;
-	unsigned int _y, _by;
+	int _x, _bx;
+	int _y, _by;
 
 	double const _dx(_xmax - _xmin);
 	double const _dy(_ymax - _ymin);
@@ -151,8 +151,8 @@ std::string svg::to_string () {
 	svg.open_group("solution");
 
 	for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
-		unsigned int x[3];
-		unsigned int y[3];
+		int x[3];
+		int y[3];
 
 		x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
 		x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
@@ -163,7 +163,7 @@ std::string svg::to_string () {
 		y[2] = _by + _y * (_ymax - i->y(2)) / _dy;
 
 		double const r((p_(i->i(0)) + p_(i->i(1)) + p_(i->i(2))) / 3.);
-		unsigned int c(255 * (r - _rmin) / _dr);
+		int c(255 * (r - _rmin) / _dr);
 
 		std::ostringstream color;
 		color << "gray" << c;
@@ -177,8 +177,8 @@ std::string svg::to_string () {
 	svg.open_group("grid");
 
 	for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
-		unsigned int x[3];
-		unsigned int y[3];
+		int x[3];
+		int y[3];
 
 		x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
 		x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
@@ -267,8 +267,8 @@ std::string ps::to_string () {
 	}
 
 	/* rapporto e risoluzione */
-	unsigned int _x, _bx;
-	unsigned int _y, _by;
+	int _x, _bx;
+	int _y, _by;
 
 	double const _dx(_xmax - _xmin);
 	double const _dy(_ymax - _ymin);
@@ -291,8 +291,8 @@ std::string ps::to_string () {
 
 	/* soluzione */
 	for (iterator_t i(cdt.face_begin()); i != cdt.face_end(); ++i) {
-		unsigned int x[3];
-		unsigned int y[3];
+		int x[3];
+		int y[3];
 
 		x[0] = _bx + _x * (i->x(0) - _xmin) / _dx;
 		x[1] = _bx + _x * (i->x(1) - _xmin) / _dx;
@@ -305,7 +305,6 @@ std::string ps::to_string () {
 		double const r((p_(i->i(0)) + p_(i->i(1)) + p_(i->i(2))) / 3.);
 		float const c(((r - _rmin) / _dr));
 
-		/*
 		out << c << " " << c << " " << c << " " << "setrgbcolor" << std::endl;
 		out << "newpath" << std::endl;
 		out << x[0] << " " << y[0] << " moveto" << std::endl;
@@ -313,14 +312,6 @@ std::string ps::to_string () {
 		out << x[2] << " " << y[2] << " lineto" << std::endl;
 		out << "closepath" << std::endl;
 		out << "fill" << std::endl;
-		 */
-		out << "0 setgray" << std::endl;
-		out << "newpath" << std::endl;
-		out << x[0] << " " << y[0] << " moveto" << std::endl;
-		out << x[1] << " " << y[1] << " lineto" << std::endl;
-		out << x[2] << " " << y[2] << " lineto" << std::endl;
-		out << "closepath" << std::endl;
-		out << "stroke" << std::endl;
 	}
 
 	return out.str();
@@ -363,8 +354,8 @@ std::string vtk::to_string () {
 	out << "DATASET UNSTRUCTURED_GRID" << std::endl;
 
 	/* soluzione */
-	unsigned int const M(cdt.nodes());
-	unsigned int const N(cdt.faces());
+	int const M(cdt.nodes());
+	int const N(cdt.faces());
 
 	Eigen::VectorXd x(M);
 	Eigen::VectorXd y(M);

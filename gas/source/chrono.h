@@ -32,32 +32,45 @@
  * @brief A chronometer to profile your code
  */
 
-#ifndef _gas_chrono_
-#define _gas_chrono_
+#ifndef GAS_CHRONO_H
+#define GAS_CHRONO_H
 
 #include <ctime>
 #include <iostream>
 
 namespace gas {
 
-/*! @brief A chronometer to profile your applications */
+/*! @brief A chronometer to profile your applications
+ *
+ * @code
+ * gas::chrono timer;
+ * timer.start();
+ * // ...
+ * timer.pause();
+ * // ...
+ * timer.start();
+ * // ...
+ * timer.stop();
+ * std::cout << "Elapsed time: " << timer << std::endl;
+ * @endcode
+ */
 class chrono {
 
 public:
 	/*! @brief Create a new chronometer */
-	inline chrono (): time_start_(0), time_elapsed_(0) {
+	inline chrono (): m_time_start(0), m_time_elapsed(0) {
 	}
 
 	/*! @brief Start the chronometer */
 	inline chrono & start () {
-		time_elapsed_ = 0;
-		time_start_ = std::clock();
+		m_time_elapsed = 0;
+		m_time_start = std::clock();
 		return * this;
 	}
 
 	/*! @brief Stop the chronometer */
 	inline chrono & stop () {
-		time_elapsed_ += (std::clock()-time_start_);
+		m_time_elapsed += (std::clock()-m_time_start);
 		return *this;
 	}
 
@@ -68,26 +81,26 @@ public:
 
 	/*! @brief Restart the chronometer */
 	inline chrono & restart () {
-		time_start_ = std::clock();
+		m_time_start = std::clock();
 		return *this;
 	}
 
 	/*! @brief Give the elapsed time */
 	inline std::clock_t elapsed () const {
-		return time_elapsed_;
+		return m_time_elapsed;
 	}
 
 	/*! @brief Give the elapsed time in seconds  */
 	inline double elapsed_s () const {
-		return time_elapsed_ / CLOCKS_PER_SEC;
+		return m_time_elapsed / CLOCKS_PER_SEC;
 	}
 
 private:
 	/*! @brief The start time */
-	std::clock_t time_start_;
+	std::clock_t m_time_start;
 
 	/*! @brief The elapsed time */
-	std::clock_t time_elapsed_;
+	std::clock_t m_time_elapsed;
 
 };
 
@@ -98,4 +111,4 @@ inline std::ostream & operator<< (std::ostream & out, chrono const & c) {
 
 }
 
-#endif // _gas_chrono_
+#endif // GAS_CHRONO_H
