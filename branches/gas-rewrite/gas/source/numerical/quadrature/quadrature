@@ -32,8 +32,8 @@
  * @brief The quadrature formulae to integrate functions
  */
 
-#ifndef _gas_numerical_quadrature_
-#define _gas_numerical_quadrature_
+#ifndef GAS_NUMERICAL_QUADRATURE
+#define GAS_NUMERICAL_QUADRATURE
 
 #include "../../gas"
 #include "../../geometry/unit/unit"
@@ -51,16 +51,16 @@ struct info: public gas::info<type_> {
 	typedef typename type_::unit_t unit_t;
 
 	/*! @brief The dimension of geometry */
-	static unsigned int const d = gas::geometry::unit::info<unit_t>::d;
+	static int const d = gas::geometry::unit::info<unit_t>::d;
 	
 	/*! @brief The quadrature formula to use */
 	typedef typename type_::method_t method_t;
 	
 	/*! @brief The number of nodes */
-	static unsigned int const n = method_t::n_;
+	static int const n = method_t::n_;
 	
 	/*! @brief The degree of exactness */
-	static unsigned int const degree = method_t::degree_;
+	static int const degree = method_t::degree_;
 	
 };
 
@@ -72,4 +72,4 @@ struct info: public gas::info<type_> {
 #include "gauss_legendre.h"
 #include "newton_cotes.h"
 
-#endif // _gas_numerical_quadrature_
+#endif // GAS_NUMERICAL_QUADRATURE

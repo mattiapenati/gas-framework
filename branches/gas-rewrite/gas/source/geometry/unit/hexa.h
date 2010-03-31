@@ -33,8 +33,8 @@
  *        \f$(-1,1)\times(-1,1)\times(-1,1)\f$
  */
 
-#ifndef _gas_geometry_unit_hexa_
-#define _gas_geometry_unit_hexa_
+#ifndef GAS_GEOMETRY_UNIT_HEXA_H
+#define GAS_GEOMETRY_UNIT_HEXA_H
 
 #include "unit"
 #include "interval.h"
@@ -49,7 +49,7 @@ class hexa {
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 3u;
+	static int const d = 3u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
@@ -66,4 +66,4 @@ public:
 
 } } }
 
-#endif // _gas_geometry_unit_hexa_
+#endif // GAS_GEOMETRY_UNIT_HEXA_H

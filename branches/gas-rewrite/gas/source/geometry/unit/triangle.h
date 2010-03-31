@@ -32,8 +32,8 @@
  * @brief The triangle with vertices \f$\{(0,0),(1,0),(0,1)\}\f$
  */
 
-#ifndef _gas_geometry_unit_triangle_
-#define _gas_geometry_unit_triangle_
+#ifndef GAS_GEOMETRY_UNIT_TRIANGLE_H
+#define GAS_GEOMETRY_UNIT_TRIANGLE_H
 
 namespace gas { namespace geometry { namespace unit {
 
@@ -42,7 +42,7 @@ class triangle {
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	static int const d = 2u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
@@ -58,4 +58,4 @@ public:
 
 } } }
 
-#endif // _gas_geometry_unit_triangle_
+#endif // GAS_GEOMETRY_UNIT_TRIANGLE_H

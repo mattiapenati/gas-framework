@@ -27,15 +27,23 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _poisson_posterior_
-#define _poisson_posterior_
+#ifndef POISSON_POSTERIOR_H
+#define POISSON_POSTERIOR_H
 
 namespace poisson {
 
+/*!
+ * @brief Posterior estimator in H1 norm
+ */
 class posteriorH1 {
 
 public:
-	inline posteriorH1 (problem const & p, double const & eps)
+	/*!
+	 * @brief The constructor
+	 * @param p The problem
+	 * @param eps The cutoff to the error
+	 */
+	inline posteriorH1 (problem const & p, double const eps)
 			: p_(p),
 			  eps_(eps),
 			  max_res_((3. * eps) / (2. * std::sqrt(p_.faces()))),
@@ -43,18 +51,37 @@ public:
 			  h1_norm_(p.normH1()) {
 	}
 
+	/*!
+	 * @brief Evaluate the residue on a face
+	 * @param face The face
+	 * @return The residue
+	 */
 	template <typename face_>
 	double residue (face_ const & face) const;
 
+	/*!
+	 * A test to check the residue is small enough to insert a new point
+	 * @param res The residue
+	 * @return The result of test
+	 */
 	inline bool insert (double const & res) const {
 		return (res > max_res_);
 	}
 
+	/*!
+	 * A test to check the residue is small enough to remove a point
+	 * @param res The residue
+	 * @return The result of test
+	 */
 	inline bool remove (double const & res) const {
 		return (res < min_res_);
 	}
 
 private:
+	/*
+	 * Compute the gradient vector of a function on a triangle, from the
+	 * coordinate of vertices and the values of the function in these vertices
+	 */
 	Eigen::Vector2d grad(
 			Eigen::Vector2d const & p0, double const & u0,
 			Eigen::Vector2d const & p1, double const & u1,
@@ -66,7 +93,7 @@ private:
 private:
 	problem const & p_;
 
-	double const & eps_;
+	double const eps_;
 
 	double const max_res_;
 	double const min_res_;
@@ -74,18 +101,21 @@ private:
 	double const h1_norm_;
 
 private:
+	/*
+	 * Wrap a circulator to be used with integrator
+	 */
 	class faceCirculatorWrapper {
 	private:
 		typedef triangulation::cdt_t::Face_circulator circulator;
 	public:
 		inline faceCirculatorWrapper(circulator const & c): c_(c) {}
-		inline double x (unsigned int const & i) const {
+		inline double x (int const i) const {
 			return c_->vertex(i)->point().x();
 		}
-		inline double y (unsigned int const & i) const {
+		inline double y (int const i) const {
 			return c_->vertex(i)->point().y();
 		}
-		inline unsigned int i (unsigned int const & i) const {
+		inline int i (int const i) const {
 			return c_->vertex(i)->info().index;
 		}
 	private:
@@ -94,7 +124,7 @@ private:
 
 private:
 	struct baseClement: public gas::functional::function<2u, baseClement> {
-		inline baseClement (unsigned const & i): i(i) { }
+		inline baseClement (int const & i): i(i) { }
 		inline double operator() (double const & x, double const & y) const {
 			switch(i) {
 			case 0: return 1.;
@@ -104,7 +134,7 @@ private:
 			return 0.;
 		}
 	private:
-		unsigned const i;
+		int const i;
 	};
 
 };
@@ -121,18 +151,13 @@ Eigen::Vector2d posteriorH1::grad(
 	A.row(0) = (p0 - p2);
 	A.row(1) = (p1 - p2);
 
-	/* vettore */
-	Eigen::Vector2d b(
+	/* termine noto */
+	Eigen::Vector2d const b(
 			(u0 - u2),
 			(u1 - u2));
 
-	/* coefficienti del gradiente */
-	Eigen::Vector2d x;
-
-	Eigen::LU<Eigen::Matrix2d> luA(A);
-	luA.solve(b, &x);
-
-	return x;
+	/* risolvo */
+	return A.inverse() * b;
 }
 
 
@@ -205,9 +230,9 @@ Eigen::Vector2d posteriorH1::gradClement(VertexPointer const & v) const {
 	} while(circ != end);
 
 	/* soluzione del sistema */
-	Eigen::LU<Eigen::Matrix3d> luM(M);
-	luM.solve(bx, &ax);
-	luM.solve(by, &ay);
+	M = M.inverse();
+	ax = M * bx;
+	ay = M * by;
 
 	/* gradiente */
 	Eigen::Vector2d gC(0., 0.);
@@ -227,23 +252,23 @@ double posteriorH1::residue (face_ const & face) const {
 	typedef triangulation::face::cgal_face_iterator_t cgal_face_iterator_t;
 	cgal_face_iterator_t const cgal_it(face.it_);
 
-	/* coordinate dei nodi */
+	/* coordinate dei nodi della faccia */
 	Eigen::Vector2d const p0(face.x(0), face.y(0));
 	Eigen::Vector2d const p1(face.x(1), face.y(1));
 	Eigen::Vector2d const p2(face.x(2), face.y(2));
 
-	/* area */
+	/* area del triangolo */
 	Eigen::Matrix3d tri;
 	tri << p0(0), p0(1), 1., p1(0), p1(1), 1., p2(0), p2(1), 1.;
 	double const area(0.5 * std::abs(tri.determinant()));
 
-	/* distanze */
+	/* lunghezze dei lati */
 	double const d01((p0-p1).norm());
 	double const d12((p1-p2).norm());
 	double const d02((p0-p2).norm());
 	double const h(std::max(d01, std::max(d12, d02)));
 
-	/* soluzione */
+	/* soluzione sulla faccia */
 	Eigen::Vector3d const u(
 			p_(face.i(0)),
 			p_(face.i(1)),
@@ -252,7 +277,7 @@ double posteriorH1::residue (face_ const & face) const {
 	/* gradiente locale */
 	Eigen::Vector2d const g(grad(p0, u(0), p1, u(1), p2, u(2)));
 
-	/* gradiente Clement */
+	/* gradiente Clement su ogni vertice */
 	Eigen::Vector2d const gC0(gradClement(cgal_it->vertex(0)));
 	Eigen::Vector2d const gC1(gradClement(cgal_it->vertex(1)));
 	Eigen::Vector2d const gC2(gradClement(cgal_it->vertex(2)));
@@ -268,6 +293,7 @@ double posteriorH1::residue (face_ const & face) const {
 	problem::forzante_t f;
 	s(face);
 
+	/* -lap(u) = f --> r = f + lap(u) --> r^2 */
 	double const res_faccia = h * std::sqrt(
 			s.integrate(f * f)  +
 			2 * lap * s.integrate(f) +
@@ -279,8 +305,9 @@ double posteriorH1::residue (face_ const & face) const {
 
 	/* giro sui lati */
 	gas_rangeu(i, 3) {
+		/* controllo se il lato è di bordo */
 		if (!p_.mesh().cdt_.is_infinite(cgal_it->neighbor(i))) {
-			/* coordinate del vicino */
+			/* coordinate dei vertici del triangolo vicino */
 			Eigen::Vector2d const pn0(
 					cgal_it->neighbor(i)->vertex(0)->point().x(),
 					cgal_it->neighbor(i)->vertex(0)->point().y());
@@ -337,38 +364,10 @@ double posteriorH1::residue (face_ const & face) const {
 
 	/* residuo totale */
 	double const res_totale(res_faccia + res_lato);
-
-	/*
-	std::cerr << "Faccia" << std::endl;
-	std::cerr << "  " << p0(0) << " " << p0(1) << std::endl;
-	std::cerr << "  " << p1(0) << " " << p1(1) << std::endl;
-	std::cerr << "  " << p2(0) << " " << p2(1) << std::endl;
-	std::cerr << "Soluzione" << std::endl;
-	std::cerr << "  " << u(0) << " " << u(1) << " " << u(2) <<  std::endl;
-	std::cerr << "Gradiente" << std::endl;
-	std::cerr << "  " << g(0) << " " << g(1) << std::endl;
-	std::cerr << "Area" << std::endl;
-	std::cerr << "  " << area << std::endl;
-	std::cerr << "Clement" << std::endl;
-	std::cerr << "  " << gC0(0) << " " << gC0(1) << std::endl;
-	std::cerr << "  " << gC1(0) << " " << gC1(1) << std::endl;
-	std::cerr << "  " << gC2(0) << " " << gC2(1) << std::endl;
-	std::cerr << "Laplaciano" << std::endl;
-	std::cerr << "  " << l0(0) << " " << l0(1) << std::endl;
-	std::cerr << "  " << l1(0) << " " << l1(1) << std::endl;
-	std::cerr << "Residuo faccia" << std::endl;
-	std::cerr << "  " << res_faccia << std::endl;
-	std::cerr << "Residuo lato" << std::endl;
-	std::cerr << "  " << res_lato << std::endl;
-	std::cerr << "Norma H1" << std::endl;
-	std::cerr << "  " << h1_norm_ << std::endl;
-	std::cerr << std::endl;
-	*/
-
 	return res_totale / h1_norm_;
 
 }
 
 }
 
-#endif // _poisson_posterior_
+#endif // POISSON_POSTERIOR_H

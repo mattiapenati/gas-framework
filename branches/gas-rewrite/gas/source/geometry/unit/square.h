@@ -33,8 +33,8 @@
  *        \f$(-1,1)\times(-1,1)\f$
  */
 
-#ifndef _gas_geometry_unit_square_
-#define _gas_geometry_unit_square_
+#ifndef GAS_GEOMETRY_UNIT_SQUARE_H
+#define GAS_GEOMETRY_UNIT_SQUARE_H
 
 #include "interval.h"
 
@@ -48,7 +48,7 @@ class square {
 
 public:
 	/*! @brief Dimension of geometry */
-	static unsigned int const d = 2u;
+	static int const d = 2u;
 
 	/*!
 	 * @brief Check the membership of a point by its coordinates
@@ -64,4 +64,4 @@ public:
 
 } } }
 
-#endif // _gas_geometry_unit_square_
+#endif // GAS_GEOMETRY_UNIT_SQUARE_H

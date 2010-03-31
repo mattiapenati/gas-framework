@@ -133,7 +133,7 @@ public:
 	 * @return The new coordinate \f$x=\varphi(\mathbf{X})\f$
 	 */
 	inline double x (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		Eigen::Vector3d const t(X, Y, Z);
 		Eigen::Vector3d const x(A_ * t + b_);
 		return x(0);
@@ -147,7 +147,7 @@ public:
 	 * @return The new coordinate \f$y=\varphi(\mathbf{X})\f$
 	 */
 	inline double y (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		Eigen::Vector3d const t(X, Y, Z);
 		Eigen::Vector3d const x(A_ * t + b_);
 		return x(1);
@@ -161,7 +161,7 @@ public:
 	 * @return The new coordinate \f$y=\varphi(\mathbf{X})\f$
 	 */
 	inline double z (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		Eigen::Vector3d const t(X, Y, Z);
 		Eigen::Vector3d const x(A_ * t + b_);
 		return x(2);
@@ -177,7 +177,7 @@ public:
 	inline double X (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return X(0);
 	}
 
@@ -191,7 +191,7 @@ public:
 	inline double Y (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return X(1);
 	}
 
@@ -205,7 +205,7 @@ public:
 	inline double Z (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return X(2);
 	}
 
@@ -217,7 +217,7 @@ public:
 	 * @return The value of derivative \f$\frac{dx}{dX}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dxdX (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(0,0);
 	}
 
@@ -229,7 +229,7 @@ public:
 	 * @return The value of derivative \f$\frac{dx}{dY}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dxdY (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(0,1);
 	}
 
@@ -241,7 +241,7 @@ public:
 	 * @return The value of derivative \f$\frac{dx}{dZ}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dxdZ (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(0,2);
 	}
 
@@ -253,7 +253,7 @@ public:
 	 * @return The value of derivative \f$\frac{dy}{dX}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dydX (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(1,0);
 	}
 
@@ -265,7 +265,7 @@ public:
 	 * @return The value of derivative \f$\frac{dy}{dY}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dydY (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(1,1);
 	}
 
@@ -277,7 +277,7 @@ public:
 	 * @return The value of derivative \f$\frac{dy}{dZ}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dydZ (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(1,2);
 	}
 
@@ -289,7 +289,7 @@ public:
 	 * @return The value of derivative \f$\frac{dz}{dX}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dzdX (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(2,0);
 	}
 
@@ -301,7 +301,7 @@ public:
 	 * @return The value of derivative \f$\frac{dz}{dY}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dzdY (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(2,1);
 	}
 
@@ -313,7 +313,7 @@ public:
 	 * @return The value of derivative \f$\frac{dz}{dZ}=\varphi'(\mathbf{X})\f$
 	 */
 	inline double dzdZ (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return A_(2,2);
 	}
 
@@ -327,7 +327,7 @@ public:
 	inline double dXdx (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(0,0);
 	}
 
@@ -341,7 +341,7 @@ public:
 	inline double dXdy (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(0,1);
 	}
 
@@ -355,7 +355,7 @@ public:
 	inline double dXdz (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(0,2);
 	}
 
@@ -369,7 +369,7 @@ public:
 	inline double dYdx (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(1,0);
 	}
 
@@ -383,7 +383,7 @@ public:
 	inline double dYdy (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(1,1);
 	}
 
@@ -397,7 +397,7 @@ public:
 	inline double dYdz (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(1,2);
 	}
 
@@ -411,7 +411,7 @@ public:
 	inline double dZdx (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(2,0);
 	}
 
@@ -425,7 +425,7 @@ public:
 	inline double dZdy (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(2,1);
 	}
 
@@ -439,7 +439,7 @@ public:
 	inline double dZdz (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return invA_(2,2);
 	}
 
@@ -451,7 +451,7 @@ public:
 	 * @return The value of Jacobian \f$\det\left[\frac{dx_i}{dX_j}\right](\mathbf{X})\f$
 	 */
 	inline double det (double const & X, double const & Y, double const & Z) const {
-		gas_assert(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X, Y, Z)); // The point must be in the tetrahedron
 		return detA_;
 	}
 
@@ -465,7 +465,7 @@ public:
 	inline double DET (double const & x, double const & y, double const & z) const {
 		Eigen::Vector3d const t(x, y, z);
 		Eigen::Vector3d const X(invA_ * (t - b_));
-		gas_assert(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
+		GAS_ASSERT(unit_t::in(X(0), X(1), X(2))); // The point must be in the tetrahedron
 		return 1./detA_;
 	}
 

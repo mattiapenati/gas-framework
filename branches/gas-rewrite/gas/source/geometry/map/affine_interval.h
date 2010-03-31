@@ -141,7 +141,7 @@ public:
 	 */
 	inline double dXdx (double const & x) const {
 		double const _X((x-beta_)/alfa_);
-		gas_assert(unit_t::in(_X)); // The point must be in the interval
+		GAS_ASSERT(unit_t::in(_X)); // The point must be in the interval
 		return 1./alfa_;
 	}
 
@@ -151,7 +151,7 @@ public:
 	 * @return The value of Jacobian \f$\det\left[\frac{dx_i}{dX_j}\right](X)\f$
 	 */
 	inline double det (double const & X) const {
-		gas_assert(unit_t::in(X)); // The point must be in the interval
+		GAS_ASSERT(unit_t::in(X)); // The point must be in the interval
 		return alfa_;
 	}
 
@@ -162,7 +162,7 @@ public:
 	 */
 	inline double DET (double const & x) const {
 		double const _X((x-beta_)/alfa_);
-		gas_assert(unit_t::in(_X)); // The point must be in the interval
+		GAS_ASSERT(unit_t::in(_X)); // The point must be in the interval
 		return 1./alfa_;
 	}
 

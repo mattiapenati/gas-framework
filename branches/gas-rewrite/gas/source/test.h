@@ -32,19 +32,21 @@
  * @brief A minimal class to write unit test
  */
 
-#ifndef _gas_test_
-#define _gas_test_
+#ifndef GAS_TEST_H
+#define GAS_TEST_H
 
 /*!
- * @def gas_unit(TEST)
+ * @def GAS_UNIT(TEST)
  * @brief An alias for the main of test
  */
 
-#define gas_unit(TEST) \
+#define GAS_UNIT(TEST) \
 int main (int argc, char * argv[]) { \
 	gas::test<TEST>::run(); \
 	return 0; \
 }
+
+#define gas_unit GAS_UNIT
 
 namespace gas {
 
@@ -71,4 +73,4 @@ class test {
 
 }
 
-#endif // _gas_test_
+#endif // GAS_TEST_H

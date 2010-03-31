@@ -32,10 +32,14 @@
 
 namespace poisson {
 
-class soluzione: public gas::functional::function<2u, soluzione> {
+/* soluzione esatta del problema */
+class soluzione
+	: public gas::functional::function<2, soluzione>
+{
 
 public:
-	inline double operator() (double const & x, double const & y) const {
+	inline double operator() (double const x, double const y) const
+	{
 		double const k(3.);
 		double const n(10.);
 
@@ -49,10 +53,15 @@ public:
 class problem {
 
 private:
-	class forzante: public gas::functional::function<2u, forzante> {
+
+	/* forzante del problema di poisson */
+	class forzante
+		: public gas::functional::function<2, forzante>
+	{
 
 	public:
-		inline double operator() (double const & x, double const & y) const {
+		inline double operator() (double const & x, double const & y) const
+		{
 			double const k(3.);
 			double const n(10.);
 
@@ -71,10 +80,12 @@ public:
 	typedef forzante forzante_t;
 
 private:
+	/* tipi per l'algebra lineare */
 	typedef Eigen::SparseMatrix<double> matrix_t;
 	typedef Eigen::VectorXd vector_t;
 
 private:
+	/* definizione della geometria e dell'integratore */
 	typedef gas::geometry::unit::triangle triangle_t;
 	typedef gas::numerical::quadrature::newton_cotes<triangle_t, 6u> method_t;
 
@@ -82,11 +93,12 @@ public:
 	typedef gas::numerical::quadrature::formula<method_t> integrator_t;
 
 public:
+	/* definizione della base e dell'elemento */
 	typedef gas::functional::base::P1<triangle_t> base_t;
 	typedef gas::functional::element<base_t> element_t;
 
 public:
-	inline problem (triangulation const & cdt): cdt_(cdt), no_zeros_(0u) {
+	inline problem (triangulation const & cdt): no_zeros_(0u), cdt_(cdt) {
 	}
 
 	void solve ();
@@ -101,15 +113,15 @@ public:
 	template <typename function_>
 	double errH1 (function_ const & f) const;
 
-	inline unsigned int no_zeros () const {
+	inline int no_zeros () const {
 		return no_zeros_;
 	}
 
-	inline unsigned int faces () const {
+	inline int faces () const {
 		return cdt_.faces();
 	}
 
-	inline double operator() (unsigned int const & i) const {
+	inline double operator() (int const & i) const {
 		return x_(i);
 	}
 
@@ -122,32 +134,31 @@ private:
 	vector_t x_;
 
 	/*! @brief Elementi non nulli */
-	unsigned int no_zeros_;
+	int no_zeros_;
 
 	/*! @brief Pointer to the mesh */
 	triangulation const & cdt_;
 
 };
 
-void problem::solve () {
-
+void problem::solve ()
+{
 	/* tipi */
-
 	typedef triangulation::face_iterator_t iterator_t;
 	typedef triangulation::boundary_circulator_t circulator_t;
 
+	/* derivatore */
 	using gas::functional::dx;
 	using gas::functional::dy;
 
 	/* dimensione del problema */
-
-	unsigned int const n(cdt_.nodes());
-	unsigned int const N(element_t::base_t::n);
+	int const n(cdt_.nodes());
+	int const N(element_t::base_t::n);
 
 	/* riempimento delle strutture */
 
+	/* forma bilineare e funzionale */
 	#define bilinear_form(u,v) (dx(u) * dx(v)) + (dy(u) * dy(v))
-	//#define bilinear_form(u,v) u * v
 	#define functional(v) f * v
 
 	Eigen::DynamicSparseMatrix<double> Atmp(n,n);
@@ -157,6 +168,7 @@ void problem::solve () {
 	integrator_t s;
 	forzante_t f;
 
+	/* itero su tutte le facce */
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		s(*it);
 		element_t e(*it);
@@ -164,8 +176,8 @@ void problem::solve () {
 		/* forma bilineare */
 		gas_rangeu(i, N) {
 			gas_rangeu(j, N) {
-				unsigned int const ii(it->i(i));
-				unsigned int const jj(it->i(j));
+				int const ii(it->i(i));
+				int const jj(it->i(j));
 
 				double const r(s.integrate(bilinear_form(e.b(j), e.b(i))));
 
@@ -175,7 +187,7 @@ void problem::solve () {
 
 		/* termine noto */
 		gas_rangeu(i, N) {
-			unsigned int const ii(it->i(i));
+			int const ii(it->i(i));
 
 			double const r(s.integrate(functional(e.b(i))));
 
@@ -183,12 +195,11 @@ void problem::solve () {
 		}
 	}
 
-	/* condizioni al bordo */
-
+	/* condizioni al bordo con penalizzazione */
 	circulator_t circ = cdt_.boundary();
 	circulator_t begin = circ;
 	do {
-		unsigned int const i(circ->i());
+		int const i(circ->i());
 		Atmp.coeffRef(i, i) = 1.e30;
 		b(i) = 0.;
 		++circ;
@@ -196,7 +207,6 @@ void problem::solve () {
 
 
 	/* strutture algebriche */
-
 	matrix_t A(Atmp);
 	no_zeros_ = A.nonZeros();
 	x_.resize(n);
@@ -205,50 +215,18 @@ void problem::solve () {
 	Eigen::SparseLU<matrix_t, Eigen::UmfPack> lu(A);
 	gas_assert(lu.succeeded());
 	lu.solve(b, &x_);
-
 }
 
-double problem::normL2() const {
-	double n(0.);
-	{
-		typedef triangulation::face_iterator_t iterator_t;
-
-		integrator_t s;
-
-		unsigned int const N(element_t::base_t::n);
-
-		for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
-			/* soluzione */
-			Eigen::Vector3d const u(
-					x_(it->i(0)),
-					x_(it->i(1)),
-					x_(it->i(2))
-					);
-
-			/* matrice locale */
-			s(*it);
-			element_t e(*it);
-
-			Eigen::Matrix3d S;
-			gas_rangeu(i, N) { gas_rangeu(j, N) {
-				S(i,j) = s.integrate(e.b(i) * e.b(j));
-			} }
-
-			/* norma locale */
-			n += u.dot(S * u);
-		}
-	}
-	return std::sqrt(n);
-}
-
-double problem::normH1() const {
+double problem::normL2() const
+{
+	/* norma */
 	double n(0.);
 
 	typedef triangulation::face_iterator_t iterator_t;
 
 	integrator_t s;
 
-	unsigned int const N(element_t::base_t::n);
+	int const N(element_t::base_t::n);
 
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		/* soluzione */
@@ -258,10 +236,47 @@ double problem::normH1() const {
 				x_(it->i(2))
 				);
 
-		/* matrice locale */
+		/* integratore e elemento */
 		s(*it);
 		element_t e(*it);
 
+		/* matrice di stiffness locale */
+		Eigen::Matrix3d S;
+		gas_rangeu(i, N) { gas_rangeu(j, N) {
+			S(i,j) = s.integrate(e.b(i) * e.b(j));
+		} }
+
+		/* norma locale */
+		n += u.dot(S * u);
+	}
+
+	return std::sqrt(n);
+}
+
+double problem::normH1() const
+{
+	/* norma */
+	double n(0.);
+
+	typedef triangulation::face_iterator_t iterator_t;
+
+	integrator_t s;
+
+	int const N(element_t::base_t::n);
+
+	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
+		/* soluzione */
+		Eigen::Vector3d const u(
+				x_(it->i(0)),
+				x_(it->i(1)),
+				x_(it->i(2))
+				);
+
+		/* integratore e elemento */
+		s(*it);
+		element_t e(*it);
+
+		/* matrice di stiffness locale */
 		Eigen::Matrix3d S;
 		gas_rangeu(i, N) { gas_rangeu(j, N) {
 			using gas::functional::dx;
@@ -289,7 +304,7 @@ double problem::errL2 (function_ const & f) const {
 
 	integrator_t s;
 
-	unsigned int const N(element_t::base_t::n);
+	int const N(element_t::base_t::n);
 
 	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
 		/* soluzione */
@@ -299,11 +314,11 @@ double problem::errL2 (function_ const & f) const {
 				x_(it->i(2))
 				);
 
+		/* integratore e elemento */
 		s(*it);
 		element_t e(*it);
 
 		/* matrice locale */
-
 		Eigen::Matrix3d S;
 		gas_rangeu(i, N) { gas_rangeu(j, N) {
 			S(i,j) = s.integrate(e.b(i) * e.b(j));
@@ -321,6 +336,56 @@ double problem::errL2 (function_ const & f) const {
 
 		/* norma locale */
 		n += std::abs(u2 + f2 - 2. * fu);
+	}
+
+	return std::sqrt(n);
+}
+
+template <typename function_>
+double problem::errH1 (function_ const & f) const
+{
+	double n(errL2(f));
+	n *= n;
+
+	typedef triangulation::face_iterator_t iterator_t;
+
+	integrator_t s;
+
+	int const N(element_t::base_t::n);
+
+	for (iterator_t it(cdt_.face_begin()); it != cdt_.face_end(); ++it) {
+		/* soluzione */
+		Eigen::Vector3d const u(
+				x_(it->i(0)),
+				x_(it->i(1)),
+				x_(it->i(2))
+				);
+
+		/* integratore e elemento */
+		s(*it);
+		element_t e(*it);
+
+		/* stiffness locale per la norma H1 */
+		Eigen::Matrix3d S;
+		gas_rangeu(i, N) { gas_rangeu(j, N) {
+			S(i,j) = s.integrate(dx(e.b(i)) * dx(e.b(j)))
+					+ s.integrate(dy(e.b(i)) * dy(e.b(j)));
+		} }
+
+		/* vettore locale */
+		Eigen::Vector3d b;
+		gas_rangeu(i, N) {
+			b(i) = s.integrate(dx(f) * dx(e.b(i)))
+					+ s.integrate(dy(f) * dy(e.b(i)));
+		}
+
+		double const fx(s.integrate(dx(f) * dx(f)));
+		double const fy(s.integrate(dy(f) * dy(f)));
+		double const gu(u.dot(S * u));
+		double const fu(u.dot(b));
+
+		/* norma locale */
+		n += std::abs(fx + fy + gu - 2.* fu);
 	}
 
 	return std::sqrt(n);

@@ -32,8 +32,8 @@
  * @brief The class to manage the types
  */
 
-#ifndef _gas_type_
-#define _gas_type_
+#ifndef GAS_TYPE_H
+#define GAS_TYPE_H
 
 namespace gas {
 
@@ -72,4 +72,4 @@ struct same_type<type_, type_> {
 
 }
 
-#endif // _gas_type_
+#endif // GAS_TYPE_H

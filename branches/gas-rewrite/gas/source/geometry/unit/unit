@@ -32,8 +32,8 @@
  * @brief The utility to manage the unit geometry
  */
 
-#ifndef _gas_geometry_unit_
-#define _gas_geometry_unit_
+#ifndef GAS_GEOMETRY_UNIT
+#define GAS_GEOMETRY_UNIT
 
 #include "../../gas"
 
@@ -47,7 +47,7 @@ template <typename type_>
 struct info: public gas::info<type_> {
 
 	/*! @brief The dimension of geometry */
-	static unsigned int const d = type_::d;
+	static int const d = type_::d;
 
 };
 
@@ -59,4 +59,4 @@ struct info: public gas::info<type_> {
 #include "tetra.h"
 #include "triangle.h"
 
-#endif // _gas_geometry_unit_
+#endif // GAS_GEOMETRY_UNIT

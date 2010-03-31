@@ -32,8 +32,8 @@
  * @brief The Lagrange base of order 1 on the interval
  */
 
-#ifndef _gas_functional_base_p1_interval_
-#define _gas_functional_base_p1_interval_
+#ifndef GAS_FUNCTIONAL_BASE_P1_INTERVAL_H
+#define GAS_FUNCTIONAL_BASE_P1_INTERVAL_H
 
 #include "../../geometry/unit/unit"
 #include "../../gas"
@@ -67,9 +67,9 @@ public:
 	 * @param X The coordinate
 	 * @return The evaluation of i-th base function in X
 	 */
-	static inline double b (unsigned int const & i, double const & X) {
-		gas_assert(unit_t::in(X)); // The point must be in the interval
-		gas_assert(i < n);         // A valid index
+	static inline double b (int const i, double const X) {
+		GAS_ASSERT(unit_t::in(X)); // The point must be in the interval
+		GAS_ASSERT(i < n);         // A valid index
 		switch (i) {
 		case 0: return (1. - X) * 0.5;
 		case 1: return (1. + X) * 0.5;
@@ -83,9 +83,9 @@ public:
 	 * @param X The coordinate
 	 * @return The evaluation of i-th base function in X
 	 */
-	static inline double dbdX (unsigned int const & i, double const & X) {
-		gas_assert(unit_t::in(X)); // The point must be in the interval
-		gas_assert(i < n);         // A valid index
+	static inline double dbdX (int const i, double const X) {
+		GAS_ASSERT(unit_t::in(X)); // The point must be in the interval
+		GAS_ASSERT(i < n);         // A valid index
 		switch (i) {
 		case 0: return -0.5;
 		case 1: return +0.5;
@@ -97,4 +97,4 @@ public:
 
 } } }
 
-#endif // _gas_functional_base_p1_interval_
+#endif // GAS_FUNCTIONAL_BASE_P1_INTERVAL_H

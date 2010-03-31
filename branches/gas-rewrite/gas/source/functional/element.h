@@ -32,8 +32,8 @@
  * @brief The element definition
  */
 
-#ifndef _gas_functional_element_
-#define _gas_functional_element_
+#ifndef GAS_FUNCTIONAL_ELEMENT_H
+#define GAS_FUNCTIONAL_ELEMENT_H
 
 #include "../gas"
 #include "../geometry/map/map"
@@ -43,11 +43,11 @@
 
 namespace gas { namespace functional {
 
-template <unsigned int d_, typename element_> class base_function;
-template <unsigned int d_, typename element_> class d_base_function;
-template <unsigned int d_, typename element_> class dx_base_function;
-template <unsigned int d_, typename element_> class dy_base_function;
-template <unsigned int d_, typename element_> class dz_base_function;
+template <int d_, typename element_> class base_function;
+template <int d_, typename element_> class d_base_function;
+template <int d_, typename element_> class dx_base_function;
+template <int d_, typename element_> class dy_base_function;
+template <int d_, typename element_> class dz_base_function;
 
 /*!
  * @brief A local element, link a base with a map
@@ -68,7 +68,7 @@ public:
 	typedef map_ map_t;
 
 	/*! @brief The dimensione of domain */
-	static unsigned int const d = gas::geometry::map::info<map_t>::d;
+	static int const d = gas::geometry::map::info<map_t>::d;
 
 public:
 	inline element (): m_() {}
@@ -91,7 +91,7 @@ public:
 	 * @param i The index of base function
 	 * @return The base function
 	 */
-	inline base_function<d, self_t> b (unsigned int const & i) const {
+	inline base_function<d, self_t> b (int const i) const {
 		return base_function<d, self_t>(i, *this);
 	}
 
@@ -99,11 +99,11 @@ private:
 	/*! @brief The map */
 	map_t const m_;
 
-	template <unsigned int d__, typename element__> friend class base_function;
-	template <unsigned int d__, typename element__> friend class d_base_function;
-	template <unsigned int d__, typename element__> friend class dx_base_function;
-	template <unsigned int d__, typename element__> friend class dy_base_function;
-	template <unsigned int d__, typename element__> friend class dz_base_function;
+	template <int d__, typename element__> friend class base_function;
+	template <int d__, typename element__> friend class d_base_function;
+	template <int d__, typename element__> friend class dx_base_function;
+	template <int d__, typename element__> friend class dy_base_function;
+	template <int d__, typename element__> friend class dz_base_function;
 
 };
 
@@ -111,7 +111,9 @@ private:
  * @brief A base function (1d domain)
  */
 template <typename element_>
-class base_function<1u, element_>: public function<1u, base_function<1u, element_> > {
+class base_function<1u, element_>
+	: public function<1u, base_function<1u, element_> >
+{
 
 /* TODO derivate */
 
@@ -124,17 +126,17 @@ private:
 	 * @brief The constructor
 	 * @param i The index of base
 	 */
-	inline base_function (unsigned int const & i, element_ const & element): i_(i), el_(element) {
+	inline base_function (int const i, element_ const & element): i_(i), el_(element) {
 	}
 
 public:
-	inline double operator() (double const & x) const {
+	inline double operator() (double const x) const {
 		double const _X(el_.m_.X(x));
 		return base_t::b(i_, _X);
 	}
 
 private:
-	unsigned int const i_;
+	int const i_;
 	element_ const & el_;
 
 	template <typename base__, typename map__> friend class element;
@@ -146,7 +148,9 @@ private:
  * @brief A base function (2d domain)
  */
 template <typename element_>
-class base_function<2u, element_>: public function<2u, base_function<2u, element_> > {
+class base_function<2u, element_>
+	: public function<2u, base_function<2u, element_> >
+{
 
 public:
 	typedef dx_base_function<2u, element_> dx_t;
@@ -161,18 +165,18 @@ private:
 	 * @brief The constructor
 	 * @param i The index of base
 	 */
-	inline base_function (unsigned int const & i, element_ const & element): i_(i), el_(element) {
+	inline base_function (int const i, element_ const & element): i_(i), el_(element) {
 	}
 
 public:
-	inline double operator() (double const & x, double const & y) const {
+	inline double operator() (double const x, double const y) const {
 		double const _X(el_.m_.X(x, y));
 		double const _Y(el_.m_.Y(x, y));
 		return base_t::b(i_, _X, _Y);
 	}
 
 private:
-	unsigned int const i_;
+	int const i_;
 	element_ const & el_;
 
 	template <typename base__, typename map__> friend class element;
@@ -186,7 +190,9 @@ private:
  * @brief A base function (3d domain)
  */
 template <typename element_>
-class base_function<3u, element_>: public function<3u, base_function<3u, element_> > {
+class base_function<3u, element_>
+	: public function<3u, base_function<3u, element_> >
+{
 
 /* TODO derivate */
 
@@ -199,11 +205,11 @@ private:
 	 * @brief The constructor
 	 * @param i The index of base
 	 */
-	inline base_function (unsigned int const & i, element_ const & element): i_(i), el_(element) {
+	inline base_function (int const i, element_ const & element): i_(i), el_(element) {
 	}
 
 public:
-	inline double operator() (double const & x, double const & y, double const & z) const {
+	inline double operator() (double const x, double const y, double const & z) const {
 		double const _X(el_.m_.X(x, y, z));
 		double const _Y(el_.m_.Y(x, y, z));
 		double const _Z(el_.m_.Z(x, y, z));
@@ -211,7 +217,7 @@ public:
 	}
 
 private:
-	unsigned int const i_;
+	int const i_;
 	element_ const & el_;
 
 	template <typename base__, typename map__>
@@ -223,7 +229,9 @@ private:
  * @brief The derivative of base function (2d domain)
  */
 template <typename element_>
-class dx_base_function<2u, element_>: public function<2u, dx_base_function<2u, element_> > {
+class dx_base_function<2u, element_>
+	: public function<2u, dx_base_function<2u, element_> >
+{
 
 private:
 	/*! @brief The base */
@@ -234,13 +242,13 @@ private:
 	}
 
 public:
-	inline double operator() (double const & x, double const & y) const {
+	inline double operator() (double const x, double const y) const {
 		double const _X(el_.m_.X(x, y));
 		double const _Y(el_.m_.Y(x, y));
 		return base_t::dbdX(i_, _X, _Y) * el_.m_.dXdx(x, y) + base_t::dbdY(i_, _X ,_Y) * el_.m_.dYdx(x, y);
 	}
 
-	unsigned int const & i_;
+	int const & i_;
 	element_ const & el_;
 
 	template <typename function__>
@@ -252,7 +260,9 @@ public:
  * @brief The derivative of base function (2d domain)
  */
 template <typename element_>
-class dy_base_function<2u, element_>: public function<2u, dy_base_function<2u, element_> > {
+class dy_base_function<2u, element_>
+	: public function<2u, dy_base_function<2u, element_> >
+{
 
 private:
 	/*! @brief The base */
@@ -263,13 +273,13 @@ private:
 	}
 
 public:
-	inline double operator() (double const & x, double const & y) const {
+	inline double operator() (double const x, double const y) const {
 		double const _X(el_.m_.X(x, y));
 		double const _Y(el_.m_.Y(x, y));
 		return base_t::dbdX(i_, _X, _Y) * el_.m_.dXdy(x, y) + base_t::dbdY(i_, _X ,_Y) * el_.m_.dYdy(x, y);
 	}
 
-	unsigned int const & i_;
+	int const & i_;
 	element_ const & el_;
 
 	template <typename function__>
@@ -279,4 +289,4 @@ public:
 
 } }
 
-#endif // _gas_functional_element_
+#endif // GAS_FUNCTIONAL_ELEMENT_H

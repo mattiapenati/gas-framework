@@ -32,8 +32,8 @@
  * @brief The Lagrange base of order 1 on the triangle
  */
 
-#ifndef _gas_functional_base_p1_triangle_
-#define _gas_functional_base_p1_triangle_
+#ifndef GAS_FUNCTIONAL_BASE_P1_TRIANGLE_H
+#define GAS_FUNCTIONAL_BASE_P1_TRIANGLE_H
 
 #include "base"
 #include "../../geometry/unit/unit"
@@ -70,9 +70,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double b (unsigned int const & i, double const & X, double const & Y) {
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n);            // A valid index
+	static inline double b (int const i, double const X, double const Y) {
+		GAS_ASSERT(unit_t::in(X, Y)); // The point must be in the triangle
+		GAS_ASSERT(i < n);            // A valid index
 		switch (i) {
 		case 0: return (1. - X - Y);
 		case 1: return X;
@@ -88,9 +88,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double dbdX (unsigned int const & i, double const & X, double const & Y) {
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n);            // A valid index
+	static inline double dbdX (int const i, double const X, double const Y) {
+		GAS_ASSERT(unit_t::in(X, Y)); // The point must be in the triangle
+		GAS_ASSERT(i < n);            // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 1.;
@@ -106,9 +106,9 @@ public:
 	 * @param Y The second coordinate
 	 * @return The evaluation of i-th base function in (X,Y)
 	 */
-	static inline double dbdY (unsigned int const & i, double const & X, double const & Y) {
-		gas_assert(unit_t::in(X, Y)); // The point must be in the triangle
-		gas_assert(i < n);            // A valid index
+	static inline double dbdY (int const i, double const X, double const Y) {
+		GAS_ASSERT(unit_t::in(X, Y)); // The point must be in the triangle
+		GAS_ASSERT(i < n);            // A valid index
 		switch (i) {
 		case 0: return -1.;
 		case 1: return 0.;
@@ -121,4 +121,4 @@ public:
 
 } } }
 
-#endif // _gas_functional_base_p1_triangle_
+#endif // GAS_FUNCTIONAL_BASE_P1_TRIANGLE_H

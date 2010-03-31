@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _poisson_
-#define _poisson_
+#ifndef POISSON_H
+#define POISSON_H
 
 #include <gas>
 
@@ -66,4 +66,4 @@ class triangulation;
 
 #include "printer.h"
 
-#endif // _poisson_
+#endif // POISSON_H

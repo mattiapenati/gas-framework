@@ -43,7 +43,7 @@ private:
 		inline point_info (): index(0u), removable(true) {}
 
 		/*! @brief The index of node */
-		unsigned int index;
+		int index;
 
 		/*! @brief A flag to check if the node is removable */
 		bool removable;
@@ -59,7 +59,7 @@ private:
 		inline face_info (): index(0u) {}
 
 		/*! @brief The index of face */
-		unsigned int index;
+		int index;
 
 	};
 
@@ -105,29 +105,31 @@ private:
 		inline face (cgal_face_iterator_t const & it): it_(it) {}
 
 	public:
-		/*! @brief The first coordinate of nodes */
-		inline double x (unsigned int const & i) const {
+		/*! @brief The first coordinate of i-th node */
+		inline double x (int const & i) const {
 			gas_assert(i < 3);
 			return it_->vertex(i)->point().x();
 		}
 
-		/*! @brief The second coordinate of nodes */
-		inline double y (unsigned int const & i) const {
+		/*! @brief The second coordinate of i-th node */
+		inline double y (int const & i) const {
 			gas_assert(i < 3);
 			return it_->vertex(i)->point().y();
 		}
 
-		inline unsigned int i (unsigned int const & i) const {
+		/*! @brief The index of i-th node */
+		inline int i (int const & i) const {
 			gas_assert(i < 3);
 			return it_->vertex(i)->info().index;
 		}
 
-		inline unsigned int i () const {
+		/*! @brief The index of face */
+		inline int i () const {
 			return it_->info().index;
 		}
 
 		friend class face_iterator;
-		friend class posteriorH1;
+		friend class posteriorH1; /* serve per accedere alle strutture della CGAL */
 
 	};
 
@@ -143,7 +145,8 @@ private:
 		inline boundary (cgal_vertex_circulator_t const & circ): circ_(circ) {}
 
 	public:
-		inline unsigned int i () const {
+		/*! @brief The index of vertex */
+		inline int i () const {
 			return circ_->info().index;
 		}
 
@@ -270,6 +273,11 @@ public:
 	template <typename iterator_>
 	triangulation (iterator_ begin, iterator_ end, double h = 0.);
 
+	/*!
+	 * @brief Use the stimator object to refine the mesh
+	 * @param stimator
+	 * @return A pair of integer, the number of removed and added vertices
+	 */
 	template <typename stimator_>
 	std::pair<unsigned, unsigned> refine (stimator_ const & stimator);
 
@@ -277,7 +285,7 @@ public:
 	 * @brief Number of nodes
 	 * @return
 	 */
-	inline unsigned int nodes () const {
+	inline int nodes () const {
 		return n_nodes_;
 	}
 
@@ -285,7 +293,7 @@ public:
 	 * @brief Number of faces
 	 * @return
 	 */
-	inline unsigned int faces () const {
+	inline int faces () const {
 		return n_faces_;
 	}
 
@@ -305,6 +313,10 @@ public:
 		return face_iterator_t(cdt_.finite_faces_end());
 	}
 
+	/*!
+	 * @brief The circulator on the vertices of boundary
+	 * @return
+	 */
 	boundary_circulator_t boundary() const {
 		return boundary_circulator_t(cdt_.incident_vertices(cdt_.infinite_vertex()));
 	}
@@ -314,10 +326,10 @@ private:
 	cdt_t cdt_;
 
 	/*! @brief The number of nodes */
-	unsigned int n_nodes_;
+	int n_nodes_;
 
 	/*! @brief The number of faces */
-	unsigned int n_faces_;
+	int n_faces_;
 
 	friend class posteriorH1;
 };
@@ -385,7 +397,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	{
 		typedef cdt_t::Finite_vertices_iterator iterator_t;
 
-		unsigned int n(0);
+		int n(0);
 
 		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
 			_i->info().index = n++;
@@ -397,7 +409,7 @@ triangulation::triangulation (iterator_ begin, iterator_ end, double criteria) {
 	{
 		typedef cdt_t::Finite_faces_iterator iterator_t;
 
-		unsigned int n(0);
+		int n(0);
 
 		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
 			i->info().index = n++;
@@ -415,10 +427,6 @@ std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator)
 
 	for (face_iterator_t i(face_begin()); i != face_end(); ++i)
 		res(i->i()) = stimator.residue(*i);
-
-	std::ofstream resFile("residui.dat", std::ios_base::app);
-	resFile << res << std::endl << "=============================" << std::endl;
-	resFile.close();
 
 	/* elenco dei nodi da inserire e rimuovere */
 	typedef cdt_t::Vertex_handle vertex_t;
@@ -446,7 +454,7 @@ std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator)
 		if (i->info().removable) {
 			/* calcolo residuo medio sulla patch */
 			double r(0.);
-			unsigned int n(0);
+			int n(0);
 
 			cdt_t::Face_circulator face_c = cdt_.incident_faces(i);
 			cdt_t::Face_circulator end_c = face_c;
@@ -467,14 +475,14 @@ std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator)
 	}
 
 	/* rimozione */
-	unsigned int const rimossi(da_rimuovere.size());
+	int const rimossi(da_rimuovere.size());
 	if (rimossi) {
 		for (std::list<vertex_t>::iterator it(da_rimuovere.begin()); it != da_rimuovere.end(); ++it)
 			cdt_.remove(*it);
 	}
 
 	/* inserimento */
-	unsigned int inseriti(da_inserire.size());
+	int inseriti(da_inserire.size());
 	if (inseriti) {
 		cdt_.insert(da_inserire.begin(), da_inserire.end());
 	}
@@ -483,7 +491,7 @@ std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator)
 	{
 		typedef cdt_t::Finite_vertices_iterator iterator_t;
 
-		unsigned int n(0);
+		int n(0);
 
 		for (iterator_t _i(cdt_.finite_vertices_begin()); _i != cdt_.finite_vertices_end(); ++_i)
 			_i->info().index = n++;
@@ -495,7 +503,7 @@ std::pair<unsigned, unsigned> triangulation::refine (stimator_ const & stimator)
 	{
 		typedef cdt_t::Finite_faces_iterator iterator_t;
 
-		unsigned int n(0);
+		int n(0);
 
 		for (iterator_t i(cdt_.finite_faces_begin()); i != cdt_.finite_faces_end(); ++i)
 			i->info().index = n++;

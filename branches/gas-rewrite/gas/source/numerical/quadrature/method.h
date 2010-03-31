@@ -32,8 +32,8 @@
  * @brief Some generical implementation of quadrature formulae
  */
 
-#ifndef _gas_numerical_quadrature_method_
-#define _gas_numerical_quadrature_method_
+#ifndef GAS_NUMERICAL_QUADRATURE_METHOD_H
+#define GAS_NUMERICAL_QUADRATURE_METHOD_H
 
 #include <Eigen/Core>
 
@@ -50,12 +50,12 @@ namespace gas { namespace numerical { namespace quadrature {
  * @param nodes_ The number of nodes
  * @param data_ The struct that contains the nodes and weights
  */
-template <typename unit_, unsigned int nodes_, typename data_>
+template <typename unit_, int nodes_, typename data_>
 class method_1 {
 
 private:
 	/*! @brief The dimension of unit_t */
-	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
+	static int const d_ = gas::geometry::unit::info<unit_>::d;
 
 public:
 	/*!
@@ -114,12 +114,12 @@ private:
  * @param nodes_ The number of nodes
  * @param data_ The struct that contains the nodes and weights
  */
-template <typename unit_, unsigned int nodes_, typename data_>
+template <typename unit_, int nodes_, typename data_>
 class method_2 {
 
 private:
 	/*! @brief The dimension of unit_t */
-	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
+	static int const d_ = gas::geometry::unit::info<unit_>::d;
 
 public:
 	/*!
@@ -181,12 +181,12 @@ private:
  * @param nodes_ The number of nodes
  * @param data_ The struct that contains the nodes and weights
  */
-template <typename unit_, unsigned int nodes_, typename data_>
+template <typename unit_, int nodes_, typename data_>
 class method_3 {
 
 private:
 	/*! @brief The dimension of unit_t */
-	static unsigned int const d_ = gas::geometry::unit::info<unit_>::d;
+	static int const d_ = gas::geometry::unit::info<unit_>::d;
 
 public:
 	/*!
@@ -244,4 +244,4 @@ private:
 
 } } }
 
-#endif // _gas_numerical_quadrature_method_
+#endif // GAS_NUMERICAL_QUADRATURE_METHOD_H
