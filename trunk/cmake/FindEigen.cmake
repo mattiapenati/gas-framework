@@ -1,8 +1,8 @@
 FIND_PATH(
   EIGEN_INCLUDE_DIRS Eigen/Array
-  /usr/include/eigen2
-  /usr/local/include/eigen2
-  /opt/local/include/eigen2 
+  /usr/include/eigen3
+  /usr/local/include/eigen3
+  /opt/local/include/eigen3 
 )
 
 IF(EIGEN_INCLUDE_DIRS)
@@ -11,6 +11,20 @@ IF(EIGEN_INCLUDE_DIRS)
 ELSE(EIGEN_INCLUDE_DIRS)
   MESSAGE(FATAL_ERROR "Eigen not found")
 ENDIF(EIGEN_INCLUDE_DIRS)
+
+FIND_PATH(
+  EIGEN_UN_INCLUDE_DIRS Eigen
+  /usr/include/eigen3/unsupported
+  /usr/local/include/eigen3/unsupported
+  /opt/local/include/eigen3/unsupported
+)
+
+IF(EIGEN_UN_INCLUDE_DIRS)
+  INCLUDE_DIRECTORIES(${EIGEN_UN_INCLUDE_DIRS})
+  MESSAGE(STATUS "Found Unsupported Eigen: ${EIGEN_UN_INCLUDE_DIRS}")
+ELSE(EIGEN_UN_INCLUDE_DIRS)
+  MESSAGE(FATAL_ERROR "Unsupported Eigen not found")
+ENDIF(EIGEN_UN_INCLUDE_DIRS)
 
 FIND_PATH(
   UMFPACK_INCLUDE_DIRS umfpack.h

@@ -35,6 +35,12 @@
 #ifndef _gas_
 #define _gas_
 
+//#error The sparse module API is not stable yet. 
+//To use it anyway, please define the EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET preprocessor token.
+
+#ifndef EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
+#define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
+
 /*!
  * @namespace gas
  * @brief The main namespace
@@ -62,10 +68,16 @@
  * @brief The quadrature formulae to integrate the function
  */
 
-#include <Eigen/Array>
+//The Eigen/Array header does no longer exist in Eigen3.
+// All that functionality has moved to Eigen/Core.
+//#include <Eigen/Array>
+
 #include <Eigen/Core>
-#include <Eigen/LU>
-#include <Eigen/Sparse>
+
+//For Eigen3
+#include <Eigen/UmfPackSupport>
+//#include <Eigen/LU>
+//#include <Eigen/Sparse>
 
 #include "assertion.h"
 #include "chrono.h"
@@ -86,4 +98,6 @@
 
 #include "numerical/quadrature/quadrature"
 
+
+#endif //EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
 #endif // _gas_
