@@ -1,0 +1,31 @@
+
+file_path = "img/kh.bmp";
+
+
+result_path = "result/test01";
+
+
+problem:
+{
+	model = "ChanVese"; 
+	h_step = 0.01;	
+	lambda = 255.0;
+	epsilon = 0.00000001;
+	rho = 1.0;
+	mu = 0.00001625625;
+	tau = 0.05;
+	stop_criterion = 0.0005;
+};
+
+
+refinement:
+{
+	initial_refinement = false;
+	initial_tolerance = 0.07;
+	max_iteration = 50;
+	loop_refinement = false;
+	loop_tolerance = 0.01;	
+	nu = 0.01;
+	theta_star = 0.5;
+	method = "LongestEdge";
+};

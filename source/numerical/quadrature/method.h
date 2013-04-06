@@ -94,7 +94,8 @@ private:
 			m_f(i) = f(m_x(i, 0));
 		return m_f.dot(m_w);
 	}
-
+	
+	
 private:
 	/*! @brief The list of nodes of quadrature formula */
 	Eigen::Matrix<double, nodes_, d_> m_x;
