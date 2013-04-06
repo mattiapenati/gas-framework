@@ -81,6 +81,7 @@ public:
 // Tipi delle espressioni tra funzioni
 template <int d_, typename operand_, typename operator_> class function_expression;
 template <int d_, typename left_, typename right_, typename operator_> class function_binary;
+template <int d_, typename left_, typename center_, typename right_, typename operator_> class function_ternary;
 
 
 /*! @brief Espressione di una variabile */
@@ -155,7 +156,8 @@ public:
 
 public:
 	inline double operator() (double const x) const {
-		return operator_::eval(l_(x), r_(x));
+		double const null_elem(operator_::null_elem());
+		return operator_::eval(l_(x), r_(x), null_elem);
 	}
 
 private:
@@ -176,7 +178,8 @@ public:
 
 public:
 	inline double operator() (double const x, double const y) const {
-		return operator_::eval(l_(x, y), r_(x, y));
+		double const null_elem(operator_::null_elem());
+		return operator_::eval(l_(x, y), r_(x, y), null_elem);
 	}
 
 private:
@@ -184,6 +187,7 @@ private:
 	right_ const & r_;
 
 };
+
 
 /*! @brief Espressione binaria di tre variabili */
 template <typename left_, typename right_, typename operator_>
@@ -197,7 +201,8 @@ public:
 
 public:
 	inline double operator() (double const x, double const y, double const z) const {
-		return operator_::eval(l_(x, y, z), r_(x, y, z));
+		double const null_elem(operator_::null_elem());	  
+		return operator_::eval(l_(x, y, z), r_(x, y, z), null_elem);
 	}
 
 private:
@@ -206,8 +211,82 @@ private:
 
 };
 
-// definizione degli operatori
 
+
+
+
+/*! @brief Espressione ternaria di una variabile */
+template <typename left_, typename center_, typename right_, typename operator_>
+class function_ternary<1, left_, center_, right_, operator_>
+	: public function<1, function_ternary<1, left_, center_, right_, operator_> >
+{
+
+public:
+	inline function_ternary (left_ const & l, center_ const & c, right_ const & r): l_(l), c_(c), r_(r) {
+	}
+
+public:
+	inline double operator() (double const x) const {
+		return operator_::eval(l_(x), c_(x), r_(x));
+	}
+
+private:
+	left_ const & l_;
+	center_ const & c_;	
+	right_ const & r_;
+
+};
+
+/*! @brief Espressione ternaria di due variabili */
+template <typename left_, typename center_, typename right_, typename operator_>
+class function_ternary<2, left_, center_, right_, operator_>
+	: public function<2, function_ternary<2, left_, center_, right_, operator_> >
+{
+
+public:
+	inline function_ternary (left_ const & l, center_ const & c, right_ const & r): l_(l), c_(c), r_(r) {
+	}
+
+public:
+	inline double operator() (double const x, double const y) const {
+	  return operator_::eval(l_(x,y), c_(x,y), r_(x,y));
+	}
+
+private:
+	left_ const & l_;
+	center_ const & c_;	
+	right_ const & r_;
+
+};
+
+
+/*! @brief Espressione ternaria di tre variabili */
+template <typename left_, typename center_, typename right_, typename operator_>
+class function_ternary<3, left_, center_, right_, operator_>
+	: public function<3, function_ternary<3, left_, center_, right_, operator_> >
+{
+
+public:
+	inline function_ternary (left_ const & l, center_ const & c, right_ const & r): l_(l), c_(c), r_(r) {
+	}
+
+public:
+	inline double operator() (double const x, double const y, double const z) const {
+	   return operator_::eval(l_(x,y,z), c_(x,y,z), r_(x,y,z));
+	}
+
+private:
+	left_ const & l_;
+	center_ const & c_;	
+	right_ const & r_;
+
+};
+
+
+
+
+
+/*! @brief Addition between two functions */
 template <int d_, typename left_, typename right_>
 inline function_binary<d_, function<d_, left_>, function<d_, right_>, gas::add>
 operator+ (function<d_, left_> const & l, function<d_, right_> const & r)
@@ -215,7 +294,7 @@ operator+ (function<d_, left_> const & l, function<d_, right_> const & r)
 	return function_binary<d_, function<d_, left_>, function<d_, right_>, gas::add>(l, r);
 }
 
-
+/*! @brief Subtraction between two functions */
 template <int d_, typename left_, typename right_>
 inline function_binary<d_, function<d_, left_>, function<d_, right_>, gas::sub>
 operator- (function<d_, left_> const & l, function<d_, right_> const & r)
@@ -223,7 +302,7 @@ operator- (function<d_, left_> const & l, function<d_, right_> const & r)
 	return function_binary<d_, function<d_, left_>, function<d_, right_>, gas::sub>(l, r);
 }
 
-
+/*! @brief Product between two functions */
 template <int d_, typename left_, typename right_>
 inline function_binary<d_, function<d_, left_>, function<d_, right_>, gas::mul>
 operator* (function<d_, left_> const & l, function<d_, right_> const & r)
@@ -231,7 +310,7 @@ operator* (function<d_, left_> const & l, function<d_, right_> const & r)
 	return function_binary<d_, function<d_, left_>, function<d_, right_>, gas::mul>(l, r);
 }
 
-
+/*! @brief Ratio between two functions */
 template <int d_, typename left_, typename right_>
 inline function_binary<d_, function<d_, left_>, function<d_, right_>, gas::div>
 operator/ (function<d_, left_> const & l, function<d_, right_> const & r)
@@ -239,7 +318,96 @@ operator/ (function<d_, left_> const & l, function<d_, right_> const & r)
 	return function_binary<d_, function<d_, left_>, function<d_, right_>, gas::div>(l, r);
 }
 
-// TODO moltiplicazione per una costante
+/*! @brief Binary function < function, constant value > */
+template <typename func_, typename operator_>
+class function_binary<2, func_, double, operator_>
+	: public function<2, function_binary<2, func_, double, operator_> >
+{
+
+public:
+	inline function_binary (func_ const & l, double & b): l_(l), b_(b) {
+	}
+
+public:
+	inline double operator() (double const x, double const y) const {
+		double const null_elem(operator_::null_elem());	  
+		return operator_::eval(l_(x, y), b_, null_elem);
+	}
+
+private:
+	func_ const & l_;
+	double & b_;
+
+};
+
+/*! @brief Binary function < constant value, function > */
+template <typename func_, typename operator_>
+class function_binary<2, double, func_, operator_>
+	: public function<2, function_binary<2, double, func_, operator_> >
+{
+
+public:
+	inline function_binary (double & a, func_ const & r): a_(a), r_(r) {
+	}
+
+public:
+	inline double operator() (double const x, double const y) const {
+		double const null_elem(operator_::null_elem());	  
+		return operator_::eval(a_, r_(x,y), null_elem);
+	}
+
+private:
+	double & a_;
+	func_ const & r_;
+
+};
+
+
+/*! @brief Product between a function and a constant value */
+template <int d_, typename func_>
+inline function_binary<d_, function<d_, func_>, double, gas::mul>
+operator* (function<d_, func_> const & l, double & b)
+{
+	return function_binary<d_, function<d_, func_>, double, gas::mul>(l, b);
+}
+
+/*! @brief Product between a constant value and a function*/
+template <int d_, typename func_>
+inline function_binary<d_, double, function<d_, func_>, gas::mul>
+operator* (double & a, function<d_, func_> const & r)
+{
+	return function_binary<d_, double, function<d_, func_>, gas::mul>(a, r);
+}
+
+/*! @brief Ratio between a function and a constant value*/
+template <int d_, typename func_>
+inline function_binary<d_, function<d_, func_>, double, gas::div>
+operator/ (function<d_, func_> const & l, double & b)
+{
+	return function_binary<d_, function<d_, func_>, double, gas::div>(l, b);
+}
+
+/*! @brief Ratio between a constant value and a function*/
+template <int d_, typename func_>
+inline function_binary<d_, double, function<d_, func_>, gas::div>
+operator/ (double & a, function<d_, func_> const & r)
+{
+	return function_binary<d_, double, function<d_, func_>, gas::div>(a, r);
+}
+
+// template <int d_, typename left_, typename right_>
+// inline function_binary<d_, function<d_, left_>, function<d_, right_>, gas::mul>
+// multiply (function<d_, left_> const & l, function<d_, right_> const & r)
+// {
+// 	return function_binary<d_, function<d_, left_>, function<d_, right_>, gas::mul>(l, r);
+// }
+
+// template <int d_, typename left_, typename center_, typename right_>
+// inline function_ternary<d_, function<d_, left_>, function<d_, center_>, function<d_, right_>, gas::mul>
+// multiply (function<d_, left_> const & l, function<d_, center_> const & c, function<d_, right_> const & r)
+// {
+// 	return function_ternary<d_, function<d_, left_>, function<d_, center_>, function<d_, right_>, gas::mul>(l, c, r);
+// }
 
 } }
 

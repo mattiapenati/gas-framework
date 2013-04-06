@@ -1,0 +1,41 @@
+================================================================================
+     GAS Framework for image segmentation - Politecnico di Milano - 2013
+================================================================================
+
+Starting from the original version of the GAS Framework, we implemented a 
+level-set based adaptive finite element algorithm for the segmentation of 
+greyscale images.
+The core of the project can be found in directory "examples/image_segmentation" 
+while the remaining parts of the library were interested only by minor changes.
+
+Basic requirements for compiling and running the code:
+- CGAL: Computational Geometry Algorithms Library (Management of the geometry)
+  > http://www.cgal.org/
+- Eigen2: Library for linear algebra (Original GAS Framework library was based on 
+	  Eigen2 and we experienced some compatibility problems with Eigen3 so 
+	  we just kept using Eigen2)
+  > http://eigen.tuxfamily.org/index.php?title=Main_Page
+- CImg: Library for image processing (We used the basic structure for the 
+	management of the images)
+  > http://cimg.sourceforge.net/
+- libconfig: Library for configuration file 
+  > http://www.hyperrealm.com/libconfig/
+- Doxygen: For generating the documentation
+  > http://www.doxygen.org
+  
+CImg library can be used by including the header file in the project, so 
+we provide a copy of the headers of the library in the root directory "gas".
+
+We created a directory named "build" in the root of the project and we 
+suggest to perform out-of-source build by running the command
+ > ccmake ..
+from inside this directory to keep compilation files separated from sources.
+
+Moreover in the build directory there are three more directories:
+- img: contains the images;
+- test: contains test data files;
+- result: where the results are saved.
+
+Eventually there are two scripts:
+- run.sh: runs the program passing the name of the test file;
+- clean.sh: removes all compilation and temporary files.

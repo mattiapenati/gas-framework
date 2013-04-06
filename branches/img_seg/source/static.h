@@ -50,6 +50,12 @@ public:
  * @brief The sum operation
  */
 class add {
+  
+public:
+  inline static double null_elem()
+  {
+      return 0.0;
+  }
 
 public:
 	/*!
@@ -58,8 +64,8 @@ public:
 	 * @param b The second number
 	 * @return The sum of two numbers
 	 */
-	inline static double eval (double const & a, double const & b) {
-		return a + b;
+	inline static double eval (double const & a, double const & b, double const & c) {
+		return a + b + c;
 	}
 
 };
@@ -68,6 +74,12 @@ public:
  * @brief The subtraction operation
  */
 class sub {
+  
+public:
+  inline static double null_elem()
+  {
+      return 0.0;
+  }  
 
 public:
 	/*!
@@ -76,8 +88,8 @@ public:
 	 * @param b The second number
 	 * @return The difference of two numbers
 	 */
-	inline static double eval (double const & a, double const & b) {
-		return a - b;
+	inline static double eval (double const & a, double const & b, double const & c) {
+		return a - b - c;
 	}
 
 };
@@ -86,6 +98,12 @@ public:
  * @brief The multiplication operation
  */
 class mul {
+  
+public:
+  inline static double null_elem()
+  {
+      return 1.0;
+  }  
 
 public:
 	/*!
@@ -94,11 +112,12 @@ public:
 	 * @param b The second number
 	 * @return The product of two numbers
 	 */
-	inline static double eval (double const & a, double const & b) {
-		return a * b;
+	inline static double eval (double const & a, double const & b, double const & c) {
+		return a * b * c;
 	}
 
 };
+
 
 /*!
  * @brief The division operation
@@ -106,17 +125,26 @@ public:
 class div {
 
 public:
+  inline static double null_elem()
+  {
+      return 1.0;
+  }  
+  
+public:
 	/*!
 	 * @brief Evaluate the quotient of two numbers
 	 * @param a The first number
 	 * @param b The second number
 	 * @return The quotient of two numbers
 	 */
-	inline static double eval (double const & a, double const & b) {
-		return a / b;
+	inline static double eval (double const & a, double const & b, double const & c) {
+		return a / b / c;
 	}
 
 };
+
+
+
 
 }
 

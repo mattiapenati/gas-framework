@@ -95,7 +95,8 @@ public:
 	inline double integrate (function_ const & f) {
 		return m_method.apply(f);
 	}
-
+	
+	
 private:
 	/*! @brief The instance of method */
 	method_ m_method;
