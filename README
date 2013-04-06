@@ -39,3 +39,8 @@ Moreover in the build directory there are three more directories:
 Eventually there are two scripts:
 - run.sh: runs the program passing the name of the test file;
 - clean.sh: removes all compilation and temporary files.
+
+
+================================================================================
+
+Known bug: Sometimes Red-Green-Blue refinement strategy just crashes...
